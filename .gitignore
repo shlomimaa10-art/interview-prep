@@ -4,5 +4,8 @@
 # Temp deploy folder
 /tmp/swa-clean
 
+# Build artifacts
+*.zip
+
 # Node
 node_modules/

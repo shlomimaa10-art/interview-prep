@@ -1,6 +1,6 @@
 ---
 name: ui-designer
-description: UI/UX specialist for InterviewApp. Use when making visual, layout, or CSS changes to index.html — restyling components, updating tab structure, improving accessibility, tweaking colors/fonts/spacing, adjusting the chat window, input area, buttons, or any other visual element. Input: a description of the desired visual change.
+description: "UI/UX specialist for InterviewApp. Use when making visual, layout, or CSS changes to index.html — restyling components, updating tab structure, improving accessibility, tweaking colors/fonts/spacing, adjusting the chat window, input area, buttons, or any other visual element. Input: a description of the desired visual change."
 tools: Read, Edit, Bash, Grep
 model: inherit
 ---

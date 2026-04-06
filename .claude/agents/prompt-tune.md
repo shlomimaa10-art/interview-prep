@@ -1,6 +1,6 @@
 ---
 name: prompt-tune
-description: Diagnoses behavioral issues in the InterviewApp interviewer and proposes minimal targeted fixes to buildSystemPrompt(). Use when the AI interviewer misbehaves — giving hints too freely, ignoring phases, too verbose, wrong tone, broken special commands, etc. Input: a natural-language complaint about interviewer behavior.
+description: "Diagnoses behavioral issues in the InterviewApp interviewer and proposes minimal targeted fixes to buildSystemPrompt(). Use when the AI interviewer misbehaves — giving hints too freely, ignoring phases, too verbose, wrong tone, broken special commands, etc. Input: a natural-language complaint about interviewer behavior."
 tools: Bash, Grep, Read, Edit
 model: inherit
 ---
