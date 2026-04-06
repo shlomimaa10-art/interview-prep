@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Temp deploy folder
+/tmp/swa-clean
+
+# Node
+node_modules/
