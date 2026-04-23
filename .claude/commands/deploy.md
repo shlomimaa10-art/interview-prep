@@ -24,4 +24,12 @@ swa deploy /tmp/swa-clean \
   --swa-config-location "/tmp/swa-clean"
 ```
 
-Report the live URL when done: https://zealous-pond-0e6b2f103.2.azurestaticapps.net
+3. Run the docs agent:
+After a successful deploy, invoke the **@docs-update** agent with:
+> "trigger: deploy"
+
+Let it audit and patch the docs, then report its summary to the user.
+
+4. Report to the user:
+- Live URL: https://zealous-pond-0e6b2f103.2.azurestaticapps.net
+- Docs update summary (from @docs-update)

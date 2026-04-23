@@ -3,7 +3,7 @@
 ## File Structure
 ```
 InterviewApp/
-├── index.html          # Single-file app (~963 lines: HTML + CSS + JS)
+├── index.html          # Single-file app (~1470 lines: HTML + CSS + JS)
 ├── CLAUDE.md
 ├── CODEBASE_ANALYSIS.md
 └── function/           # Azure Function proxy (unused by app, kept for future)
@@ -19,9 +19,15 @@ InterviewApp/
 ## index.html
 
 ### Tabs
-Three tabs: **💡 How it works** (default) · **📋 Setup** · **💬 Interview** (disabled until session starts)
+Three tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts)
+
+- No emojis in tab labels.
+- Status dot is hidden until the interview session starts.
+- "Built by Shlomi Maalumi" removed from header (appears only in Help/About).
 
 ### Setup panel
+The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
+
 | Field | Options / Default |
 |---|---|
 | Candidate Level | Junior / **Mid-level** / Senior |
@@ -32,6 +38,20 @@ Three tabs: **💡 How it works** (default) · **📋 Setup** · **💬 Intervie
 | Model | **claude-sonnet-4.6** (custom default); provider-specific lists |
 | Custom URL | `http://localhost:4141` (shown for custom only) |
 | API Key | Stored in `sessionStorage` (shown for anthropic/openai only) |
+
+### UI / Layout
+
+**Interview layout:** `max-width: 1100px` with `32px` side padding (previously `820px`).
+
+**Chat bubbles:**
+- Interviewer bubbles have a blue left-border accent, brighter background, `font-size: 15px`, `max-width: 84%`, and a subtle `box-shadow`.
+- The typing indicator is styled to match interviewer bubbles.
+
+**Action buttons:**
+- **Feedback** — primary/prominent style: blue-tinted background, accent border, bold text.
+- **Full Answer** — ghost/muted style: `opacity: 0.65`, no accent.
+
+---
 
 ### JS — key functions
 
@@ -59,7 +79,15 @@ Validates input, builds system prompt, enables Interview tab, calls `init()`.
 Sends `"Start."` to AI; displays first interviewer message.
 
 **`send()` / `quickSend(text)`**
-Appends user message to `history[]`, calls `callAI(history)`, renders reply.
+Appends user message to `history[]`. Always calls `serializeWb()` — if the whiteboard has content, silently enriches the last user message with a `[WHITEBOARD CONTEXT]` block before passing to `callAI`. The `history[]` array and chat UI remain clean (no whiteboard text injected into visible bubbles).
+
+**`serializeWb()`**
+Reads `wb.nodes` and `wb.edges` synchronously. Returns a structured `[WHITEBOARD CONTEXT]` string block (or `null` if canvas is empty) containing:
+- **Components** list (shape labels, normalized via `LABEL_NORMS` map)
+- **Connections** with optional arrow labels (`A → B`, `A →[label]→ B`)
+- **Inferred / unclear** entries for arrows with missing endpoints
+- **Gaps & ambiguities** auto-detected (unconnected nodes, missing storage layer, missing client entry-point, no connections drawn)
+- A trailing note instructing the AI to interpret intent and probe gaps
 
 **`editMsg(wrap, msgEl, histIdx)`**
 Inline message editing: replaces bubble with textarea, on save truncates `history` at that index and re-sends.
@@ -73,7 +101,38 @@ let SYSTEM = '';          // system prompt for current session
 let history = [];         // [{role, content}, ...]
 let selectedStyle = 'Balanced';
 let selectedLevel = 'mid-level';
+
+// Canvas whiteboard engine state
+const wb = {
+  nodes: [],     // {id, type, x, y, w, h, label}
+  edges: [],     // {id, from, to, label}
+  history: [],   // undo stack (JSON snapshots, max 30)
+  mode: 'select' | 'add' | 'arrow',
+  addType: null, // shape type when mode==='add'
+  sel: null,     // selected node id
+  drag: null,    // {id, ox, oy}
+  arrowStart: null, // source node id during arrow draw
+  nextId: 1,
+  editTarget: null, // {kind:'node'|'edge', id} — for inline label editing
+};
 ```
+
+### Whiteboard shape types & toolbar
+| Shape | Key | Size (w×h) |
+|---|---|---|
+| Service | `service` | 120×60 |
+| Database | `database` | 100×70 |
+| Queue | `queue` | 110×55 |
+| Client | `client` | 70×70 |
+| Cache | `cache` | 120×60 |
+
+Toolbar actions: **Select**, **Arrow** (draw directed edge), shape buttons, **Undo**, **Clear**.  
+Double-click a node or edge mid-point to inline-edit its label.
+
+### Whiteboard ↔ AI integration
+- **Always-on, no toggle.** `send()` calls `serializeWb()` on every message.
+- If canvas is non-empty, the last user message sent to the AI is enriched with the `[WHITEBOARD CONTEXT]` block; the `history[]` array and the visible chat bubble remain unmodified.
+- System prompt instructs the AI to treat the whiteboard as a natural part of the interview workspace and to probe gaps and missing connections.
 
 ### Models (as of code)
 ```js

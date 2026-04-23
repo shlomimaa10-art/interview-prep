@@ -53,6 +53,18 @@ InterviewApp/
 
 ---
 
+## Whiteboard
+
+A fully self-contained canvas-based whiteboard (no iframe, no external deps) floats over the Interview panel.
+
+**Shapes:** Service · Database · Queue · Client · Cache  
+**Interactions:** add shape, draw directed arrows, drag/move nodes, double-click to edit labels, Undo (up to 30 steps), Clear.
+
+**AI integration — always-on:**  
+`serializeWb()` is called on every `send()`. If the canvas has content, the `[WHITEBOARD CONTEXT]` block (components, connections, inferred gaps) is silently appended to the outgoing user message before calling the AI. The visible chat bubble and `history[]` array are never modified. No toggle — the AI always sees the current sketch when anything is drawn.
+
+---
+
 ## Azure Resources
 | Resource | Name |
 |---|---|

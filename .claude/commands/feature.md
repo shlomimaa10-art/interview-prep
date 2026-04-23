@@ -17,5 +17,13 @@ Make the change to ~/Desktop/InterviewApp/index.html (and any other relevant fil
 ## 4. Deploy
 When the implementation is done, run /deploy automatically to push it live.
 
-## 5. Confirm
-Tell the user what changed and that it's live at https://zealous-pond-0e6b2f103.2.azurestaticapps.net
+## 5. Update docs
+After deploy completes, invoke the **@docs-update** agent with:
+> "trigger: feature — <one-line description of what changed>"
+
+Let it audit and patch the docs silently. Include its summary in the final confirmation.
+
+## 6. Confirm
+Tell the user:
+- What changed and that it's live at https://zealous-pond-0e6b2f103.2.azurestaticapps.net
+- Docs update summary (from @docs-update, or "Docs are up to date — no changes needed")

@@ -58,11 +58,18 @@ Non-critical failures (format, style drift, soft behavioral variation) → log t
 ## 5. Deploy
 Run /deploy to push index.html to production.
 
-## 6. Confirm
+## 6. Update docs
+After deploy completes, invoke the **@docs-update** agent with:
+> "trigger: feature — <one-line description of what changed>"
+
+Let it audit and patch the docs silently. Capture its summary for the final report.
+
+## 7. Confirm
 Tell the user:
 - What feature was implemented
 - Which path was used: @ui-designer / @prompt-tune / inline
 - Test result: critical X/Y passed, non-critical X/Y passed
 - Any fixes that were applied (or "none")
 - Any non-critical warnings to be aware of
+- Docs update summary (from @docs-update, or "Docs up to date — no changes needed")
 - Live at https://zealous-pond-0e6b2f103.2.azurestaticapps.net

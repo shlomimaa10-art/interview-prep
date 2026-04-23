@@ -140,23 +140,25 @@
 
   /* Interview */
   #panel-interview{flex-direction:column;flex:1;min-height:0}
-  .question-bar{background:var(--surface);border-bottom:0.5px solid var(--border);padding:12px 24px;display:flex;align-items:flex-start;gap:10px}
-  .q-label{font-family:var(--font-mono);font-size:10px;font-weight:500;color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:1px}
-  .q-text{color:#c0c6dc;font-size:13px;line-height:1.5}
-  main{flex:1;display:flex;flex-direction:column;max-width:820px;width:100%;margin:0 auto;padding:24px 24px 0;min-height:0}
-  #chat{flex:1;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-bottom:16px;min-height:0}
-  .msg-wrap{display:flex;flex-direction:column;gap:4px}
+  .question-bar{background:var(--surface);border-bottom:0.5px solid var(--border);padding:16px 24px;display:flex;align-items:flex-start;gap:12px}
+  .q-label{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:3px 9px;border-radius:4px;flex-shrink:0;margin-top:2px;letter-spacing:.06em}
+  .q-text{color:var(--text);font-size:14px;line-height:1.6;font-weight:500}
+  main{flex:1;display:flex;flex-direction:column;max-width:1100px;width:100%;margin:0 auto;padding:24px 32px 0;min-height:0}
+  #chat{flex:1;display:flex;flex-direction:column;gap:20px;overflow-y:auto;padding-bottom:16px;min-height:0}
+  .msg-wrap{display:flex;flex-direction:column;gap:5px}
   .msg-wrap.interviewer{align-items:flex-start}
   .msg-wrap.user{align-items:flex-end}
-  .msg-label{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.05em;padding:0 4px}
-  .msg{max-width:78%;padding:12px 16px;font-size:14px;line-height:1.65;border-radius:12px}
-  .interviewer .msg{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-top-left-radius:4px}
-  .user .msg{background:var(--accent-bg);border:0.5px solid var(--accent-border);color:#a8c0ff;border-top-right-radius:4px}
-  .typing-indicator{display:flex;align-items:center;gap:10px;padding:6px 4px;color:var(--text-faint);font-size:12px;font-family:var(--font-mono)}
-  .dots{display:flex;gap:4px}
-  .dot{width:5px;height:5px;border-radius:50%;background:var(--text-faint);animation:blink 1.2s infinite}
-  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
-  @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+  .msg-label{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.07em;padding:0 6px}
+  .msg{max-width:84%;padding:14px 18px;font-size:15px;line-height:1.7;border-radius:14px}
+  .interviewer .msg{background:#1e2235;border:0.5px solid rgba(255,255,255,0.11);color:var(--text);border-top-left-radius:4px;border-left:2.5px solid rgba(79,124,255,0.45);box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+  .user .msg{background:rgba(79,124,255,0.14);border:0.5px solid var(--accent-border);color:#c4d4ff;border-top-right-radius:4px}
+  .typing-indicator{display:flex;align-items:flex-start;flex-direction:column;gap:5px;padding:0;max-width:84%}
+  .typing-bubble{background:#1e2235;border:0.5px solid rgba(255,255,255,0.11);border-left:2.5px solid rgba(79,124,255,0.45);border-radius:14px;border-top-left-radius:4px;padding:14px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+  .typing-label{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.07em;padding:0 6px}
+  .dots{display:flex;gap:5px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:blink 1.4s infinite}
+  .dot:nth-child(2){animation-delay:.22s}.dot:nth-child(3){animation-delay:.44s}
+  @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:0.9}}
   .input-section{position:sticky;bottom:0;background:var(--bg);padding:16px 0 24px;border-top:0.5px solid var(--border);margin-top:8px}
   .input-row{display:flex;gap:10px;align-items:flex-end}
   #user-input{flex:1;min-height:52px;max-height:400px;resize:vertical;background:var(--surface);border:0.5px solid var(--border2);border-radius:10px;padding:14px 16px;font-size:14px;color:var(--text);font-family:var(--font-ui);line-height:1.5;outline:none;transition:border-color .15s}
@@ -173,6 +175,32 @@
   .action-btn{padding:5px 13px;background:var(--surface);border:0.5px solid var(--border2);border-radius:6px;color:var(--text-muted);font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
   .action-btn:hover{background:var(--accent-bg);border-color:var(--accent-border);color:#a8c0ff}
   .action-btn:active{transform:scale(.96)}
+  .action-btn.primary{background:rgba(79,124,255,0.18);border-color:var(--accent-border);color:#a8c0ff;font-weight:600}
+  .action-btn.primary:hover{background:rgba(79,124,255,0.3);border-color:#6a8fff;color:#c4d4ff}
+  /* Whiteboard floating panel */
+  #whiteboard-panel{position:fixed;top:80px;right:20px;width:min(920px,calc(100vw - 40px));height:600px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;z-index:900;box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(79,124,255,0.18);overflow:hidden;min-width:480px;min-height:340px;resize:both;opacity:0;pointer-events:none;visibility:hidden;transform:scale(0.95) translateY(-10px);transition:opacity .18s ease,transform .18s ease,visibility .18s}
+  #whiteboard-panel.wb-open{opacity:1;pointer-events:auto;visibility:visible;transform:scale(1) translateY(0)}
+  #whiteboard-panel::after{content:'';position:absolute;bottom:6px;right:6px;width:10px;height:10px;background:radial-gradient(circle,var(--border2) 1.5px,transparent 1.5px);background-size:4px 4px;pointer-events:none;opacity:0.55;z-index:1}
+  #wb-header{padding:9px 16px;background:var(--surface2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;cursor:grab;user-select:none;border-radius:14px 14px 0 0;flex-shrink:0}
+  #wb-header:active{cursor:grabbing}
+  #wb-header .wb-title{font-size:11px;font-weight:600;color:var(--text);font-family:var(--font-mono);letter-spacing:.04em;flex-shrink:0}
+  #wb-header .wb-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono)}
+  #wb-close{margin-left:auto;background:none;border:none;color:var(--text-faint);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s;flex-shrink:0}
+  #wb-close:hover{color:#ff6b6b}
+  /* Canvas whiteboard */
+  #wb-canvas-wrap{flex:1;position:relative;overflow:hidden;background:#161820;cursor:crosshair}
+  #wb-canvas{display:block;touch-action:none}
+  #wb-toolbar{display:flex;align-items:center;gap:5px;padding:7px 12px;background:var(--surface2);border-bottom:0.5px solid var(--border);flex-wrap:wrap;flex-shrink:0}
+  .wbt-btn{padding:4px 10px;background:var(--surface);border:0.5px solid var(--border2);border-radius:5px;color:var(--text-muted);font-family:var(--font-ui);font-size:11px;font-weight:500;cursor:pointer;transition:background .15s,color .15s,border-color .15s;white-space:nowrap}
+  .wbt-btn:hover,.wbt-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:#a8c0ff}
+  .wbt-sep{width:0.5px;height:16px;background:var(--border2);margin:0 2px;flex-shrink:0}
+  #wb-label-input{position:absolute;display:none;background:var(--surface2);border:0.5px solid var(--accent-border);border-radius:5px;color:var(--text);font-family:var(--font-ui);font-size:13px;padding:3px 8px;outline:none;z-index:10;min-width:80px}
+  /* Grouped whiteboard controls */
+  .wb-btn-group{display:flex;border:0.5px solid var(--border2);border-radius:6px;overflow:hidden}
+  .wb-toggle-btn{padding:5px 13px;background:var(--surface);color:var(--text-muted);font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+  .wb-toggle-btn:hover{background:var(--accent-bg);color:#a8c0ff}
+  .wb-toggle-btn.wb-open{background:var(--accent-bg);color:#a8c0ff}
+
   /* Edit message */
   .msg-wrap.user{position:relative}
   .edit-btn{position:absolute;right:0;top:0;background:none;border:none;color:var(--text-faint);font-size:12px;cursor:pointer;padding:2px 5px;border-radius:5px;opacity:0;transition:opacity .15s,color .15s;line-height:1}
@@ -192,16 +220,16 @@
   <div class="logo">IP</div>
   <div class="header-title">Interview Prep</div>
   <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
-    <div class="status-dot"></div>
-    <div class="header-sub" id="header-sub">Configure your session</div>
-    <div class="header-sub" style="border-left:0.5px solid var(--border2);padding-left:12px;margin-left:4px;display:flex;align-items:center;gap:8px">Built by <a href="mailto:shlomimaa10@gmail.com" style="color:var(--accent);text-decoration:none;">Shlomi Maalumi</a><a href="https://www.linkedin.com/in/shlomi-maalumi-060801277/" target="_blank" rel="noopener" title="LinkedIn" style="color:var(--text-muted);text-decoration:none;font-size:14px;display:flex;align-items:center;transition:color .15s" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='var(--text-muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div>
+    <div class="status-dot" id="status-dot" style="display:none"></div>
+    <div class="header-sub" id="header-sub"></div>
+    <div class="header-sub" style="border-left:0.5px solid var(--border2);padding-left:12px;margin-left:4px;display:flex;align-items:center;gap:8px"><a href="https://www.linkedin.com/in/shlomi-maalumi-060801277/" target="_blank" rel="noopener" title="LinkedIn — Shlomi Maalumi" style="color:var(--text-muted);text-decoration:none;font-size:14px;display:flex;align-items:center;transition:color .15s" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='var(--text-muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div>
   </div>
 </header>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" id="tab-help" onclick="switchTab('help')">💡 How it works</button>
-  <button class="tab-btn" id="tab-setup" onclick="switchTab('setup')">📋 Setup</button>
-  <button class="tab-btn" id="tab-interview" onclick="switchTab('interview')" disabled>💬 Interview</button>
+  <button class="tab-btn active" id="tab-help" onclick="switchTab('help')">How it works</button>
+  <button class="tab-btn" id="tab-setup" onclick="switchTab('setup')">Setup</button>
+  <button class="tab-btn" id="tab-interview" onclick="switchTab('interview')" disabled>Interview</button>
 </nav>
 
 <!-- ═══ HELP ═══ -->
@@ -236,9 +264,9 @@
         <div class="help-card-desc">Set your level (junior → senior), pick a style (strict / balanced / friendly), and choose your focus areas. The interviewer adapts.</div>
       </div>
       <div class="help-card">
-        <div class="help-card-icon">🤖</div>
-        <div class="help-card-title">Any AI model</div>
-        <div class="help-card-desc">Claude or GPT — via cloud or a local model on localhost. You pick the engine.</div>
+        <div class="help-card-icon">✏️</div>
+        <div class="help-card-title">Live whiteboard</div>
+        <div class="help-card-desc">Draw system diagrams mid-interview on the built-in canvas using the toolbar (Select, Arrow, Service, Database, Queue, Client, Cache, Undo, Clear). Your sketch is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
       </div>
     </div>
 
@@ -258,6 +286,10 @@
       </div>
       <div class="help-step">
         <div class="help-step-num">4</div>
+        <div class="help-step-text"><strong>Sketch on the whiteboard</strong> — click <em>✏️ Whiteboard</em> to open the canvas. Use the toolbar to place Services, Databases, Queues, Clients, and Caches, connect them with Arrows, and draw your architecture as you explain it. When the whiteboard has content it is automatically included with every message — the AI reads your diagram in real time.</div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">5</div>
         <div class="help-step-text"><strong>Get feedback</strong> — type <em>"feedback"</em> at any point for a structured, honest evaluation of your answer.</div>
       </div>
     </div>
@@ -268,6 +300,7 @@
       <div class="help-cmd"><span class="cmd-key">"give full answer"</span><span class="cmd-desc">Ask the AI to reveal the model solution</span></div>
       <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
       <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
+      <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Open the canvas — draw your architecture using the shape toolbar (Select, Arrow, Service, Database, Queue, Client, Cache), Undo, and Clear</span></div>
     </div>
 
     <div class="help-cmds" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px 24px">
@@ -294,7 +327,6 @@
   <div class="setup-form">
 
     <div class="setup-hero">
-      <h1>Interview Prep</h1>
       <p>Paste a question or generate one, configure the interviewer, and start.</p>
     </div>
 
@@ -375,6 +407,32 @@
   </div>
 </div>
 
+<!-- ═══ FLOATING WHITEBOARD ═══ -->
+<div id="whiteboard-panel">
+  <div id="wb-header">
+    <span class="wb-title">✏️ WHITEBOARD</span>
+    <span class="wb-sub">— drag to reposition</span>
+    <button id="wb-close" onclick="toggleWhiteboard()" title="Close">×</button>
+  </div>
+  <div id="wb-toolbar">
+    <button class="wbt-btn active" id="wbt-select" onclick="wbSetMode('select')">↖ Select</button>
+    <button class="wbt-btn" id="wbt-arrow" onclick="wbSetMode('arrow')">→ Arrow</button>
+    <div class="wbt-sep"></div>
+    <button class="wbt-btn" id="wbt-service"  onclick="wbSetMode('add','service')">▭ Service</button>
+    <button class="wbt-btn" id="wbt-database" onclick="wbSetMode('add','database')">🗄 Database</button>
+    <button class="wbt-btn" id="wbt-queue"    onclick="wbSetMode('add','queue')">⬡ Queue</button>
+    <button class="wbt-btn" id="wbt-client"   onclick="wbSetMode('add','client')">◯ Client</button>
+    <button class="wbt-btn" id="wbt-cache"    onclick="wbSetMode('add','cache')">⬚ Cache</button>
+    <div class="wbt-sep"></div>
+    <button class="wbt-btn" onclick="wbUndo()">↩ Undo</button>
+    <button class="wbt-btn" onclick="wbClear()">🗑 Clear</button>
+  </div>
+  <div id="wb-canvas-wrap">
+    <canvas id="wb-canvas"></canvas>
+    <input id="wb-label-input" type="text" placeholder="Label…">
+  </div>
+</div>
+
 <!-- ═══ INTERVIEW ═══ -->
 <div id="panel-interview" class="tab-panel">
   <div class="question-bar">
@@ -389,9 +447,13 @@
         <button id="send-btn" onclick="send()">Send →</button>
       </div>
       <div class="action-btns">
-        <button class="action-btn" onclick="quickSend('feedback')">📊 Feedback</button>
-        <button class="action-btn" onclick="quickSend('give full answer')">💡 Full Answer</button>
+        <button class="action-btn primary" onclick="quickSend('feedback')">📊 Feedback</button>
+        <button class="action-btn" style="opacity:0.65" onclick="quickSend('give full answer')">💡 Full Answer</button>
         <button class="action-btn" onclick="quickSend('hint')">🪄 Hint</button>
+        <button class="action-btn" id="starter-btn" onclick="fillStarterSentence()">🗣️ How to Start</button>
+        <div class="wb-btn-group">
+          <button class="wb-toggle-btn" id="wb-toggle-btn" onclick="toggleWhiteboard()" title="Open/close whiteboard">✏️ Whiteboard</button>
+        </div>
         <span class="tip" style="margin-left:auto"><span>Shift+Enter</span> → new line</span>
       </div>
     </div>
@@ -617,6 +679,7 @@ If the candidate jumps straight into a solution without asking any clarifying qu
 
 PHASE 2 · High-level design (next 10-15 min)
 Once scope is agreed, push the candidate to sketch the major components: APIs, web servers, databases, caches, queues, CDN. Treat it as a collaborative exercise — ask for their reasoning, introduce a constraint or trade-off for them to react to. Keep it high-level; redirect if they deep-dive one component before the blueprint is complete.
+The candidate has a live whiteboard available. It is natural and expected to ask them to sketch on it — e.g. "Can you draw the high-level components on your whiteboard?" or "Sketch the request flow — what does it look like?" Treat their whiteboard as part of the interview workspace.
 
 PHASE 3 · Deep dive (next 10-25 min)
 Probe at the depth appropriate for the candidate level (see above). Ask about bottlenecks, specific component choices, and why. If they haven't raised a hard problem (hot partitions, replication lag, cache invalidation, etc.), surface it yourself.
@@ -635,6 +698,17 @@ INTERVIEWER RULES:
 - Do NOT let them deep-dive one component before the high-level picture is clear.
 - Do NOT restate what the candidate just said before asking your next question.
 - Do NOT bullet-point your responses — speak conversationally.
+- The candidate has a whiteboard. In Phase 2 and Phase 3, occasionally ask them to use it — e.g. "Can you sketch the data flow on your whiteboard?", "Draw the components and how they connect.", "Show me on the whiteboard where the bottleneck would be." Treat it as a natural part of the session, not a special feature.
+
+---
+
+WHITEBOARD CONTEXT (when provided):
+When you receive a [WHITEBOARD CONTEXT] block appended to the candidate's message, treat it as a rough sketch — not a finished diagram. The diagram may be incomplete, have missing connections, vague labels, or partial flows. Use it to:
+- Ask targeted clarifying questions about gaps or missing connections ("I don't see a path from X to Y — how do those connect?")
+- Challenge unclear relationships ("This cache appears disconnected — how is it actually used?")
+- Probe components that seem isolated or unexplained
+- Surface missing failure modes, replication strategies, or scale concerns visible from the sketch
+Do NOT assume the diagram is correct or complete. Treat it like a messy whiteboard in a real interview — interpret intent, identify gaps, and dig in.
 
 ---
 
@@ -737,6 +811,7 @@ async function startInterview() {
     selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1) + ' · ' + selectedStyle;
 
   document.getElementById('tab-interview').disabled = false;
+  document.getElementById('status-dot').style.display = 'block';
   switchTab('interview');
   history = [];
   document.getElementById('chat').innerHTML = '';
@@ -792,7 +867,7 @@ function showTyping() {
   const t = document.createElement('div');
   t.className = 'typing-indicator';
   t.id = 'typing';
-  t.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>interviewer is thinking</span>';
+  t.innerHTML = '<div class="typing-label">INTERVIEWER</div><div class="typing-bubble"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
   chat.appendChild(t);
   chat.scrollTop = chat.scrollHeight;
 }
@@ -824,6 +899,26 @@ function quickSend(text) {
   send();
 }
 
+async function fillStarterSentence() {
+  const starterBtn = document.getElementById('starter-btn');
+  starterBtn.disabled = true;
+  starterBtn.textContent = '⏳ thinking...';
+  try {
+    const systemOverride = `You are a helpful interview coach. Based on the interview conversation so far, generate exactly 1-2 short opening sentences the candidate could say to confidently begin their answer. Return ONLY the sentences — no explanation, no preamble, no quotes, no labels. Just the sentences themselves.`;
+    const payload = (history.length > 0 ? history.slice() : []).concat([
+      { role: 'user', content: 'Give me 1-2 opening sentences I can say right now to start my answer.' }
+    ]);
+    const reply = await callAI(payload, false, systemOverride);
+    const inputEl = document.getElementById('user-input');
+    inputEl.value = reply.trim();
+    inputEl.focus();
+  } catch(e) {
+    // silently fail — don't disrupt the interview
+  }
+  starterBtn.disabled = false;
+  starterBtn.textContent = '🗣️ How to Start';
+}
+
 async function send() {
   const text = input.value.trim();
   if (!text || btn.disabled) return;
@@ -833,7 +928,13 @@ async function send() {
   btn.disabled = true;
   showTyping();
   try {
-    const reply = await callAI(history);
+    let aiMessages = history.slice();
+    const wbCtx = serializeWb();
+    if (wbCtx) {
+      // Silently enrich AI payload — history/UI stay clean
+      aiMessages = history.slice(0, -1).concat([{ role: 'user', content: text + '\n\n' + wbCtx }]);
+    }
+    const reply = await callAI(aiMessages);
     removeTyping();
     history.push({ role: 'assistant', content: reply });
     addMsg('assistant', reply);
@@ -910,12 +1011,443 @@ function editMsg(wrap, msgEl, histIdx) {
   });
 }
 
+// ── Whiteboard share — always-on, no toggle needed ───
+
+// ── Canvas Whiteboard Engine ──────────────────────────
+const wb = {
+  nodes: [],    // {id, type, x, y, w, h, label}
+  edges: [],    // {id, from, to, label}
+  history: [],  // for undo (JSON snapshots)
+  mode: 'select',
+  addType: null,
+  sel: null,        // selected node id
+  drag: null,       // {id, ox, oy}
+  arrowStart: null, // node id waiting for arrow target
+  nextId: 1,
+  editTarget: null, // {kind:'node'|'edge', id}
+};
+
+const SHAPE_SIZES = { service:{ w:120,h:60 }, database:{ w:100,h:70 }, queue:{ w:110,h:55 }, client:{ w:70,h:70 }, cache:{ w:120,h:60 } };
+
+function wbSnapshot() {
+  wb.history.push(JSON.stringify({ nodes: wb.nodes, edges: wb.edges }));
+  if (wb.history.length > 30) wb.history.shift();
+}
+function wbUndo() {
+  if (!wb.history.length) return;
+  const s = JSON.parse(wb.history.pop());
+  wb.nodes = s.nodes; wb.edges = s.edges;
+  wb.sel = null; wb.arrowStart = null;
+  wbDraw();
+}
+function wbClear() {
+  wbSnapshot();
+  wb.nodes = []; wb.edges = []; wb.sel = null; wb.arrowStart = null;
+  wbDraw();
+}
+
+function wbSetMode(mode, type) {
+  wb.mode = mode;
+  wb.addType = type || null;
+  wb.arrowStart = null;
+  // update toolbar active states
+  document.querySelectorAll('.wbt-btn').forEach(b => b.classList.remove('active'));
+  const map = { select:'wbt-select', arrow:'wbt-arrow', add: 'wbt-'+type };
+  const el = document.getElementById(map[mode]);
+  if (el) el.classList.add('active');
+  const cvs = document.getElementById('wb-canvas');
+  if (cvs) cvs.style.cursor = mode === 'select' ? 'default' : 'crosshair';
+}
+
+function wbNodeAt(x, y) {
+  for (let i = wb.nodes.length - 1; i >= 0; i--) {
+    const n = wb.nodes[i];
+    if (x >= n.x && x <= n.x + n.w && y >= n.y && y <= n.y + n.h) return n;
+  }
+  return null;
+}
+
+function wbEdgeNear(x, y, thresh = 10) {
+  for (const e of wb.edges) {
+    const a = wb.nodes.find(n => n.id === e.from);
+    const b = wb.nodes.find(n => n.id === e.to);
+    if (!a || !b) continue;
+    const mx = (a.x + a.w/2 + b.x + b.w/2) / 2;
+    const my = (a.y + a.h/2 + b.y + b.h/2) / 2;
+    if (Math.hypot(x - mx, y - my) < thresh) return e;
+  }
+  return null;
+}
+
+// ── Drawing ──────────────────────────────────────────
+function wbDraw() {
+  const cvs = document.getElementById('wb-canvas');
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d');
+  const W = cvs.width, H = cvs.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw edges first
+  for (const e of wb.edges) {
+    const a = wb.nodes.find(n => n.id === e.from);
+    const b = wb.nodes.find(n => n.id === e.to);
+    if (!a || !b) continue;
+    const x1 = a.x + a.w/2, y1 = a.y + a.h/2;
+    const x2 = b.x + b.w/2, y2 = b.y + b.h/2;
+    ctx.strokeStyle = '#7a80a0';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    // arrowhead
+    const ang = Math.atan2(y2 - y1, x2 - x1);
+    const len = 10, spread = 0.4;
+    ctx.fillStyle = '#7a80a0';
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - len*Math.cos(ang - spread), y2 - len*Math.sin(ang - spread));
+    ctx.lineTo(x2 - len*Math.cos(ang + spread), y2 - len*Math.sin(ang + spread));
+    ctx.closePath(); ctx.fill();
+    // edge label
+    if (e.label) {
+      ctx.fillStyle = '#7a80a0';
+      ctx.font = '11px IBM Plex Sans, system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(e.label, (x1+x2)/2, (y1+y2)/2 - 10);
+    }
+  }
+
+  // Arrow-mode: preview line from arrowStart to cursor
+  if (wb.mode === 'arrow' && wb.arrowStart && wb._cursor) {
+    const a = wb.nodes.find(n => n.id === wb.arrowStart);
+    if (a) {
+      ctx.strokeStyle = '#4f7cff88';
+      ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(a.x+a.w/2, a.y+a.h/2);
+      ctx.lineTo(wb._cursor.x, wb._cursor.y); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // Draw nodes
+  for (const n of wb.nodes) {
+    const isSel = n.id === wb.sel;
+    const isArrowSrc = n.id === wb.arrowStart;
+    drawShape(ctx, n, isSel, isArrowSrc);
+  }
+}
+
+function drawShape(ctx, n, sel, arrowSrc) {
+  const { x, y, w, h, type, label } = n;
+  const accent = '#4f7cff', selColor = '#a8c0ff', srcColor = '#3ecf8e';
+  const borderColor = sel ? selColor : arrowSrc ? srcColor : accent;
+  const fillColor = sel ? 'rgba(79,124,255,0.18)' : 'rgba(26,29,39,0.9)';
+
+  ctx.fillStyle = fillColor;
+  ctx.strokeStyle = borderColor;
+  ctx.lineWidth = sel ? 2 : 1.5;
+
+  if (type === 'service') {
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.fill(); ctx.stroke();
+
+  } else if (type === 'database') {
+    const ry = h * 0.18;
+    ctx.beginPath();
+    ctx.moveTo(x, y + ry); ctx.lineTo(x, y + h - ry);
+    ctx.ellipse(x + w/2, y + h - ry, w/2, ry, 0, Math.PI, 0);
+    ctx.lineTo(x + w, y + ry);
+    ctx.ellipse(x + w/2, y + ry, w/2, ry, 0, 0, Math.PI);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(x + w/2, y + ry, w/2, ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+  } else if (type === 'queue') {
+    const pts = hexPoints(x + w/2, y + h/2, Math.min(w, h)/2 - 1);
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  } else if (type === 'client') {
+    const r = Math.min(w, h)/2 - 1;
+    ctx.beginPath(); ctx.arc(x + w/2, y + h/2, r, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+
+  } else if (type === 'cache') {
+    ctx.setLineDash([5, 3]);
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.fill(); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Label
+  ctx.fillStyle = sel ? selColor : '#c0c6dc';
+  ctx.font = `500 12px IBM Plex Sans, system-ui, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const lbl = label || type.charAt(0).toUpperCase() + type.slice(1);
+  ctx.fillText(lbl, x + w/2, y + h/2);
+}
+
+function hexPoints(cx, cy, r) {
+  return Array.from({length:6}, (_, i) => ({
+    x: cx + r * Math.cos(Math.PI/2 + i * Math.PI/3),
+    y: cy + r * Math.sin(Math.PI/2 + i * Math.PI/3),
+  }));
+}
+
+// ── Canvas interaction ────────────────────────────────
+(function() {
+  let cvs, ctx;
+
+  function init() {
+    cvs = document.getElementById('wb-canvas');
+    if (!cvs) return;
+    const wrap = document.getElementById('wb-canvas-wrap');
+    function resize() {
+      cvs.width = wrap.clientWidth;
+      cvs.height = wrap.clientHeight;
+      wbDraw();
+    }
+    new ResizeObserver(resize).observe(wrap);
+    resize();
+
+    cvs.addEventListener('mousedown', onDown);
+    cvs.addEventListener('mousemove', onMove);
+    cvs.addEventListener('mouseup', onUp);
+    cvs.addEventListener('dblclick', onDblClick);
+    cvs.addEventListener('click', onClick);
+    document.addEventListener('keydown', onKey);
+  }
+
+  function canvasXY(e) {
+    const r = cvs.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  function onClick(e) {
+    const { x, y } = canvasXY(e);
+    if (wb.mode === 'add' && wb.addType) {
+      wbSnapshot();
+      const sz = SHAPE_SIZES[wb.addType] || { w:120, h:60 };
+      wb.nodes.push({ id: wb.nextId++, type: wb.addType, x: x - sz.w/2, y: y - sz.h/2, w: sz.w, h: sz.h, label: '' });
+      wbSetMode('select');
+      wbDraw();
+    } else if (wb.mode === 'arrow') {
+      const n = wbNodeAt(x, y);
+      if (n) {
+        if (!wb.arrowStart) {
+          wb.arrowStart = n.id;
+        } else if (wb.arrowStart !== n.id) {
+          wbSnapshot();
+          wb.edges.push({ id: wb.nextId++, from: wb.arrowStart, to: n.id, label: '' });
+          wb.arrowStart = null;
+          wbSetMode('select');
+          wbDraw();
+        }
+      }
+    } else {
+      // select mode — click to select
+      const n = wbNodeAt(x, y);
+      wb.sel = n ? n.id : null;
+      wbDraw();
+    }
+  }
+
+  function onDown(e) {
+    if (wb.mode !== 'select') return;
+    const { x, y } = canvasXY(e);
+    const n = wbNodeAt(x, y);
+    if (n) {
+      wb.sel = n.id;
+      wb.drag = { id: n.id, ox: x - n.x, oy: y - n.y };
+      wbDraw();
+    }
+  }
+
+  function onMove(e) {
+    const { x, y } = canvasXY(e);
+    wb._cursor = { x, y };
+    if (wb.drag) {
+      const n = wb.nodes.find(n => n.id === wb.drag.id);
+      if (n) { n.x = x - wb.drag.ox; n.y = y - wb.drag.oy; }
+      wbDraw();
+    } else if (wb.mode === 'arrow' && wb.arrowStart) {
+      wbDraw();
+    }
+  }
+
+  function onUp() {
+    if (wb.drag) { wbSnapshot(); wb.drag = null; }
+  }
+
+  function onDblClick(e) {
+    const { x, y } = canvasXY(e);
+    const n = wbNodeAt(x, y);
+    const edge = !n ? wbEdgeNear(x, y) : null;
+    const target = n || edge;
+    if (!target) return;
+    wb.editTarget = { kind: n ? 'node' : 'edge', id: target.id };
+    const inp = document.getElementById('wb-label-input');
+    inp.value = target.label || '';
+    // Position input over target
+    const r = cvs.getBoundingClientRect();
+    const wrap = document.getElementById('wb-canvas-wrap');
+    const wr = wrap.getBoundingClientRect();
+    let lx, ly;
+    if (n) { lx = n.x + n.w/2 - 40; ly = n.y + n.h/2 - 14; }
+    else {
+      const a = wb.nodes.find(nd => nd.id === edge.from);
+      const b = wb.nodes.find(nd => nd.id === edge.to);
+      lx = (a.x+a.w/2 + b.x+b.w/2)/2 - 40 - (r.left - wr.left);
+      ly = (a.y+a.h/2 + b.y+b.h/2)/2 - 14 - (r.top - wr.top);
+    }
+    inp.style.left = lx + 'px'; inp.style.top = ly + 'px'; inp.style.display = 'block';
+    inp.focus(); inp.select();
+  }
+
+  // Label input commit
+  const inp = document.getElementById('wb-label-input');
+  if (inp) {
+    function commitLabel() {
+      if (!wb.editTarget) return;
+      wbSnapshot();
+      const { kind, id } = wb.editTarget;
+      const arr = kind === 'node' ? wb.nodes : wb.edges;
+      const item = arr.find(t => t.id === id);
+      if (item) item.label = inp.value.trim();
+      inp.style.display = 'none'; wb.editTarget = null;
+      wbDraw();
+    }
+    inp.addEventListener('blur', commitLabel);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } if (e.key === 'Escape') { inp.style.display='none'; wb.editTarget=null; } });
+  }
+
+  function onKey(e) {
+    if (document.activeElement === document.getElementById('wb-label-input')) return;
+    if (document.activeElement === document.getElementById('user-input')) return;
+    if ((e.key === 'Delete' || e.key === 'Backspace') && wb.sel) {
+      // only delete if whiteboard panel is open/focused
+      const panel = document.getElementById('whiteboard-panel');
+      if (!panel.classList.contains('wb-open')) return;
+      wbSnapshot();
+      wb.edges = wb.edges.filter(e2 => e2.from !== wb.sel && e2.to !== wb.sel);
+      wb.nodes = wb.nodes.filter(n => n.id !== wb.sel);
+      wb.sel = null; wbDraw();
+    }
+  }
+
+  // Expose init so drag IIFE can call it on first open
+  window.wbInitCanvas = function() { if (!wbInited) { wbInited = true; setTimeout(init, 50); } };
+  let wbInited = false;
+})();
+
+// ── serializeWb — synchronous whiteboard → AI context ─
+function serializeWb() {
+  if (!wb.nodes.length) return null;
+
+  const LABEL_NORMS = {
+    db:'Database', database:'Database', sql:'Database', postgres:'Database', mysql:'Database', mongo:'Database', mongodb:'Database',
+    cache:'Cache', redis:'Redis (cache)', memcache:'Memcached (cache)',
+    queue:'Queue', kafka:'Kafka (queue)', mq:'Message Queue', rabbitmq:'RabbitMQ (queue)',
+    lb:'Load Balancer', 'load balancer':'Load Balancer',
+    cdn:'CDN', gateway:'API Gateway', 'api gateway':'API Gateway', proxy:'Proxy',
+    svc:'Service', service:'Service',
+    client:'Client', browser:'Browser', mobile:'Mobile Client', user:'Client',
+    server:'Server', backend:'Backend', frontend:'Frontend',
+  };
+  function normalize(raw, type) {
+    if (!raw || raw.trim() === '') return type.charAt(0).toUpperCase() + type.slice(1);
+    const l = raw.trim().toLowerCase();
+    for (const [k, v] of Object.entries(LABEL_NORMS)) {
+      if (l === k || l.includes(k)) return v;
+    }
+    return raw.trim();
+  }
+
+  const compMap = {};
+  const components = [];
+  for (const n of wb.nodes) {
+    const lbl = normalize(n.label, n.type);
+    compMap[n.id] = lbl;
+    components.push(lbl);
+  }
+
+  const connections = [], inferred = [];
+  for (const e of wb.edges) {
+    const src = compMap[e.from], tgt = compMap[e.to];
+    if (src && tgt) {
+      connections.push(e.label ? `${src} →[${e.label}]→ ${tgt}` : `${src} → ${tgt}`);
+    } else {
+      inferred.push(`Arrow from ${src||'?'} to ${tgt||'?'} — endpoint missing`);
+    }
+  }
+
+  const connSet = new Set();
+  connections.forEach(c => { const m=c.match(/^(.+?) →/); if(m) connSet.add(m[1].trim()); const m2=c.match(/→ (.+)$/); if(m2) connSet.add(m2[1].trim()); });
+  const unconnected = components.filter(c => !connSet.has(c));
+  const labels = components.map(l => l.toLowerCase());
+  const gaps = [];
+  if (unconnected.length) gaps.push(`Unconnected: ${unconnected.join(', ')}`);
+  if (!labels.some(l => l.includes('database') || l.includes('storage') || l.includes('cache'))) gaps.push('No storage/cache layer visible');
+  if (connections.length === 0 && components.length > 1) gaps.push('No connections drawn — flow is inferred from layout only');
+  if (!labels.some(l => l.includes('client') || l.includes('browser') || l.includes('user') || l.includes('mobile'))) gaps.push('No client/entry-point visible');
+
+  const lines = ['[WHITEBOARD CONTEXT]', ''];
+  lines.push('Components:');
+  components.forEach(c => lines.push(`  • ${c}`));
+  lines.push('');
+  if (connections.length) { lines.push('Connections:'); connections.forEach(c => lines.push(`  • ${c}`)); lines.push(''); }
+  if (inferred.length) { lines.push('Inferred / unclear:'); inferred.forEach(i => lines.push(`  • ${i}`)); lines.push(''); }
+  if (gaps.length) { lines.push('Gaps & ambiguities:'); gaps.forEach(g => lines.push(`  • ${g}`)); lines.push(''); }
+  lines.push('Note: This is a work-in-progress sketch. Interpret intent, not just structure. Ask about missing connections and gaps.');
+  return lines.join('\n');
+}
+
 input.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
 document.getElementById('question-input').addEventListener('animationend', function () {
   this.classList.remove('shake');
 });
+
+// ── Whiteboard ────────────────────────────────────────
+(function() {
+  const panel = document.getElementById('whiteboard-panel');
+  const header = document.getElementById('wb-header');
+  let isOpen = false;
+  let dragActive = false, dragOffX = 0, dragOffY = 0;
+
+  // Drag by header
+  header.addEventListener('mousedown', e => {
+    if (e.target.closest('button')) return;
+    dragActive = true;
+    const r = panel.getBoundingClientRect();
+    dragOffX = e.clientX - r.left;
+    dragOffY = e.clientY - r.top;
+    document.addEventListener('mousemove', onDragMove);
+    document.addEventListener('mouseup', onDragUp);
+  });
+  function onDragMove(e) {
+    if (!dragActive) return;
+    let nx = e.clientX - dragOffX;
+    let ny = e.clientY - dragOffY;
+    nx = Math.max(0, Math.min(window.innerWidth - panel.offsetWidth, nx));
+    ny = Math.max(0, Math.min(window.innerHeight - panel.offsetHeight, ny));
+    panel.style.right = 'auto';
+    panel.style.left = nx + 'px';
+    panel.style.top = ny + 'px';
+  }
+  function onDragUp() {
+    dragActive = false;
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('mouseup', onDragUp);
+  }
+
+  window.toggleWhiteboard = function() {
+    isOpen = !isOpen;
+    const btn = document.getElementById('wb-toggle-btn');
+    panel.classList.toggle('wb-open', isOpen);
+    btn.classList.toggle('wb-open', isOpen);
+    if (isOpen && window.wbInitCanvas) window.wbInitCanvas();
+  };
+})();
 
 // ── Help panel scroll animations ──────────────────────
 (function() {
