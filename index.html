@@ -299,6 +299,7 @@
       <div class="help-cmd"><span class="cmd-key">"feedback"</span><span class="cmd-desc">Stop and get a full structured evaluation — what you nailed, what you missed</span></div>
       <div class="help-cmd"><span class="cmd-key">"give full answer"</span><span class="cmd-desc">Ask the AI to reveal the model solution</span></div>
       <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
+      <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Click to get 1-2 ready-to-send opening sentences dropped into your text box — edit and send as your own</span></div>
       <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
       <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Open the canvas — draw your architecture using the shape toolbar (Select, Arrow, Service, Database, Queue, Client, Cache), Undo, and Clear</span></div>
     </div>
@@ -904,10 +905,17 @@ async function fillStarterSentence() {
   starterBtn.disabled = true;
   starterBtn.textContent = '⏳ thinking...';
   try {
-    const systemOverride = `You are a helpful interview coach. Based on the interview conversation so far, generate exactly 1-2 short opening sentences the candidate could say to confidently begin their answer. Return ONLY the sentences — no explanation, no preamble, no quotes, no labels. Just the sentences themselves.`;
-    const payload = (history.length > 0 ? history.slice() : []).concat([
-      { role: 'user', content: 'Give me 1-2 opening sentences I can say right now to start my answer.' }
-    ]);
+    const question = document.getElementById('q-text').textContent.trim();
+    const systemOverride = `You are an interview coach helping a candidate open their answer to a system design / technical interview question.
+The interview question is: "${question}"
+Your ONLY job: write 1-2 short, confident opening sentences the candidate can say RIGHT NOW to begin their answer.
+Rules:
+- Address the question directly — reference it explicitly
+- Frame how they'll approach it (e.g. clarify requirements, list components, state a key assumption)
+- NO full answer, NO hints about the solution, NO explanation, NO preamble, NO quotes around the sentences
+- Return ONLY the sentences themselves, nothing else`;
+    // Use history for context but don't add to it
+    const payload = history.length > 0 ? history.slice() : [{ role: 'user', content: question }];
     const reply = await callAI(payload, false, systemOverride);
     const inputEl = document.getElementById('user-input');
     inputEl.value = reply.trim();

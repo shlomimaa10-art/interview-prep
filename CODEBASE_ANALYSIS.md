@@ -50,6 +50,7 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 **Action buttons:**
 - **Feedback** — primary/prominent style: blue-tinted background, accent border, bold text.
 - **Full Answer** — ghost/muted style: `opacity: 0.65`, no accent.
+- **🗣️ How to Start** — calls `fillStarterSentence()`; injects an AI-suggested opening into the textarea without touching `history[]`.
 
 ---
 
@@ -88,6 +89,15 @@ Reads `wb.nodes` and `wb.edges` synchronously. Returns a structured `[WHITEBOARD
 - **Inferred / unclear** entries for arrows with missing endpoints
 - **Gaps & ambiguities** auto-detected (unconnected nodes, missing storage layer, missing client entry-point, no connections drawn)
 - A trailing note instructing the AI to interpret intent and probe gaps
+
+**`fillStarterSentence()`**
+Silent AI call that helps candidates begin their answer. Triggered by the **🗣️ How to Start** button in the `.action-btns` row of the interview panel.
+- Does **not** call `send()` and does **not** modify `history[]`.
+- Reads the current interview question from `document.getElementById('q-text').textContent`.
+- Calls `callAI(payload, false, systemOverride)` with a custom system override prompt that explicitly includes the interview question, instructing the AI to produce 1–2 natural opening sentences the candidate could say to start their answer for that specific question.
+- The `payload` is built from the current `history[]` (read-only).
+- The AI response is injected directly into the `#user-input` textarea so the candidate can review, edit, and send it themselves.
+- While waiting, the button label changes to `⏳ thinking...` and is disabled; it restores to `🗣️ How to Start` on completion (success or error).
 
 **`editMsg(wrap, msgEl, histIdx)`**
 Inline message editing: replaces bubble with textarea, on save truncates `history` at that index and re-sends.
