@@ -19,7 +19,9 @@ InterviewApp/
 ## index.html
 
 ### Tabs
-Three tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts)
+Four tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts) · **Help**
+
+The **Help** tab contains a **Commands & shortcuts** section listing in-chat commands (`feedback`, `hint`, `give full answer`) and a **🗣️ How to Start** entry describing the starter-sentence button.
 
 - No emojis in tab labels.
 - Status dot is hidden until the interview session starts.
