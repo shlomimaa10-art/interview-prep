@@ -9,7 +9,6 @@
 <meta name="keywords" content="Shlomi Maalumi, interview prep, AI interview, system design interview, engineering interview, interview simulator, interview practice">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://zealous-pond-0e6b2f103.2.azurestaticapps.net">
-<link rel="stylesheet" href="https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw.min.css">
 <!-- Open Graph (LinkedIn / social sharing) -->
 <meta property="og:title" content="Interview Prep — by Shlomi Maalumi">
 <meta property="og:description" content="AI-powered interview simulator. Practice system design with an AI that pushes back — just like a real senior engineer.">
@@ -178,25 +177,25 @@
   .action-btn:active{transform:scale(.96)}
   .action-btn.primary{background:rgba(79,124,255,0.18);border-color:var(--accent-border);color:#a8c0ff;font-weight:600}
   .action-btn.primary:hover{background:rgba(79,124,255,0.3);border-color:#6a8fff;color:#c4d4ff}
-  /* Whiteboard floating panel */
-  #whiteboard-panel{position:fixed;top:80px;right:20px;width:min(920px,calc(100vw - 40px));height:600px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;z-index:900;box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(79,124,255,0.18);overflow:hidden;min-width:480px;min-height:340px;resize:both;opacity:0;pointer-events:none;visibility:hidden;transform:scale(0.95) translateY(-10px);transition:opacity .18s ease,transform .18s ease,visibility .18s}
-  #whiteboard-panel.wb-open{opacity:1;pointer-events:auto;visibility:visible;transform:scale(1) translateY(0)}
-  #whiteboard-panel::after{content:'';position:absolute;bottom:6px;right:6px;width:10px;height:10px;background:radial-gradient(circle,var(--border2) 1.5px,transparent 1.5px);background-size:4px 4px;pointer-events:none;opacity:0.55;z-index:1}
-  #wb-header{padding:9px 16px;background:var(--surface2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;cursor:grab;user-select:none;border-radius:14px 14px 0 0;flex-shrink:0}
-  #wb-header:active{cursor:grabbing}
-  #wb-header .wb-title{font-size:11px;font-weight:600;color:var(--text);font-family:var(--font-mono);letter-spacing:.04em;flex-shrink:0}
-  #wb-header .wb-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono)}
-  #wb-close{margin-left:auto;background:none;border:none;color:var(--text-faint);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s;flex-shrink:0}
+  /* Whiteboard drawer */
+  #wb-drawer{position:fixed;top:0;right:0;height:100%;width:520px;min-width:320px;max-width:90vw;background:var(--surface);border-left:0.5px solid var(--border2);display:flex;flex-direction:column;z-index:900;box-shadow:-8px 0 40px rgba(0,0,0,0.5);transform:translateX(100%);transition:transform .22s ease;overflow:visible}
+  #wb-drawer.wb-open{transform:translateX(0)}
+  /* Tab that peeks out from left edge of drawer */
+  #wb-tab{position:absolute;left:-33px;top:50%;transform:translateY(-50%);background:var(--surface2);border:0.5px solid var(--border2);border-right:none;border-radius:8px 0 0 8px;color:var(--text-muted);font-family:var(--font-ui);font-size:11px;font-weight:500;padding:16px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;writing-mode:vertical-rl;text-orientation:mixed;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;z-index:1}
+  #wb-tab:hover{background:var(--accent-bg);color:#a8c0ff;border-color:var(--accent-border)}
+  #wb-drawer.wb-open #wb-tab{background:var(--accent-bg);color:#a8c0ff;border-color:var(--accent-border)}
+  /* Left-edge resize handle — wide hit target, above Excalidraw canvas */
+  #wb-resize-handle{position:absolute;left:-4px;top:0;width:12px;height:100%;cursor:ew-resize;z-index:9999;background:transparent}
+  #wb-resize-handle::after{content:'';position:absolute;left:4px;top:0;width:4px;height:100%;background:transparent;transition:background .15s}
+  #wb-resize-handle:hover::after{background:rgba(79,124,255,0.4)}
+  /* Drawer header */
+  #wb-drawer-header{padding:9px 14px;background:var(--surface2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  #wb-drawer-header .wb-title{font-size:11px;font-weight:600;color:var(--text);font-family:var(--font-mono);letter-spacing:.04em}
+  #wb-close{margin-left:auto;background:none;border:none;color:var(--text-faint);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s}
   #wb-close:hover{color:#ff6b6b}
   /* Excalidraw container */
   #wb-excalidraw-container{flex:1;position:relative;overflow:hidden}
   #wb-excalidraw-container .excalidraw{height:100%}
-  /* Grouped whiteboard controls */
-  .wb-btn-group{display:flex;border:0.5px solid var(--border2);border-radius:6px;overflow:hidden}
-  .wb-toggle-btn{padding:5px 13px;background:var(--surface);color:var(--text-muted);font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
-  .wb-toggle-btn:hover{background:var(--accent-bg);color:#a8c0ff}
-  .wb-toggle-btn.wb-open{background:var(--accent-bg);color:#a8c0ff}
-
   /* Edit message */
   .msg-wrap.user{position:relative}
   .edit-btn{position:absolute;right:0;top:0;background:none;border:none;color:var(--text-faint);font-size:12px;cursor:pointer;padding:2px 5px;border-radius:5px;opacity:0;transition:opacity .15s,color .15s;line-height:1}
@@ -262,7 +261,7 @@
       <div class="help-card">
         <div class="help-card-icon">✏️</div>
         <div class="help-card-title">Live Excalidraw whiteboard</div>
-        <div class="help-card-desc">Draw system diagrams mid-interview using the built-in Excalidraw canvas. Sketch shapes, arrows, and labels freely. Your diagram is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
+        <div class="help-card-desc">Draw system diagrams mid-interview using the built-in Excalidraw canvas. A tab on the right edge of the screen opens and closes the whiteboard drawer. Sketch shapes, arrows, and labels freely. Your diagram is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
       </div>
     </div>
 
@@ -282,7 +281,7 @@
       </div>
       <div class="help-step">
         <div class="help-step-num">4</div>
-        <div class="help-step-text"><strong>Sketch on the whiteboard</strong> — click <em>✏️ Whiteboard</em> to open the Excalidraw canvas. Draw shapes, arrows, and labels to sketch your architecture as you explain it. When the whiteboard has content it is automatically included with every message — the AI reads your diagram in real time.</div>
+        <div class="help-step-text"><strong>Sketch on the whiteboard</strong> — click the <em>✏️ Whiteboard</em> tab on the right edge of the screen to open the Excalidraw drawer. Draw shapes, arrows, and labels to sketch your architecture as you explain it. When the whiteboard has content it is automatically included with every message — the AI reads your diagram in real time.</div>
       </div>
       <div class="help-step">
         <div class="help-step-num">5</div>
@@ -297,7 +296,7 @@
       <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
       <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Click to get 1-2 ready-to-send opening sentences dropped into your text box — edit and send as your own</span></div>
       <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
-      <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Open the Excalidraw canvas — draw shapes, arrows, and labels to sketch your architecture freely</span></div>
+      <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Tab on the right edge — opens the Excalidraw drawer; drag its left edge to resize</span></div>
     </div>
 
     <div class="help-cmds" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px 24px">
@@ -404,11 +403,12 @@
   </div>
 </div>
 
-<!-- ═══ FLOATING WHITEBOARD ═══ -->
-<div id="whiteboard-panel">
-  <div id="wb-header">
+<!-- ═══ WHITEBOARD DRAWER ═══ -->
+<div id="wb-drawer">
+  <div id="wb-resize-handle"></div>
+  <button id="wb-tab" onclick="toggleWhiteboard()" title="Toggle whiteboard">✏️ Whiteboard</button>
+  <div id="wb-drawer-header">
     <span class="wb-title">✏️ WHITEBOARD</span>
-    <span class="wb-sub">— drag to reposition</span>
     <button id="wb-close" onclick="toggleWhiteboard()" title="Close">×</button>
   </div>
   <div id="wb-excalidraw-container"></div>
@@ -432,9 +432,6 @@
         <button class="action-btn" style="opacity:0.65" onclick="quickSend('give full answer')">💡 Full Answer</button>
         <button class="action-btn" onclick="quickSend('hint')">🪄 Hint</button>
         <button class="action-btn" id="starter-btn" onclick="fillStarterSentence()">🗣️ How to Start</button>
-        <div class="wb-btn-group">
-          <button class="wb-toggle-btn" id="wb-toggle-btn" onclick="toggleWhiteboard()" title="Open/close whiteboard">✏️ Whiteboard</button>
-        </div>
         <span class="tip" style="margin-left:auto"><span>Shift+Enter</span> → new line</span>
       </div>
     </div>
@@ -1074,46 +1071,58 @@ document.getElementById('question-input').addEventListener('animationend', funct
   this.classList.remove('shake');
 });
 
-// ── Whiteboard ────────────────────────────────────────
+// ── Whiteboard drawer ─────────────────────────────────
 (function() {
-  const panel = document.getElementById('whiteboard-panel');
-  const header = document.getElementById('wb-header');
+  const drawer = document.getElementById('wb-drawer');
   let isOpen = false, wbInited = false;
-  let dragActive = false, dragOffX = 0, dragOffY = 0;
-
-  // Drag by header
-  header.addEventListener('mousedown', e => {
-    if (e.target.closest('button')) return;
-    dragActive = true;
-    const r = panel.getBoundingClientRect();
-    dragOffX = e.clientX - r.left;
-    dragOffY = e.clientY - r.top;
-    document.addEventListener('mousemove', onDragMove);
-    document.addEventListener('mouseup', onDragUp);
-  });
-  function onDragMove(e) {
-    if (!dragActive) return;
-    let nx = e.clientX - dragOffX;
-    let ny = e.clientY - dragOffY;
-    nx = Math.max(0, Math.min(window.innerWidth - panel.offsetWidth, nx));
-    ny = Math.max(0, Math.min(window.innerHeight - panel.offsetHeight, ny));
-    panel.style.right = 'auto';
-    panel.style.left = nx + 'px';
-    panel.style.top = ny + 'px';
-  }
-  function onDragUp() {
-    dragActive = false;
-    document.removeEventListener('mousemove', onDragMove);
-    document.removeEventListener('mouseup', onDragUp);
-  }
 
   window.toggleWhiteboard = function() {
     isOpen = !isOpen;
-    const btn = document.getElementById('wb-toggle-btn');
-    panel.classList.toggle('wb-open', isOpen);
-    btn.classList.toggle('wb-open', isOpen);
-    if (isOpen && !wbInited) { wbInited = true; setTimeout(initExcalidraw, 50); }
+    drawer.classList.toggle('wb-open', isOpen);
+    if (isOpen && !wbInited) {
+      // Wait for slide-in transition to finish before mounting Excalidraw
+      drawer.addEventListener('transitionend', function onTE() {
+        drawer.removeEventListener('transitionend', onTE);
+        wbInited = true;
+        initExcalidraw();
+      });
+    } else if (isOpen && window._excalidrawAPI) {
+      drawer.addEventListener('transitionend', function onTE() {
+        drawer.removeEventListener('transitionend', onTE);
+        window._excalidrawAPI.refresh();
+      });
+    }
   };
+
+  // Left-edge drag-to-resize handle
+  const handle = document.getElementById('wb-resize-handle');
+  let resizing = false, startX = 0, startW = 0;
+  handle.addEventListener('mousedown', e => {
+    resizing = true;
+    startX = e.clientX;
+    startW = drawer.offsetWidth;
+    document.addEventListener('mousemove', onResizeMove);
+    document.addEventListener('mouseup', onResizeUp);
+    e.preventDefault();
+  });
+  function onResizeMove(e) {
+    if (!resizing) return;
+    const delta = startX - e.clientX;
+    const newW = Math.min(Math.max(320, startW + delta), window.innerWidth * 0.9);
+    drawer.style.width = newW + 'px';
+    if (window._excalidrawAPI) window._excalidrawAPI.refresh();
+  }
+  function onResizeUp() {
+    resizing = false;
+    document.removeEventListener('mousemove', onResizeMove);
+    document.removeEventListener('mouseup', onResizeUp);
+    if (window._excalidrawAPI) window._excalidrawAPI.refresh();
+  }
+
+  // Refresh on any drawer size change (e.g. window resize)
+  new ResizeObserver(() => {
+    if (window._excalidrawAPI) window._excalidrawAPI.refresh();
+  }).observe(drawer);
 })();
 
 // ── Help panel scroll animations ──────────────────────
@@ -1159,6 +1168,6 @@ document.getElementById('question-input').addEventListener('animationend', funct
 </script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw.production.min.js"></script>
+<script src="https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw.production.min.js"></script>
 </body>
 </html>
