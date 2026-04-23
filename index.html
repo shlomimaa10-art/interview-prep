@@ -915,7 +915,14 @@ Rules:
 - NO full answer, NO hints about the solution, NO explanation, NO preamble, NO quotes around the sentences
 - Return ONLY the sentences themselves, nothing else`;
     // Use history for context but don't add to it
-    const payload = history.length > 0 ? history.slice() : [{ role: 'user', content: question }];
+    // Must always end with a user message (API requirement)
+    const base = history.length > 0 ? history.slice() : [];
+    // Strip trailing assistant messages, then append our user request
+    const lastUserIdx = [...base].map(m => m.role).lastIndexOf('user');
+    const trimmed = lastUserIdx >= 0 ? base.slice(0, lastUserIdx + 1) : [];
+    const payload = trimmed.concat([
+      { role: 'user', content: 'Give me 1-2 opening sentences I can say right now to start my answer to this question.' }
+    ]);
     const reply = await callAI(payload, false, systemOverride);
     const inputEl = document.getElementById('user-input');
     inputEl.value = reply.trim();
