@@ -9,6 +9,7 @@
 <meta name="keywords" content="Shlomi Maalumi, interview prep, AI interview, system design interview, engineering interview, interview simulator, interview practice">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://zealous-pond-0e6b2f103.2.azurestaticapps.net">
+<link rel="stylesheet" href="https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw.min.css">
 <!-- Open Graph (LinkedIn / social sharing) -->
 <meta property="og:title" content="Interview Prep — by Shlomi Maalumi">
 <meta property="og:description" content="AI-powered interview simulator. Practice system design with an AI that pushes back — just like a real senior engineer.">
@@ -187,14 +188,9 @@
   #wb-header .wb-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono)}
   #wb-close{margin-left:auto;background:none;border:none;color:var(--text-faint);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s;flex-shrink:0}
   #wb-close:hover{color:#ff6b6b}
-  /* Canvas whiteboard */
-  #wb-canvas-wrap{flex:1;position:relative;overflow:hidden;background:#161820;cursor:crosshair}
-  #wb-canvas{display:block;touch-action:none}
-  #wb-toolbar{display:flex;align-items:center;gap:5px;padding:7px 12px;background:var(--surface2);border-bottom:0.5px solid var(--border);flex-wrap:wrap;flex-shrink:0}
-  .wbt-btn{padding:4px 10px;background:var(--surface);border:0.5px solid var(--border2);border-radius:5px;color:var(--text-muted);font-family:var(--font-ui);font-size:11px;font-weight:500;cursor:pointer;transition:background .15s,color .15s,border-color .15s;white-space:nowrap}
-  .wbt-btn:hover,.wbt-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:#a8c0ff}
-  .wbt-sep{width:0.5px;height:16px;background:var(--border2);margin:0 2px;flex-shrink:0}
-  #wb-label-input{position:absolute;display:none;background:var(--surface2);border:0.5px solid var(--accent-border);border-radius:5px;color:var(--text);font-family:var(--font-ui);font-size:13px;padding:3px 8px;outline:none;z-index:10;min-width:80px}
+  /* Excalidraw container */
+  #wb-excalidraw-container{flex:1;position:relative;overflow:hidden}
+  #wb-excalidraw-container .excalidraw{height:100%}
   /* Grouped whiteboard controls */
   .wb-btn-group{display:flex;border:0.5px solid var(--border2);border-radius:6px;overflow:hidden}
   .wb-toggle-btn{padding:5px 13px;background:var(--surface);color:var(--text-muted);font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
@@ -265,8 +261,8 @@
       </div>
       <div class="help-card">
         <div class="help-card-icon">✏️</div>
-        <div class="help-card-title">Live whiteboard</div>
-        <div class="help-card-desc">Draw system diagrams mid-interview on the built-in canvas using the toolbar (Select, Arrow, Service, Database, Queue, Client, Cache, Undo, Clear). Your sketch is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
+        <div class="help-card-title">Live Excalidraw whiteboard</div>
+        <div class="help-card-desc">Draw system diagrams mid-interview using the built-in Excalidraw canvas. Sketch shapes, arrows, and labels freely. Your diagram is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
       </div>
     </div>
 
@@ -286,7 +282,7 @@
       </div>
       <div class="help-step">
         <div class="help-step-num">4</div>
-        <div class="help-step-text"><strong>Sketch on the whiteboard</strong> — click <em>✏️ Whiteboard</em> to open the canvas. Use the toolbar to place Services, Databases, Queues, Clients, and Caches, connect them with Arrows, and draw your architecture as you explain it. When the whiteboard has content it is automatically included with every message — the AI reads your diagram in real time.</div>
+        <div class="help-step-text"><strong>Sketch on the whiteboard</strong> — click <em>✏️ Whiteboard</em> to open the Excalidraw canvas. Draw shapes, arrows, and labels to sketch your architecture as you explain it. When the whiteboard has content it is automatically included with every message — the AI reads your diagram in real time.</div>
       </div>
       <div class="help-step">
         <div class="help-step-num">5</div>
@@ -301,7 +297,7 @@
       <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
       <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Click to get 1-2 ready-to-send opening sentences dropped into your text box — edit and send as your own</span></div>
       <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
-      <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Open the canvas — draw your architecture using the shape toolbar (Select, Arrow, Service, Database, Queue, Client, Cache), Undo, and Clear</span></div>
+      <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Open the Excalidraw canvas — draw shapes, arrows, and labels to sketch your architecture freely</span></div>
     </div>
 
     <div class="help-cmds" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px 24px">
@@ -415,23 +411,7 @@
     <span class="wb-sub">— drag to reposition</span>
     <button id="wb-close" onclick="toggleWhiteboard()" title="Close">×</button>
   </div>
-  <div id="wb-toolbar">
-    <button class="wbt-btn active" id="wbt-select" onclick="wbSetMode('select')">↖ Select</button>
-    <button class="wbt-btn" id="wbt-arrow" onclick="wbSetMode('arrow')">→ Arrow</button>
-    <div class="wbt-sep"></div>
-    <button class="wbt-btn" id="wbt-service"  onclick="wbSetMode('add','service')">▭ Service</button>
-    <button class="wbt-btn" id="wbt-database" onclick="wbSetMode('add','database')">🗄 Database</button>
-    <button class="wbt-btn" id="wbt-queue"    onclick="wbSetMode('add','queue')">⬡ Queue</button>
-    <button class="wbt-btn" id="wbt-client"   onclick="wbSetMode('add','client')">◯ Client</button>
-    <button class="wbt-btn" id="wbt-cache"    onclick="wbSetMode('add','cache')">⬚ Cache</button>
-    <div class="wbt-sep"></div>
-    <button class="wbt-btn" onclick="wbUndo()">↩ Undo</button>
-    <button class="wbt-btn" onclick="wbClear()">🗑 Clear</button>
-  </div>
-  <div id="wb-canvas-wrap">
-    <canvas id="wb-canvas"></canvas>
-    <input id="wb-label-input" type="text" placeholder="Label…">
-  </div>
+  <div id="wb-excalidraw-container"></div>
 </div>
 
 <!-- ═══ INTERVIEW ═══ -->
@@ -680,7 +660,7 @@ If the candidate jumps straight into a solution without asking any clarifying qu
 
 PHASE 2 · High-level design (next 10-15 min)
 Once scope is agreed, push the candidate to sketch the major components: APIs, web servers, databases, caches, queues, CDN. Treat it as a collaborative exercise — ask for their reasoning, introduce a constraint or trade-off for them to react to. Keep it high-level; redirect if they deep-dive one component before the blueprint is complete.
-The candidate has a live whiteboard available. It is natural and expected to ask them to sketch on it — e.g. "Can you draw the high-level components on your whiteboard?" or "Sketch the request flow — what does it look like?" Treat their whiteboard as part of the interview workspace.
+The candidate has a live Excalidraw whiteboard available. It is natural and expected to ask them to sketch on it — e.g. "Can you draw the high-level components on your whiteboard?" or "Sketch the request flow — what does it look like?" Treat their whiteboard as part of the interview workspace.
 
 PHASE 3 · Deep dive (next 10-25 min)
 Probe at the depth appropriate for the candidate level (see above). Ask about bottlenecks, specific component choices, and why. If they haven't raised a hard problem (hot partitions, replication lag, cache invalidation, etc.), surface it yourself.
@@ -699,7 +679,7 @@ INTERVIEWER RULES:
 - Do NOT let them deep-dive one component before the high-level picture is clear.
 - Do NOT restate what the candidate just said before asking your next question.
 - Do NOT bullet-point your responses — speak conversationally.
-- The candidate has a whiteboard. In Phase 2 and Phase 3, occasionally ask them to use it — e.g. "Can you sketch the data flow on your whiteboard?", "Draw the components and how they connect.", "Show me on the whiteboard where the bottleneck would be." Treat it as a natural part of the session, not a special feature.
+- The candidate has an Excalidraw whiteboard. In Phase 2 and Phase 3, occasionally ask them to use it — e.g. "Can you sketch the data flow on your whiteboard?", "Draw the components and how they connect.", "Show me on the whiteboard where the bottleneck would be." Treat it as a natural part of the session, not a special feature.
 
 ---
 
@@ -1021,379 +1001,43 @@ function editMsg(wrap, msgEl, histIdx) {
 
 // ── Whiteboard share — always-on, no toggle needed ───
 
-// ── Canvas Whiteboard Engine ──────────────────────────
-const wb = {
-  nodes: [],    // {id, type, x, y, w, h, label}
-  edges: [],    // {id, from, to, label}
-  history: [],  // for undo (JSON snapshots)
-  mode: 'select',
-  addType: null,
-  sel: null,        // selected node id
-  drag: null,       // {id, ox, oy}
-  arrowStart: null, // node id waiting for arrow target
-  nextId: 1,
-  editTarget: null, // {kind:'node'|'edge', id}
-};
-
-const SHAPE_SIZES = { service:{ w:120,h:60 }, database:{ w:100,h:70 }, queue:{ w:110,h:55 }, client:{ w:70,h:70 }, cache:{ w:120,h:60 } };
-
-function wbSnapshot() {
-  wb.history.push(JSON.stringify({ nodes: wb.nodes, edges: wb.edges }));
-  if (wb.history.length > 30) wb.history.shift();
-}
-function wbUndo() {
-  if (!wb.history.length) return;
-  const s = JSON.parse(wb.history.pop());
-  wb.nodes = s.nodes; wb.edges = s.edges;
-  wb.sel = null; wb.arrowStart = null;
-  wbDraw();
-}
-function wbClear() {
-  wbSnapshot();
-  wb.nodes = []; wb.edges = []; wb.sel = null; wb.arrowStart = null;
-  wbDraw();
-}
-
-function wbSetMode(mode, type) {
-  wb.mode = mode;
-  wb.addType = type || null;
-  wb.arrowStart = null;
-  // update toolbar active states
-  document.querySelectorAll('.wbt-btn').forEach(b => b.classList.remove('active'));
-  const map = { select:'wbt-select', arrow:'wbt-arrow', add: 'wbt-'+type };
-  const el = document.getElementById(map[mode]);
-  if (el) el.classList.add('active');
-  const cvs = document.getElementById('wb-canvas');
-  if (cvs) cvs.style.cursor = mode === 'select' ? 'default' : 'crosshair';
-}
-
-function wbNodeAt(x, y) {
-  for (let i = wb.nodes.length - 1; i >= 0; i--) {
-    const n = wb.nodes[i];
-    if (x >= n.x && x <= n.x + n.w && y >= n.y && y <= n.y + n.h) return n;
-  }
-  return null;
-}
-
-function wbEdgeNear(x, y, thresh = 10) {
-  for (const e of wb.edges) {
-    const a = wb.nodes.find(n => n.id === e.from);
-    const b = wb.nodes.find(n => n.id === e.to);
-    if (!a || !b) continue;
-    const mx = (a.x + a.w/2 + b.x + b.w/2) / 2;
-    const my = (a.y + a.h/2 + b.y + b.h/2) / 2;
-    if (Math.hypot(x - mx, y - my) < thresh) return e;
-  }
-  return null;
-}
-
-// ── Drawing ──────────────────────────────────────────
-function wbDraw() {
-  const cvs = document.getElementById('wb-canvas');
-  if (!cvs) return;
-  const ctx = cvs.getContext('2d');
-  const W = cvs.width, H = cvs.height;
-  ctx.clearRect(0, 0, W, H);
-
-  // Draw edges first
-  for (const e of wb.edges) {
-    const a = wb.nodes.find(n => n.id === e.from);
-    const b = wb.nodes.find(n => n.id === e.to);
-    if (!a || !b) continue;
-    const x1 = a.x + a.w/2, y1 = a.y + a.h/2;
-    const x2 = b.x + b.w/2, y2 = b.y + b.h/2;
-    ctx.strokeStyle = '#7a80a0';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    // arrowhead
-    const ang = Math.atan2(y2 - y1, x2 - x1);
-    const len = 10, spread = 0.4;
-    ctx.fillStyle = '#7a80a0';
-    ctx.beginPath();
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 - len*Math.cos(ang - spread), y2 - len*Math.sin(ang - spread));
-    ctx.lineTo(x2 - len*Math.cos(ang + spread), y2 - len*Math.sin(ang + spread));
-    ctx.closePath(); ctx.fill();
-    // edge label
-    if (e.label) {
-      ctx.fillStyle = '#7a80a0';
-      ctx.font = '11px IBM Plex Sans, system-ui, sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(e.label, (x1+x2)/2, (y1+y2)/2 - 10);
-    }
-  }
-
-  // Arrow-mode: preview line from arrowStart to cursor
-  if (wb.mode === 'arrow' && wb.arrowStart && wb._cursor) {
-    const a = wb.nodes.find(n => n.id === wb.arrowStart);
-    if (a) {
-      ctx.strokeStyle = '#4f7cff88';
-      ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
-      ctx.beginPath(); ctx.moveTo(a.x+a.w/2, a.y+a.h/2);
-      ctx.lineTo(wb._cursor.x, wb._cursor.y); ctx.stroke();
-      ctx.setLineDash([]);
-    }
-  }
-
-  // Draw nodes
-  for (const n of wb.nodes) {
-    const isSel = n.id === wb.sel;
-    const isArrowSrc = n.id === wb.arrowStart;
-    drawShape(ctx, n, isSel, isArrowSrc);
-  }
-}
-
-function drawShape(ctx, n, sel, arrowSrc) {
-  const { x, y, w, h, type, label } = n;
-  const accent = '#4f7cff', selColor = '#a8c0ff', srcColor = '#3ecf8e';
-  const borderColor = sel ? selColor : arrowSrc ? srcColor : accent;
-  const fillColor = sel ? 'rgba(79,124,255,0.18)' : 'rgba(26,29,39,0.9)';
-
-  ctx.fillStyle = fillColor;
-  ctx.strokeStyle = borderColor;
-  ctx.lineWidth = sel ? 2 : 1.5;
-
-  if (type === 'service') {
-    ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.fill(); ctx.stroke();
-
-  } else if (type === 'database') {
-    const ry = h * 0.18;
-    ctx.beginPath();
-    ctx.moveTo(x, y + ry); ctx.lineTo(x, y + h - ry);
-    ctx.ellipse(x + w/2, y + h - ry, w/2, ry, 0, Math.PI, 0);
-    ctx.lineTo(x + w, y + ry);
-    ctx.ellipse(x + w/2, y + ry, w/2, ry, 0, 0, Math.PI);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.beginPath();
-    ctx.ellipse(x + w/2, y + ry, w/2, ry, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-  } else if (type === 'queue') {
-    const pts = hexPoints(x + w/2, y + h/2, Math.min(w, h)/2 - 1);
-    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
-    pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-
-  } else if (type === 'client') {
-    const r = Math.min(w, h)/2 - 1;
-    ctx.beginPath(); ctx.arc(x + w/2, y + h/2, r, 0, Math.PI*2);
-    ctx.fill(); ctx.stroke();
-
-  } else if (type === 'cache') {
-    ctx.setLineDash([5, 3]);
-    ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.fill(); ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  // Label
-  ctx.fillStyle = sel ? selColor : '#c0c6dc';
-  ctx.font = `500 12px IBM Plex Sans, system-ui, sans-serif`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  const lbl = label || type.charAt(0).toUpperCase() + type.slice(1);
-  ctx.fillText(lbl, x + w/2, y + h/2);
-}
-
-function hexPoints(cx, cy, r) {
-  return Array.from({length:6}, (_, i) => ({
-    x: cx + r * Math.cos(Math.PI/2 + i * Math.PI/3),
-    y: cy + r * Math.sin(Math.PI/2 + i * Math.PI/3),
-  }));
-}
-
-// ── Canvas interaction ────────────────────────────────
-(function() {
-  let cvs, ctx;
-
-  function init() {
-    cvs = document.getElementById('wb-canvas');
-    if (!cvs) return;
-    const wrap = document.getElementById('wb-canvas-wrap');
-    function resize() {
-      cvs.width = wrap.clientWidth;
-      cvs.height = wrap.clientHeight;
-      wbDraw();
-    }
-    new ResizeObserver(resize).observe(wrap);
-    resize();
-
-    cvs.addEventListener('mousedown', onDown);
-    cvs.addEventListener('mousemove', onMove);
-    cvs.addEventListener('mouseup', onUp);
-    cvs.addEventListener('dblclick', onDblClick);
-    cvs.addEventListener('click', onClick);
-    document.addEventListener('keydown', onKey);
-  }
-
-  function canvasXY(e) {
-    const r = cvs.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  }
-
-  function onClick(e) {
-    const { x, y } = canvasXY(e);
-    if (wb.mode === 'add' && wb.addType) {
-      wbSnapshot();
-      const sz = SHAPE_SIZES[wb.addType] || { w:120, h:60 };
-      wb.nodes.push({ id: wb.nextId++, type: wb.addType, x: x - sz.w/2, y: y - sz.h/2, w: sz.w, h: sz.h, label: '' });
-      wbSetMode('select');
-      wbDraw();
-    } else if (wb.mode === 'arrow') {
-      const n = wbNodeAt(x, y);
-      if (n) {
-        if (!wb.arrowStart) {
-          wb.arrowStart = n.id;
-        } else if (wb.arrowStart !== n.id) {
-          wbSnapshot();
-          wb.edges.push({ id: wb.nextId++, from: wb.arrowStart, to: n.id, label: '' });
-          wb.arrowStart = null;
-          wbSetMode('select');
-          wbDraw();
-        }
-      }
-    } else {
-      // select mode — click to select
-      const n = wbNodeAt(x, y);
-      wb.sel = n ? n.id : null;
-      wbDraw();
-    }
-  }
-
-  function onDown(e) {
-    if (wb.mode !== 'select') return;
-    const { x, y } = canvasXY(e);
-    const n = wbNodeAt(x, y);
-    if (n) {
-      wb.sel = n.id;
-      wb.drag = { id: n.id, ox: x - n.x, oy: y - n.y };
-      wbDraw();
-    }
-  }
-
-  function onMove(e) {
-    const { x, y } = canvasXY(e);
-    wb._cursor = { x, y };
-    if (wb.drag) {
-      const n = wb.nodes.find(n => n.id === wb.drag.id);
-      if (n) { n.x = x - wb.drag.ox; n.y = y - wb.drag.oy; }
-      wbDraw();
-    } else if (wb.mode === 'arrow' && wb.arrowStart) {
-      wbDraw();
-    }
-  }
-
-  function onUp() {
-    if (wb.drag) { wbSnapshot(); wb.drag = null; }
-  }
-
-  function onDblClick(e) {
-    const { x, y } = canvasXY(e);
-    const n = wbNodeAt(x, y);
-    const edge = !n ? wbEdgeNear(x, y) : null;
-    const target = n || edge;
-    if (!target) return;
-    wb.editTarget = { kind: n ? 'node' : 'edge', id: target.id };
-    const inp = document.getElementById('wb-label-input');
-    inp.value = target.label || '';
-    // Position input over target
-    const r = cvs.getBoundingClientRect();
-    const wrap = document.getElementById('wb-canvas-wrap');
-    const wr = wrap.getBoundingClientRect();
-    let lx, ly;
-    if (n) { lx = n.x + n.w/2 - 40; ly = n.y + n.h/2 - 14; }
-    else {
-      const a = wb.nodes.find(nd => nd.id === edge.from);
-      const b = wb.nodes.find(nd => nd.id === edge.to);
-      lx = (a.x+a.w/2 + b.x+b.w/2)/2 - 40 - (r.left - wr.left);
-      ly = (a.y+a.h/2 + b.y+b.h/2)/2 - 14 - (r.top - wr.top);
-    }
-    inp.style.left = lx + 'px'; inp.style.top = ly + 'px'; inp.style.display = 'block';
-    inp.focus(); inp.select();
-  }
-
-  // Label input commit
-  const inp = document.getElementById('wb-label-input');
-  if (inp) {
-    function commitLabel() {
-      if (!wb.editTarget) return;
-      wbSnapshot();
-      const { kind, id } = wb.editTarget;
-      const arr = kind === 'node' ? wb.nodes : wb.edges;
-      const item = arr.find(t => t.id === id);
-      if (item) item.label = inp.value.trim();
-      inp.style.display = 'none'; wb.editTarget = null;
-      wbDraw();
-    }
-    inp.addEventListener('blur', commitLabel);
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } if (e.key === 'Escape') { inp.style.display='none'; wb.editTarget=null; } });
-  }
-
-  function onKey(e) {
-    if (document.activeElement === document.getElementById('wb-label-input')) return;
-    if (document.activeElement === document.getElementById('user-input')) return;
-    if ((e.key === 'Delete' || e.key === 'Backspace') && wb.sel) {
-      // only delete if whiteboard panel is open/focused
-      const panel = document.getElementById('whiteboard-panel');
-      if (!panel.classList.contains('wb-open')) return;
-      wbSnapshot();
-      wb.edges = wb.edges.filter(e2 => e2.from !== wb.sel && e2.to !== wb.sel);
-      wb.nodes = wb.nodes.filter(n => n.id !== wb.sel);
-      wb.sel = null; wbDraw();
-    }
-  }
-
-  // Expose init so drag IIFE can call it on first open
-  window.wbInitCanvas = function() { if (!wbInited) { wbInited = true; setTimeout(init, 50); } };
-  let wbInited = false;
-})();
-
-// ── serializeWb — synchronous whiteboard → AI context ─
+// ── serializeWb — Excalidraw → AI context ────────────
 function serializeWb() {
-  if (!wb.nodes.length) return null;
+  if (!window._excalidrawAPI) return null;
+  const elements = window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted);
+  if (!elements.length) return null;
 
-  const LABEL_NORMS = {
-    db:'Database', database:'Database', sql:'Database', postgres:'Database', mysql:'Database', mongo:'Database', mongodb:'Database',
-    cache:'Cache', redis:'Redis (cache)', memcache:'Memcached (cache)',
-    queue:'Queue', kafka:'Kafka (queue)', mq:'Message Queue', rabbitmq:'RabbitMQ (queue)',
-    lb:'Load Balancer', 'load balancer':'Load Balancer',
-    cdn:'CDN', gateway:'API Gateway', 'api gateway':'API Gateway', proxy:'Proxy',
-    svc:'Service', service:'Service',
-    client:'Client', browser:'Browser', mobile:'Mobile Client', user:'Client',
-    server:'Server', backend:'Backend', frontend:'Frontend',
-  };
-  function normalize(raw, type) {
-    if (!raw || raw.trim() === '') return type.charAt(0).toUpperCase() + type.slice(1);
-    const l = raw.trim().toLowerCase();
-    for (const [k, v] of Object.entries(LABEL_NORMS)) {
-      if (l === k || l.includes(k)) return v;
-    }
-    return raw.trim();
-  }
-
-  const compMap = {};
   const components = [];
-  for (const n of wb.nodes) {
-    const lbl = normalize(n.label, n.type);
-    compMap[n.id] = lbl;
+  const connections = [];
+  const idToLabel = {};
+
+  for (const el of elements) {
+    if (el.type === 'arrow') continue;
+    const lbl = (el.text || el.label?.text || '').trim() || el.type;
+    idToLabel[el.id] = lbl;
     components.push(lbl);
   }
 
-  const connections = [], inferred = [];
-  for (const e of wb.edges) {
-    const src = compMap[e.from], tgt = compMap[e.to];
+  for (const el of elements) {
+    if (el.type !== 'arrow') continue;
+    const src = el.startBinding ? idToLabel[el.startBinding.elementId] : null;
+    const tgt = el.endBinding   ? idToLabel[el.endBinding.elementId]   : null;
     if (src && tgt) {
-      connections.push(e.label ? `${src} →[${e.label}]→ ${tgt}` : `${src} → ${tgt}`);
-    } else {
-      inferred.push(`Arrow from ${src||'?'} to ${tgt||'?'} — endpoint missing`);
+      const arrowLabel = (el.label?.text || '').trim();
+      connections.push(arrowLabel ? `${src} →[${arrowLabel}]→ ${tgt}` : `${src} → ${tgt}`);
     }
   }
 
   const connSet = new Set();
-  connections.forEach(c => { const m=c.match(/^(.+?) →/); if(m) connSet.add(m[1].trim()); const m2=c.match(/→ (.+)$/); if(m2) connSet.add(m2[1].trim()); });
+  connections.forEach(c => {
+    const m = c.match(/^(.+?) →/); if (m) connSet.add(m[1].trim());
+    const m2 = c.match(/→ (.+)$/); if (m2) connSet.add(m2[1].trim());
+  });
   const unconnected = components.filter(c => !connSet.has(c));
   const labels = components.map(l => l.toLowerCase());
   const gaps = [];
   if (unconnected.length) gaps.push(`Unconnected: ${unconnected.join(', ')}`);
-  if (!labels.some(l => l.includes('database') || l.includes('storage') || l.includes('cache'))) gaps.push('No storage/cache layer visible');
+  if (!labels.some(l => l.includes('database') || l.includes('db') || l.includes('storage') || l.includes('cache') || l.includes('redis'))) gaps.push('No storage/cache layer visible');
   if (connections.length === 0 && components.length > 1) gaps.push('No connections drawn — flow is inferred from layout only');
   if (!labels.some(l => l.includes('client') || l.includes('browser') || l.includes('user') || l.includes('mobile'))) gaps.push('No client/entry-point visible');
 
@@ -1402,13 +1046,28 @@ function serializeWb() {
   components.forEach(c => lines.push(`  • ${c}`));
   lines.push('');
   if (connections.length) { lines.push('Connections:'); connections.forEach(c => lines.push(`  • ${c}`)); lines.push(''); }
-  if (inferred.length) { lines.push('Inferred / unclear:'); inferred.forEach(i => lines.push(`  • ${i}`)); lines.push(''); }
   if (gaps.length) { lines.push('Gaps & ambiguities:'); gaps.forEach(g => lines.push(`  • ${g}`)); lines.push(''); }
   lines.push('Note: This is a work-in-progress sketch. Interpret intent, not just structure. Ask about missing connections and gaps.');
   return lines.join('\n');
 }
 
-input.addEventListener('keydown', e => {
+// ── Excalidraw init ───────────────────────────────────
+function initExcalidraw() {
+  const container = document.getElementById('wb-excalidraw-container');
+  if (!container || window._excalidrawAPI) return;
+  const { createElement } = React;
+  const ExcalidrawComp = ExcalidrawLib.Excalidraw;
+  function App() {
+    return createElement(ExcalidrawComp, {
+      theme: 'dark',
+      excalidrawAPI: (api) => { window._excalidrawAPI = api; },
+      UIOptions: { canvasActions: { toggleTheme: false } },
+    });
+  }
+  ReactDOM.render(createElement(App), container);
+}
+
+input.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
 document.getElementById('question-input').addEventListener('animationend', function () {
@@ -1419,7 +1078,7 @@ document.getElementById('question-input').addEventListener('animationend', funct
 (function() {
   const panel = document.getElementById('whiteboard-panel');
   const header = document.getElementById('wb-header');
-  let isOpen = false;
+  let isOpen = false, wbInited = false;
   let dragActive = false, dragOffX = 0, dragOffY = 0;
 
   // Drag by header
@@ -1453,7 +1112,7 @@ document.getElementById('question-input').addEventListener('animationend', funct
     const btn = document.getElementById('wb-toggle-btn');
     panel.classList.toggle('wb-open', isOpen);
     btn.classList.toggle('wb-open', isOpen);
-    if (isOpen && window.wbInitCanvas) window.wbInitCanvas();
+    if (isOpen && !wbInited) { wbInited = true; setTimeout(initExcalidraw, 50); }
   };
 })();
 
@@ -1498,5 +1157,8 @@ document.getElementById('question-input').addEventListener('animationend', funct
   }
 })();
 </script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw.production.min.js"></script>
 </body>
 </html>
