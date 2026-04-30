@@ -3,7 +3,7 @@
 ## File Structure
 ```
 InterviewApp/
-├── index.html          # Single-file app (~1470 lines: HTML + CSS + JS)
+├── index.html          # Single-file app (~1410 lines: HTML + CSS + JS)
 ├── CLAUDE.md
 ├── CODEBASE_ANALYSIS.md
 └── function/           # Azure Function proxy (unused by app, kept for future)
@@ -21,7 +21,7 @@ InterviewApp/
 ### Tabs
 Four tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts) · **Help**
 
-The **Help** tab contains a **Commands & shortcuts** section listing in-chat commands (`feedback`, `hint`, `give full answer`) and a **🗣️ How to Start** entry describing the starter-sentence button.
+The **Help** tab contains a **Commands & shortcuts** section listing in-chat commands (`feedback`, `hint`, `give full answer`), a **Live Excalidraw whiteboard** card, and a **🗣️ How to Start** entry describing the starter-sentence button.
 
 - No emojis in tab labels.
 - Status dot is hidden until the interview session starts.
@@ -62,7 +62,7 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 - `custom` → `POST <customUrl>/v1/messages` (Anthropic message format; handles both Anthropic and OpenAI response shapes)
 - `anthropic` → `POST https://api.anthropic.com/v1/messages` (key from sessionStorage)
 - `openai` → `POST https://api.openai.com/v1/chat/completions` (key from sessionStorage; system prompt prepended to messages array)
-- `lowTokens=true` → `max_tokens: 300`, else `1000`
+- `lowTokens=true` → `max_tokens: 300`, else `2000`
 
 **`buildSystemPrompt(question, style, focusAreas, level)`**
 Constructs a detailed interviewer system prompt covering:
@@ -71,6 +71,10 @@ Constructs a detailed interviewer system prompt covering:
 - 4-phase interview arc (Scoping → High-level → Deep dive → Wrap-up)
 - Interviewer rules (no hints unless asked, no restating, no bullet points)
 - Special commands: `"feedback"`, `"give full answer"`, `"hint"`
+- System prompt includes `WHITEBOARD_UPDATE FORMAT` instructions for AI-driven whiteboard updates
+
+**`renderWhiteboardUpdate(reply)`**
+Parses ` ```whiteboard ` JSON blocks from AI responses. Adds components (rectangles, ellipses, diamonds) and arrows to the Excalidraw canvas via `_excalidrawAPI.updateScene()`. Returns `{ text, hadWbUpdate }` — stripped reply text and a flag. Auto-opens the whiteboard drawer and scrolls to new elements.
 
 **`generateQuestion()`**
 Picks random domain + twist + constraint from curated arrays, calls `callAI` with `lowTokens=true` and an empty system prompt to produce a single-sentence system design question.
@@ -85,7 +89,7 @@ Sends `"Start."` to AI; displays first interviewer message.
 Appends user message to `history[]`. Always calls `serializeWb()` — if the whiteboard has content, silently enriches the last user message with a `[WHITEBOARD CONTEXT]` block before passing to `callAI`. The `history[]` array and chat UI remain clean (no whiteboard text injected into visible bubbles).
 
 **`serializeWb()`**
-Reads `wb.nodes` and `wb.edges` synchronously. Returns a structured `[WHITEBOARD CONTEXT]` string block (or `null` if canvas is empty) containing:
+Reads Excalidraw scene elements via `window._excalidrawAPI.getSceneElements()`. Returns a structured `[WHITEBOARD CONTEXT]` string block (or `null` if canvas is empty) containing:
 - **Components** list (shape labels, normalized via `LABEL_NORMS` map)
 - **Connections** with optional arrow labels (`A → B`, `A →[label]→ B`)
 - **Inferred / unclear** entries for arrows with missing endpoints
@@ -114,37 +118,16 @@ let history = [];         // [{role, content}, ...]
 let selectedStyle = 'Balanced';
 let selectedLevel = 'mid-level';
 
-// Canvas whiteboard engine state
-const wb = {
-  nodes: [],     // {id, type, x, y, w, h, label}
-  edges: [],     // {id, from, to, label}
-  history: [],   // undo stack (JSON snapshots, max 30)
-  mode: 'select' | 'add' | 'arrow',
-  addType: null, // shape type when mode==='add'
-  sel: null,     // selected node id
-  drag: null,    // {id, ox, oy}
-  arrowStart: null, // source node id during arrow draw
-  nextId: 1,
-  editTarget: null, // {kind:'node'|'edge', id} — for inline label editing
-};
+// Excalidraw whiteboard
+window._excalidrawAPI     // Excalidraw API ref, set on mount
 ```
 
-### Whiteboard shape types & toolbar
-| Shape | Key | Size (w×h) |
-|---|---|---|
-| Service | `service` | 120×60 |
-| Database | `database` | 100×70 |
-| Queue | `queue` | 110×55 |
-| Client | `client` | 70×70 |
-| Cache | `cache` | 120×60 |
-
-Toolbar actions: **Select**, **Arrow** (draw directed edge), shape buttons, **Undo**, **Clear**.  
-Double-click a node or edge mid-point to inline-edit its label.
+### Whiteboard — Excalidraw
+Loaded via CDN: `react`, `react-dom`, `@excalidraw/excalidraw`. Mounted inside a resizable right-edge drawer (`#wb-excalidraw-container`). Drawer opened/closed via `toggleWhiteboard()`; left edge is drag-resizable.
 
 ### Whiteboard ↔ AI integration
-- **Always-on, no toggle.** `send()` calls `serializeWb()` on every message.
-- If canvas is non-empty, the last user message sent to the AI is enriched with the `[WHITEBOARD CONTEXT]` block; the `history[]` array and the visible chat bubble remain unmodified.
-- System prompt instructs the AI to treat the whiteboard as a natural part of the interview workspace and to probe gaps and missing connections.
+- **User → AI (always-on):** `send()` calls `serializeWb()` on every message. If the Excalidraw scene has elements, the last user message sent to the AI is enriched with a `[WHITEBOARD CONTEXT]` block; `history[]` and chat UI remain unmodified.
+- **AI → Whiteboard:** `renderWhiteboardUpdate(reply)` detects ` ```whiteboard ` JSON fences in AI responses, strips them from displayed text, and programmatically adds shapes/arrows to the Excalidraw canvas. Triggered on `hint` (single element) and `give full answer` (full diagram) commands. The system prompt's `WHITEBOARD_UPDATE FORMAT` section tells the AI when and how to emit these blocks.
 
 ### Models (as of code)
 ```js

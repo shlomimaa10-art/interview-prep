@@ -55,13 +55,13 @@ InterviewApp/
 
 ## Whiteboard
 
-A fully self-contained canvas-based whiteboard (no iframe, no external deps) floats over the Interview panel.
+An **Excalidraw**-based whiteboard in a resizable right-edge drawer. Loaded via CDN (`react`, `react-dom`, `@excalidraw/excalidraw`). State managed through `window._excalidrawAPI`.
 
-**Shapes:** Service · Database · Queue · Client · Cache  
-**Interactions:** add shape, draw directed arrows, drag/move nodes, double-click to edit labels, Undo (up to 30 steps), Clear.
+**AI integration — bidirectional, always-on:**
 
-**AI integration — always-on:**  
-`serializeWb()` is called on every `send()`. If the canvas has content, the `[WHITEBOARD CONTEXT]` block (components, connections, inferred gaps) is silently appended to the outgoing user message before calling the AI. The visible chat bubble and `history[]` array are never modified. No toggle — the AI always sees the current sketch when anything is drawn.
+1. **User → AI (every message):** `serializeWb()` reads Excalidraw scene elements. If non-empty, a `[WHITEBOARD CONTEXT]` block (components, connections, inferred gaps) is silently appended to the outgoing user message. The visible chat bubble and `history[]` remain unmodified.
+
+2. **AI → Whiteboard (hint / full answer):** The AI can include a ` ```whiteboard ` JSON block at the end of its response. `renderWhiteboardUpdate(reply)` parses it and programmatically adds components and arrows to the Excalidraw canvas. The ` ```whiteboard ` fence is stripped from the displayed chat text; an "✏️ *Updated whiteboard*" note is appended instead. The system prompt includes `WHITEBOARD_UPDATE FORMAT` instructions telling the AI when and how to emit these blocks (hint → single element; full answer → full diagram; feedback → text only).
 
 ---
 
