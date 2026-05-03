@@ -362,7 +362,8 @@
       <div class="field-label">Interview Format</div>
       <div class="toggle-group">
         <button class="toggle-btn active" data-format="open" onclick="selectFormat(this)">🎯 Open</button>
-        <button class="toggle-btn" data-format="structured" onclick="selectFormat(this)">📋 Structured</button>
+        <button class="toggle-btn" data-format="product" onclick="selectFormat(this)">🧑‍💻 Product Design</button>
+        <button class="toggle-btn" data-format="infra" onclick="selectFormat(this)">⚙️ Infrastructure</button>
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="format-hint">Free-form — interviewer guides organically</div>
     </div>
@@ -513,9 +514,14 @@ function selectFormat(btn) {
   document.querySelectorAll('.toggle-btn[data-format]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedFormat = btn.dataset.format;
-  document.getElementById('format-hint').textContent = selectedFormat === 'structured'
-    ? 'Six-phase format: requirements → entities → architecture → deep dive → bottlenecks → extensions'
-    : 'Free-form — interviewer guides organically';
+  const hint = document.getElementById('format-hint');
+  if (selectedFormat === 'product') {
+    hint.textContent = 'User-facing apps (Uber, Ticketmaster). Flow: Requirements → Core Entities → API → High-Level Design → Deep Dives. Primary goal: functional requirements.';
+  } else if (selectedFormat === 'infra') {
+    hint.textContent = 'Backend / data systems (pipelines, queues). Flow: Requirements → System Interface & Data Flow → High-Level Design → Deep Dives. Primary goal: non-functional (scale, reliability).';
+  } else {
+    hint.textContent = 'Free-form — interviewer guides organically';
+  }
 }
 
 function selectDuration(btn) {
@@ -718,26 +724,38 @@ QUESTION: "${question}"
 
 ---
 
-${format === 'structured' ? `INTERVIEW FRAMEWORK — STRUCTURED FORMAT:
-The candidate has opted for a structured interview. Guide them through these six phases IN ORDER. Announce each phase transition clearly (e.g. "Great, let's move on to defining your core entities and APIs."). Do NOT skip phases or let the candidate jump ahead.
+${format === 'product' ? `INTERVIEW FRAMEWORK — PRODUCT DESIGN FORMAT:
+This is a product design / user-facing system question (e.g. Uber, Ticketmaster, Instagram). PRIMARY GOAL: satisfy functional requirements. Non-functional requirements are also important but secondary. Guide the candidate through these five phases IN ORDER. Announce each phase transition clearly. Do NOT skip phases or let the candidate jump ahead.
 
-PHASE 1 · Clarify Requirements (first 5-10 min)
-Ask the candidate to identify functional requirements (what the system does) AND non-functional requirements (scale, latency, availability, consistency). YOU answer their clarifying questions with concrete numbers. If they only cover functional, prompt: "What about non-functional requirements?" and vice versa. Summarize agreed requirements before moving on.
+PHASE 1 · Requirements (first 5-10 min)
+Drive the candidate to enumerate FUNCTIONAL requirements first (the user stories — what can users actually do?). Push for prioritization: "What are the top 3 must-have features?" Then cover non-functional requirements (scale, latency, availability) at a high level. YOU answer their clarifying questions with concrete numbers.
 
-PHASE 2 · Define Core Entities & APIs (next 5-10 min)
-Ask the candidate to define the key data entities (users, messages, orders, etc.) and the API contracts (endpoints, request/response shapes). Push for specifics: "What fields does that entity have?" / "Is this REST, GraphQL, or something else? Why?" If they skip API design, prompt them.
+PHASE 2 · Core Entities (next 5 min)
+Ask the candidate to identify the core data entities (User, Ride, Event, Ticket, etc.) and the key relationships between them. Don't dive into full schemas yet — just the entity model. Prompt: "What are the main objects in this system, and how do they relate?"
 
-PHASE 3 · High-Level Architecture (next 10-15 min)
-Push the candidate to sketch the major components: clients, load balancers, web servers, databases, caches, queues, CDN, third-party services. They should explain the data flow end-to-end. Ask them to use the whiteboard. Challenge missing components: "Where does authentication happen?" / "How does data get from A to B?"
+PHASE 3 · API (next 5-10 min)
+Ask the candidate to design the API contract for the core user flows. For each top user story, what's the endpoint? Push for specifics: HTTP method, path, request/response shape. "How does a user book a ride? What's the request and response?" Challenge missing endpoints.
 
-PHASE 4 · Deep Dive into Key Areas (next 10-15 min)
-Probe the most critical areas for this specific system: scaling strategies, storage choices (SQL vs NoSQL, partitioning, replication), caching (what layer, invalidation), messaging/queues, consistency models. Adjust depth to candidate level. Ask "why" for every choice.
+PHASE 4 · High-Level Design (next 10-15 min)
+Push for the major components that implement the API: clients, load balancers, services, databases, caches, queues, third-party APIs. Ask the candidate to use the whiteboard. Trace each top user story end-to-end through the components.
 
-PHASE 5 · Bottlenecks & Trade-offs (next 5-10 min)
-Ask the candidate to identify the top 2-3 bottlenecks in their design. For each: "What breaks first at 10x scale?" / "What's the trade-off you're making here?" If they can't identify bottlenecks, point one out and ask how they'd address it. Cover failure modes: "What happens when this component goes down?"
+PHASE 5 · Deep Dives (remaining time)
+Probe the most critical or interesting parts of the design. Pick 2-3 areas: a hot data path, a tricky consistency problem, a scale bottleneck, a key trade-off. Ask "why" for every choice. Surface failure modes and edge cases the candidate hasn't raised.` :
 
-PHASE 6 · Improvements & Extensions (last 5 min)
-Ask: "If you had another week to work on this, what would you add or change?" Look for: monitoring/observability, security hardening, multi-region, feature extensions, cost optimization. This is their chance to show breadth.` :
+format === 'infra' ? `INTERVIEW FRAMEWORK — INFRASTRUCTURE / BACKEND DESIGN FORMAT:
+This is an infrastructure / backend systems question (e.g. data pipeline, message queue, distributed cache, search index). PRIMARY GOAL: satisfy non-functional requirements (scalability, reliability, throughput, latency, durability). Functional requirements are also important but secondary. Guide the candidate through these four phases IN ORDER. Announce each phase transition clearly. Do NOT skip phases or let the candidate jump ahead.
+
+PHASE 1 · Requirements (first 5-10 min)
+Drive the candidate to enumerate NON-FUNCTIONAL requirements first: throughput (events/sec, QPS), latency targets (p50, p99), durability guarantees, availability (uptime %), consistency model. Push for hard numbers. Then cover functional requirements (what does the system do, what are the inputs/outputs?). YOU answer their clarifying questions with concrete numbers.
+
+PHASE 2 · System Interface and Data Flow (next 5-10 min)
+Ask the candidate to define the system's external interface (producer API, consumer API, query API — whatever applies) and the end-to-end data flow: what comes in, what gets stored, what goes out. Push for specifics on data shapes, batching, and ordering guarantees.
+
+PHASE 3 · High-Level Design (next 10-15 min)
+Push the candidate to sketch the major components: ingestion layer, storage layer, processing layer, serving layer, coordination/metadata. Ask them to use the whiteboard. Probe partitioning strategy, replication, and how the system scales horizontally.
+
+PHASE 4 · Deep Dives (remaining time)
+Drill into the hardest non-functional aspects: hot partitions, replication lag, back-pressure, exactly-once vs at-least-once, failure recovery, capacity math, monitoring. Pick 2-3 areas. Surface bottlenecks the candidate hasn't raised. Ask "what breaks at 10x scale?"` :
 
 `INTERVIEW FRAMEWORK — follow this arc implicitly:
 
@@ -813,9 +831,13 @@ Rules for whiteboard updates:
 ---
 
 RESPONSE FORMAT: 1–4 sentences max (unless giving feedback or a full answer). Conversational, short, no grand intros.
-Your very first message (triggered by "Start."): ${format === 'structured'
-    ? 'Welcome the candidate, briefly state the question, and say "Let\'s start with Phase 1 — what are the functional and non-functional requirements you\'d want to clarify?" One or two sentences max.'
-    : 'prompt the candidate to begin — e.g. "Where would you start?" or "Walk me through your approach." One sentence. Do NOT ask the candidate for requirements — that is their job to ask you.'}`;
+Your very first message (triggered by "Start."): ${style === 'Friendly'
+    ? (format === 'product'
+        ? 'Warmly welcome the candidate, briefly state the question, and gently suggest starting with functional requirements — e.g. "Maybe start by thinking about what users should be able to do?" Two sentences max.'
+        : format === 'infra'
+        ? 'Warmly welcome the candidate, briefly state the question, and gently suggest starting with non-functional requirements (throughput, latency, durability) — e.g. "A good place to start is the scale and latency targets." Two sentences max.'
+        : 'Warmly welcome the candidate, briefly state the question, and gently invite them to begin — e.g. "Take a moment, and let me know where you\'d like to start." Two sentences max.')
+    : 'Welcome the candidate, briefly state the question, and hand it over with an open prompt — e.g. "Where would you like to start?" or "The floor is yours." One or two sentences max. Do NOT tell the candidate what to do first, do NOT mention phases, do NOT ask them for requirements — driving the interview is the candidate\'s job.'}`;
 }
 
 // ── AI call ───────────────────────────────────────────
