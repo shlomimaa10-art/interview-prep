@@ -34,6 +34,7 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 |---|---|
 | Candidate Level | Junior / **Mid-level** / Senior |
 | Focus Areas | **Scalability**, **Reliability**, **Latency**, Security, Cost, Observability |
+| Company Context | Optional free-text note (e.g. "Stripe — payments infra…"); shapes interviewer framing, scale assumptions, and trade-off bias |
 | Interview Question | Pre-filled example; or hit ✨ Generate |
 | Interviewer Style | Strict / **Balanced** / Friendly |
 | Provider | **Custom/localhost** / Anthropic / OpenAI |
@@ -64,8 +65,10 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 - `openai` → `POST https://api.openai.com/v1/chat/completions` (key from sessionStorage; system prompt prepended to messages array)
 - `lowTokens=true` → `max_tokens: 300`, else `2000`
 
-**`buildSystemPrompt(question, style, focusAreas, level)`**
+**`buildSystemPrompt(question, style, focusAreas, level, format, companyContext)`**
 Constructs a detailed interviewer system prompt covering:
+- Optional `COMPANY CONTEXT` block (when `companyContext` is non-empty) that biases scale assumptions, scenarios, trade-offs, and clarifying-question numbers toward the target company without naming it verbatim each turn
+- `getCompanyContext()` reads `#company-context` textarea; also passed to `generateQuestion()` for company-flavored prompts
 - Style guide (Strict / Balanced / Friendly)
 - Level expectations (Junior / Mid-level / Senior)
 - 4-phase interview arc (Scoping → High-level → Deep dive → Wrap-up)
@@ -128,6 +131,20 @@ Loaded via CDN: `react`, `react-dom`, `@excalidraw/excalidraw`. Mounted inside a
 ### Whiteboard ↔ AI integration
 - **User → AI (always-on):** `send()` calls `serializeWb()` on every message. If the Excalidraw scene has elements, the last user message sent to the AI is enriched with a `[WHITEBOARD CONTEXT]` block; `history[]` and chat UI remain unmodified.
 - **AI → Whiteboard:** `renderWhiteboardUpdate(reply)` detects ` ```whiteboard ` JSON fences in AI responses, strips them from displayed text, and programmatically adds shapes/arrows to the Excalidraw canvas. Triggered on `hint` (single element) and `give full answer` (full diagram) commands. The system prompt's `WHITEBOARD_UPDATE FORMAT` section tells the AI when and how to emit these blocks.
+
+### Session Persistence
+`localStorage` key `interviewSession_v1` enables browser-crash recovery.
+- **Persisted:** `question`, `history`, `system`, `level`, `style`, `format`, `duration`, `focusAreas`, `companyContext`, `timerStart`, `whiteboard`.
+- **Saved on:** every message (user + AI), every whiteboard update, `pagehide`, `beforeunload`.
+- **Auto-restore** on page load if present; **cleared** when a new interview starts.
+
+### Export & History
+- **📥 Export** (interview-tab action): downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file containing the question, metadata (level, style, format, duration, elapsed, focus areas), full transcript, and an embedded base64 PNG of the whiteboard rendered via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. `exportSession` and `exportHistEntry` were refactored to share `exportEntryFiles()`.
+- **📚 History** (interview-tab action): opens a modal listing past interviews stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (capped at `HISTORY_MAX = 20`, FIFO eviction). Each past entry exposes **View** (inline transcript), **Export** (same Markdown + `.excalidraw` pair), and **Delete** buttons.
+- **Modal close**: ✕ button, backdrop click, or `Escape` key.
+- **Snapshot trigger points**: a session snapshot is auto-pushed into `interviewHistory_v1` at:
+  1. `restartInterview()` — before resetting current session state.
+  2. `startInterview()` — before the new question overwrites state, preserving any prior run.
 
 ### Models (as of code)
 ```js

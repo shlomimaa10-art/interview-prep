@@ -182,6 +182,29 @@
   .action-btn:active{transform:scale(.96)}
   .action-btn.primary{background:rgba(79,124,255,0.18);border-color:var(--accent-border);color:#a8c0ff;font-weight:600}
   .action-btn.primary:hover{background:rgba(79,124,255,0.3);border-color:#6a8fff;color:#c4d4ff}
+
+  /* History modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:950;display:none;align-items:center;justify-content:center;padding:24px}
+  .modal-backdrop.show{display:flex}
+  .modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;width:100%;max-width:720px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  .modal-head{padding:14px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surface2)}
+  .modal-head h3{font-size:14px;font-weight:600;color:var(--text)}
+  .modal-close{margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:6px}
+  .modal-close:hover{color:var(--text);background:var(--border)}
+  .modal-body{padding:14px 20px;overflow-y:auto;flex:1}
+  .hist-empty{color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0}
+  .hist-item{padding:12px 14px;border:0.5px solid var(--border2);border-radius:10px;margin-bottom:10px;background:var(--surface2);transition:border-color .15s}
+  .hist-item:hover{border-color:var(--accent-border)}
+  .hist-q{font-size:13px;color:var(--text);margin-bottom:6px;line-height:1.45}
+  .hist-meta{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .hist-actions{display:flex;gap:6px;margin-top:8px}
+  .hist-btn{padding:4px 10px;background:var(--surface);border:0.5px solid var(--border2);border-radius:6px;color:var(--text-muted);font-size:11px;font-family:var(--font-ui);cursor:pointer;transition:background .15s,color .15s}
+  .hist-btn:hover{background:var(--accent-bg);color:#a8c0ff;border-color:var(--accent-border)}
+  .hist-btn.danger:hover{background:rgba(255,107,107,0.12);color:#ff9999;border-color:rgba(255,107,107,0.35)}
+  .hist-transcript{display:none;margin-top:10px;padding:10px 12px;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;max-height:300px;overflow-y:auto;font-size:12px;line-height:1.55;color:var(--text)}
+  .hist-transcript.open{display:block}
+  .hist-transcript .msg-row{margin-bottom:8px}
+  .hist-transcript .msg-row strong{color:var(--text-muted);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px}
   /* Whiteboard drawer */
   #wb-drawer{position:fixed;top:0;right:0;height:100%;width:520px;min-width:320px;max-width:90vw;background:var(--surface);border-left:0.5px solid var(--border2);display:flex;flex-direction:column;z-index:900;box-shadow:-8px 0 40px rgba(0,0,0,0.5);transform:translateX(100%);transition:transform .22s ease;overflow:visible}
   #wb-drawer.wb-open{transform:translateX(0)}
@@ -268,6 +291,16 @@
         <div class="help-card-title">Live Excalidraw whiteboard</div>
         <div class="help-card-desc">Draw system diagrams mid-interview using the built-in Excalidraw canvas. A tab on the right edge of the screen opens and closes the whiteboard drawer. Sketch shapes, arrows, and labels freely. Your diagram is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
       </div>
+      <div class="help-card">
+        <div class="help-card-icon">💾</div>
+        <div class="help-card-title">Crash-safe sessions</div>
+        <div class="help-card-desc">Your interview is auto-saved as you go. If your browser crashes or you accidentally close the tab, just reopen the app — chat, timer, and whiteboard pick up exactly where you left off.</div>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon">📚</div>
+        <div class="help-card-title">History &amp; export</div>
+        <div class="help-card-desc">Every past interview is saved. Open <em>📚 History</em> to view, re-read, or delete prior sessions. Hit <em>📥 Export</em> for a Markdown download with the full transcript and an embedded PNG of your whiteboard — perfect for sharing with mentors.</div>
+      </div>
     </div>
 
     <div class="help-flow">
@@ -292,6 +325,10 @@
         <div class="help-step-num">5</div>
         <div class="help-step-text"><strong>Get feedback</strong> — type <em>"feedback"</em> at any point for a structured, honest evaluation of your answer.</div>
       </div>
+      <div class="help-step">
+        <div class="help-step-num">6</div>
+        <div class="help-step-text"><strong>Restart, export, or revisit</strong> — hit <em>🔄 Restart</em> to redo the same question, <em>📥 Export</em> to download a Markdown copy, or <em>📚 History</em> to browse past sessions.</div>
+      </div>
     </div>
 
     <div class="help-cmds">
@@ -300,6 +337,9 @@
       <div class="help-cmd"><span class="cmd-key">"give full answer"</span><span class="cmd-desc">Ask the AI to reveal the model solution</span></div>
       <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
       <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Click to get 1-2 ready-to-send opening sentences dropped into your text box — edit and send as your own</span></div>
+      <div class="help-cmd"><span class="cmd-key">🔄 Restart</span><span class="cmd-desc">Reset the chat and timer for the same question — the previous run is saved into History</span></div>
+      <div class="help-cmd"><span class="cmd-key">📥 Export</span><span class="cmd-desc">Download the current session as a Markdown file (transcript + whiteboard PNG embedded)</span></div>
+      <div class="help-cmd"><span class="cmd-key">📚 History</span><span class="cmd-desc">Open the past-interviews modal — view, export, or delete any prior session</span></div>
       <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
       <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Tab on the right edge — opens the Excalidraw drawer; drag its left edge to resize</span></div>
     </div>
@@ -356,6 +396,12 @@
       <div class="field-label">Interview Question</div>
       <textarea id="question-input" class="setup-field">Design a system that processes millions of HTTP requests per second and decides in real time whether to allow or block each request based on configurable rules (rate limiting, IP blocking, geo-restrictions, etc.).</textarea>
       <button id="gen-btn" onclick="generateQuestion()">✨ Generate question for my level &amp; focus</button>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Company Context <span style="color:var(--text-muted);font-weight:normal">(optional)</span></div>
+      <textarea id="company-context" class="setup-field" rows="2" placeholder="e.g. Stripe — payments infra, hard reliability bar, global low-latency, SMB + enterprise customers"></textarea>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">A short note about the company you're interviewing at. Shapes the interviewer's framing, scale assumptions, and trade-off bias.</div>
     </div>
 
     <div class="field-group">
@@ -458,10 +504,23 @@
         <button class="action-btn" style="opacity:0.65" onclick="quickSend('give full answer')">💡 Full Answer</button>
         <button class="action-btn" onclick="quickSend('hint')">🪄 Hint</button>
         <button class="action-btn" id="starter-btn" onclick="fillStarterSentence()">🗣️ How to Start</button>
+        <button class="action-btn" onclick="restartInterview()">🔄 Restart</button>
+        <button class="action-btn" onclick="exportSession()">📥 Export</button>
+        <button class="action-btn" onclick="openHistory()">📚 History</button>
         <span class="tip" style="margin-left:auto"><span>Shift+Enter</span> → new line</span>
       </div>
     </div>
   </main>
+</div>
+
+<div id="hist-modal" class="modal-backdrop" onclick="if(event.target===this)closeHistory()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📚 Past interviews</h3>
+      <button class="modal-close" onclick="closeHistory()" title="Close">✕</button>
+    </div>
+    <div class="modal-body" id="hist-body"></div>
+  </div>
 </div>
 
 <script>
@@ -483,6 +542,88 @@ let selectedFormat = 'open';
 let selectedDuration = 45;
 let timerInterval = null;
 let timerStart = null;
+let currentQuestion = '';
+
+// ── Session persistence (browser-crash recovery) ──────
+const SESSION_KEY = 'interviewSession_v1';
+let _restoring = false;
+function saveSession() {
+  if (_restoring || !currentQuestion) return;
+  try {
+    const wbEls = (window._excalidrawAPI
+      ? window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted)
+      : []);
+    const data = {
+      question: currentQuestion,
+      history: history,
+      system: SYSTEM,
+      level: selectedLevel,
+      style: selectedStyle,
+      format: selectedFormat,
+      duration: selectedDuration,
+      focusAreas: getFocusAreas(),
+      companyContext: getCompanyContext(),
+      timerStart: timerStart,
+      wb: wbEls,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  } catch (e) { /* quota / serialization — ignore */ }
+}
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+// ── Past-interviews archive ───────────────────────────
+const HISTORY_KEY = 'interviewHistory_v1';
+const HISTORY_MAX = 20;
+function loadHistoryList() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+function saveHistoryList(list) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_MAX))); } catch (e) {}
+}
+function snapshotToHistory() {
+  if (!currentQuestion || !history.length) return;
+  const realMsgs = history.filter(m => !(m.role === 'user' && m.content === 'Start.'));
+  if (!realMsgs.length) return;
+  const wbEls = (window._excalidrawAPI
+    ? window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted)
+    : []);
+  const entry = {
+    id: 'ih_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    question: currentQuestion,
+    history: history.slice(),
+    level: selectedLevel,
+    style: selectedStyle,
+    format: selectedFormat,
+    duration: selectedDuration,
+    focusAreas: getFocusAreas(),
+    companyContext: getCompanyContext(),
+    elapsedSec: timerStart ? Math.floor((Date.now() - timerStart) / 1000) : 0,
+    wb: wbEls,
+    savedAt: Date.now()
+  };
+  const list = loadHistoryList();
+  list.unshift(entry);
+  saveHistoryList(list);
+}
+function deleteHistoryEntry(id) {
+  saveHistoryList(loadHistoryList().filter(e => e.id !== id));
+  renderHistory();
+}
 
 // ── Setup UI ──────────────────────────────────────────
 function updateModelOptions() {
@@ -637,6 +778,8 @@ async function generateQuestion() {
 
   const focus = getFocusAreas();
   const focusStr = focus.length ? `Focus areas: ${focus.join(', ')}.` : '';
+  const company = getCompanyContext();
+  const companyStr = company ? `Company context (use as inspiration for the system being designed): ${company}` : '';
   const levelDesc = {
     junior:      'a junior engineer (1–3 years exp). Keep it straightforward — one main service, basic scale.',
     'mid-level': 'a mid-level engineer (3–6 years exp). Expect distributed components and trade-off awareness.',
@@ -656,6 +799,7 @@ Use these ingredients as INTERNAL INSPIRATION ONLY — do NOT mention them expli
 ${extra ? `- Background context: ${extra}` : ''}
 Candidate level: ${levelDesc}
 ${focusStr}
+${companyStr}
 
 OUTPUT RULES — follow these exactly:
 - One sentence only. Hard limit.
@@ -687,7 +831,11 @@ Bad examples (do NOT produce these):
 }
 
 // ── System prompt ─────────────────────────────────────
-function buildSystemPrompt(question, style, focusAreas, level, format) {
+function getCompanyContext() {
+  const el = document.getElementById('company-context');
+  return el ? el.value.trim() : '';
+}
+function buildSystemPrompt(question, style, focusAreas, level, format, companyContext) {
   const styleGuide = {
     Strict:   'Be challenging and direct. Do NOT give hints unless explicitly asked. Call out vague answers immediately.',
     Balanced: 'Be concise and slightly challenging. Push for clarity, give small nudges if stuck.',
@@ -712,6 +860,9 @@ function buildSystemPrompt(question, style, focusAreas, level, format) {
   }[level] || '';
 
   const focus = focusAreas.length ? `Particular focus: ${focusAreas.join(', ')}.` : '';
+  const company = (companyContext && companyContext.trim())
+    ? `\nCOMPANY CONTEXT: The candidate is interviewing at this company — "${companyContext.trim()}". Let this shape the interview: bias the scale assumptions, scenarios, trade-offs, and follow-up questions toward what would actually matter at this company. When you answer the candidate's clarifying questions with concrete numbers, pick numbers that are plausible for this company. Do NOT mention the company name verbatim in every turn — let it inform your framing naturally.`
+    : '';
 
   return `You are a senior engineer at a top tech company conducting a real system design interview.
 
@@ -719,7 +870,7 @@ ALWAYS respond in English only, regardless of the language the candidate uses.
 
 INTERVIEW STYLE: ${styleGuide}
 CANDIDATE LEVEL: ${levelExp}
-${focus}
+${focus}${company}
 QUESTION: "${question}"
 
 ---
@@ -728,7 +879,7 @@ ${format === 'product' ? `INTERVIEW FRAMEWORK — PRODUCT DESIGN FORMAT:
 This is a product design / user-facing system question (e.g. Uber, Ticketmaster, Instagram). PRIMARY GOAL: satisfy functional requirements. Non-functional requirements are also important but secondary. Guide the candidate through these five phases IN ORDER. Announce each phase transition clearly. Do NOT skip phases or let the candidate jump ahead.
 
 PHASE 1 · Requirements (first 5-10 min)
-Drive the candidate to enumerate FUNCTIONAL requirements first (the user stories — what can users actually do?). Push for prioritization: "What are the top 3 must-have features?" Then cover non-functional requirements (scale, latency, availability) at a high level. YOU answer their clarifying questions with concrete numbers.
+Drive the candidate to enumerate FUNCTIONAL requirements first (the user stories — what can users actually do?). Push for prioritization: "What are the top 3 must-have features?" Then cover non-functional requirements (scale, latency, availability) at a high level — qualitative is fine; do NOT push for hard numbers unless a specific design decision will hinge on them later. YOU answer their clarifying questions with concrete numbers when asked.
 
 PHASE 2 · Core Entities (next 5 min)
 Ask the candidate to identify the core data entities (User, Ride, Event, Ticket, etc.) and the key relationships between them. Don't dive into full schemas yet — just the entity model. Prompt: "What are the main objects in this system, and how do they relate?"
@@ -746,7 +897,7 @@ format === 'infra' ? `INTERVIEW FRAMEWORK — INFRASTRUCTURE / BACKEND DESIGN FO
 This is an infrastructure / backend systems question (e.g. data pipeline, message queue, distributed cache, search index). PRIMARY GOAL: satisfy non-functional requirements (scalability, reliability, throughput, latency, durability). Functional requirements are also important but secondary. Guide the candidate through these four phases IN ORDER. Announce each phase transition clearly. Do NOT skip phases or let the candidate jump ahead.
 
 PHASE 1 · Requirements (first 5-10 min)
-Drive the candidate to enumerate NON-FUNCTIONAL requirements first: throughput (events/sec, QPS), latency targets (p50, p99), durability guarantees, availability (uptime %), consistency model. Push for hard numbers. Then cover functional requirements (what does the system do, what are the inputs/outputs?). YOU answer their clarifying questions with concrete numbers.
+Drive the candidate to enumerate NON-FUNCTIONAL requirements first: throughput, latency targets, durability guarantees, availability, consistency model. Qualitative ranges (e.g. "high throughput", "low latency") are acceptable — only push for hard numbers (QPS, p99, uptime %) if a specific downstream design decision will depend on them. Then cover functional requirements (what does the system do, what are the inputs/outputs?). YOU answer their clarifying questions with concrete numbers when asked.
 
 PHASE 2 · System Interface and Data Flow (next 5-10 min)
 Ask the candidate to define the system's external interface (producer API, consumer API, query API — whatever applies) and the end-to-end data flow: what comes in, what gets stored, what goes out. Push for specifics on data shapes, batching, and ordering guarantees.
@@ -786,6 +937,7 @@ INTERVIEWER RULES:
 - Do NOT let them deep-dive one component before the high-level picture is clear.
 - Do NOT restate what the candidate just said before asking your next question.
 - Do NOT bullet-point your responses — speak conversationally.
+- Do NOT push the candidate to do back-of-envelope math, capacity numbers, or QPS estimates unless an actual design choice in this session depends on the result. Modern interviews don't require numbers for their own sake — qualitative reasoning is fine. If the candidate skips numbers but their design is sound, that is NOT a gap.
 - The candidate has an Excalidraw whiteboard. In Phase 2 and Phase 3, occasionally ask them to use it — e.g. "Can you sketch the data flow on your whiteboard?", "Draw the components and how they connect.", "Show me on the whiteboard where the bottleneck would be." Treat it as a natural part of the session, not a special feature.
 
 ADAPTIVE DIFFICULTY:
@@ -922,7 +1074,10 @@ async function startInterview() {
     }
   }
 
-  SYSTEM = buildSystemPrompt(q, selectedStyle, getFocusAreas(), selectedLevel, selectedFormat);
+  SYSTEM = buildSystemPrompt(q, selectedStyle, getFocusAreas(), selectedLevel, selectedFormat, getCompanyContext());
+  // Snapshot any prior in-flight session into history before overwriting
+  snapshotToHistory();
+  currentQuestion = q;
   document.getElementById('q-text').textContent = q;
   document.getElementById('header-sub').textContent =
     selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1) + ' · ' + selectedStyle;
@@ -932,6 +1087,7 @@ async function startInterview() {
   switchTab('interview');
   history = [];
   document.getElementById('chat').innerHTML = '';
+  clearSession();
   startTimer();
 
   const startBtn = document.getElementById('start-btn');
@@ -1003,6 +1159,7 @@ async function init() {
     history.push({ role: 'user', content: 'Start.' });
     history.push({ role: 'assistant', content: reply });
     addMsg('assistant', reply);
+    saveSession();
   } catch (e) {
     removeTyping();
     showErr('Could not connect: ' + e.message);
@@ -1015,6 +1172,177 @@ async function init() {
 function quickSend(text) {
   document.getElementById('user-input').value = text;
   send();
+}
+
+async function restartInterview() {
+  if (!currentQuestion) return;
+  if (!confirm('Restart this interview? Your current chat and whiteboard will be cleared. The same question, level, and style will be used.')) return;
+  // Snapshot current run into past-interviews history before resetting
+  snapshotToHistory();
+  // Reset state — keep currentQuestion, SYSTEM, level/style/format/duration/focus
+  history = [];
+  document.getElementById('chat').innerHTML = '';
+  // Clear whiteboard
+  if (window._excalidrawAPI) {
+    try { window._excalidrawAPI.updateScene({ elements: [] }); } catch (e) {}
+  }
+  clearSession();
+  startTimer();
+  await init();
+}
+
+// ── Export current session as Markdown ───────────────
+function fmtDuration(secs) {
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+async function buildSessionMarkdown(entry) {
+  const dt = new Date(entry.savedAt || Date.now());
+  const lines = [];
+  lines.push('# Interview Session');
+  lines.push('');
+  lines.push('**Question:** ' + entry.question);
+  lines.push('');
+  lines.push('| Field | Value |');
+  lines.push('|---|---|');
+  lines.push('| Date | ' + dt.toLocaleString() + ' |');
+  lines.push('| Level | ' + entry.level + ' |');
+  lines.push('| Style | ' + entry.style + ' |');
+  lines.push('| Format | ' + entry.format + ' |');
+  lines.push('| Duration | ' + entry.duration + ' min planned, ' + fmtDuration(entry.elapsedSec || 0) + ' elapsed |');
+  if (entry.focusAreas && entry.focusAreas.length) lines.push('| Focus Areas | ' + entry.focusAreas.join(', ') + ' |');
+  if (entry.companyContext) lines.push('| Company | ' + entry.companyContext.replace(/\|/g, '\\|').replace(/\n/g, ' ') + ' |');
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+  lines.push('## Transcript');
+  lines.push('');
+  for (const m of entry.history) {
+    if (m.role === 'user' && m.content === 'Start.') continue;
+    lines.push('### ' + (m.role === 'assistant' ? 'Interviewer' : 'You'));
+    lines.push('');
+    lines.push(m.content);
+    lines.push('');
+  }
+  // Whiteboard PNG (base64-embedded)
+  if (entry.wb && entry.wb.length && window.ExcalidrawLib && ExcalidrawLib.exportToBlob) {
+    try {
+      const blob = await ExcalidrawLib.exportToBlob({
+        elements: entry.wb,
+        appState: { exportBackground: true, viewBackgroundColor: '#1a1d27' },
+        mimeType: 'image/png',
+      });
+      const dataUrl = await new Promise((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.readAsDataURL(blob);
+      });
+      lines.push('---');
+      lines.push('');
+      lines.push('## Whiteboard');
+      lines.push('');
+      lines.push('![Whiteboard](' + dataUrl + ')');
+      lines.push('');
+    } catch (e) { /* skip image on failure */ }
+  }
+  return lines.join('\n');
+}
+function entryBaseName(entry) {
+  const safeQ = (entry.question || 'session').slice(0, 40).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
+  const ts = new Date(entry.savedAt || Date.now()).toISOString().slice(0, 10);
+  return 'interview-' + ts + '-' + safeQ;
+}
+function exportEntryMarkdown(entry) {
+  return buildSessionMarkdown(entry).then(md =>
+    downloadBlob(new Blob([md], { type: 'text/markdown' }), entryBaseName(entry) + '.md')
+  );
+}
+function buildCurrentEntry() {
+  const wbEls = (window._excalidrawAPI
+    ? window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted)
+    : []);
+  return {
+    question: currentQuestion,
+    history: history.slice(),
+    level: selectedLevel,
+    style: selectedStyle,
+    format: selectedFormat,
+    duration: selectedDuration,
+    focusAreas: getFocusAreas(),
+    companyContext: getCompanyContext(),
+    elapsedSec: timerStart ? Math.floor((Date.now() - timerStart) / 1000) : 0,
+    wb: wbEls,
+    savedAt: Date.now()
+  };
+}
+async function exportSession() {
+  if (!currentQuestion || !history.length) {
+    alert('Nothing to export yet — start the interview first.');
+    return;
+  }
+  await exportEntryMarkdown(buildCurrentEntry());
+}
+
+// ── History modal ─────────────────────────────────────
+function openHistory() {
+  renderHistory();
+  document.getElementById('hist-modal').classList.add('show');
+}
+function closeHistory() {
+  document.getElementById('hist-modal').classList.remove('show');
+}
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function renderHistory() {
+  const body = document.getElementById('hist-body');
+  const list = loadHistoryList();
+  if (!list.length) {
+    body.innerHTML = '<div class="hist-empty">No past interviews yet. Restart or start a new one — the previous session will be saved here.</div>';
+    return;
+  }
+  body.innerHTML = list.map(e => {
+    const dt = new Date(e.savedAt).toLocaleString();
+    const msgs = e.history.filter(m => !(m.role === 'user' && m.content === 'Start.')).length;
+    return '<div class="hist-item" data-id="' + e.id + '">'
+      + '<div class="hist-q">' + escapeHtml(e.question) + '</div>'
+      + '<div class="hist-meta">'
+      +   '<span>' + escapeHtml(dt) + '</span>'
+      +   '<span>· ' + escapeHtml(e.level) + ' · ' + escapeHtml(e.style) + '</span>'
+      +   '<span>· ' + msgs + ' msgs · ' + fmtDuration(e.elapsedSec || 0) + '</span>'
+      + '</div>'
+      + '<div class="hist-actions">'
+      +   '<button class="hist-btn" onclick="toggleHistTranscript(\'' + e.id + '\')">View</button>'
+      +   '<button class="hist-btn" onclick="exportHistEntry(\'' + e.id + '\')">📥 Export</button>'
+      +   '<button class="hist-btn danger" onclick="if(confirm(\'Delete this past interview?\'))deleteHistoryEntry(\'' + e.id + '\')">Delete</button>'
+      + '</div>'
+      + '<div class="hist-transcript" id="ht-' + e.id + '"></div>'
+      + '</div>';
+  }).join('');
+}
+function toggleHistTranscript(id) {
+  const el = document.getElementById('ht-' + id);
+  if (!el) return;
+  if (el.classList.contains('open')) { el.classList.remove('open'); el.innerHTML = ''; return; }
+  const entry = loadHistoryList().find(e => e.id === id);
+  if (!entry) return;
+  el.innerHTML = entry.history
+    .filter(m => !(m.role === 'user' && m.content === 'Start.'))
+    .map(m => '<div class="msg-row"><strong>' + (m.role === 'assistant' ? 'Interviewer' : 'You') + '</strong>' + escapeHtml(m.content).replace(/\n/g, '<br>') + '</div>')
+    .join('');
+  el.classList.add('open');
+}
+async function exportHistEntry(id) {
+  const entry = loadHistoryList().find(e => e.id === id);
+  if (!entry) return;
+  await exportEntryMarkdown(entry);
 }
 
 async function fillStarterSentence() {
@@ -1064,6 +1392,7 @@ async function send() {
     const { text: cleanReply, hadWbUpdate } = renderWhiteboardUpdate(reply);
     history.push({ role: 'assistant', content: cleanReply });
     addMsg('assistant', cleanReply + (hadWbUpdate ? '\n\n✏️ *Updated whiteboard*' : ''));
+    saveSession();
   } catch (e) {
     removeTyping();
     addMsg('assistant', '⚠️ Error: ' + e.message);
@@ -1123,6 +1452,7 @@ function editMsg(wrap, msgEl, histIdx) {
       const { text: cleanReply, hadWbUpdate } = renderWhiteboardUpdate(reply);
       history.push({ role: 'assistant', content: cleanReply });
       addMsg('assistant', cleanReply + (hadWbUpdate ? '\n\n✏️ *Updated whiteboard*' : ''));
+      saveSession();
     } catch (e) {
       removeTyping();
       addMsg('assistant', '⚠️ Error: ' + e.message);
@@ -1439,6 +1769,7 @@ function renderWhiteboardUpdate(reply) {
 
   if (newElements.length) {
     window._excalidrawAPI.updateScene({ elements: existing.concat(newElements) });
+    saveSession();
     var drawer = document.getElementById('wb-drawer');
     if (drawer && !drawer.classList.contains('wb-open')) toggleWhiteboard();
     setTimeout(function() {
@@ -1485,6 +1816,9 @@ input.addEventListener('keydown', function(e) {
 });
 document.getElementById('question-input').addEventListener('animationend', function () {
   this.classList.remove('shake');
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('hist-modal').classList.contains('show')) closeHistory();
 });
 
 // ── Whiteboard drawer ─────────────────────────────────
@@ -1539,6 +1873,99 @@ document.getElementById('question-input').addEventListener('animationend', funct
   new ResizeObserver(() => {
     if (window._excalidrawAPI) window._excalidrawAPI.refresh();
   }).observe(drawer);
+})();
+
+// ── Restore session on page load (browser-crash recovery) ──
+(function() {
+  function restoreSession() {
+    const data = loadSession();
+    if (!data || !data.question || !Array.isArray(data.history) || !data.history.length) return;
+    _restoring = true;
+    try {
+      currentQuestion = data.question;
+      SYSTEM = data.system || '';
+      selectedLevel = data.level || selectedLevel;
+      selectedStyle = data.style || selectedStyle;
+      selectedFormat = data.format || selectedFormat;
+      selectedDuration = data.duration || selectedDuration;
+      history = data.history.slice();
+
+      // Restore focus-area checkboxes
+      if (Array.isArray(data.focusAreas)) {
+        document.querySelectorAll('.focus-chip input[type=checkbox]').forEach(cb => {
+          cb.checked = data.focusAreas.includes(cb.value);
+          const chip = cb.closest('.focus-chip');
+          if (chip) chip.classList.toggle('selected', cb.checked);
+        });
+      }
+      if (typeof data.companyContext === 'string') {
+        const cc = document.getElementById('company-context');
+        if (cc) cc.value = data.companyContext;
+      }
+
+      document.getElementById('q-text').textContent = currentQuestion;
+      document.getElementById('header-sub').textContent =
+        selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1) + ' · ' + selectedStyle;
+      document.getElementById('tab-interview').disabled = false;
+      document.getElementById('status-dot').style.display = 'block';
+
+      // Rebuild chat from history
+      const chatEl = document.getElementById('chat');
+      chatEl.innerHTML = '';
+      history.forEach((m, i) => {
+        if (m.role === 'user' && m.content === 'Start.') return; // hide synthetic kickoff
+        addMsg(m.role, m.content, m.role === 'user' ? i : undefined);
+      });
+
+      // Resume timer from original start
+      timerStart = data.timerStart || Date.now();
+      const el = document.getElementById('q-timer');
+      const elapsedEl = document.getElementById('timer-elapsed');
+      const durEl = document.getElementById('timer-duration');
+      el.style.display = '';
+      durEl.textContent = selectedDuration ? ' / ' + selectedDuration + ':00' : '';
+      el.className = 'q-timer';
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const secs = Math.floor((Date.now() - timerStart) / 1000);
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        elapsedEl.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+        if (selectedDuration > 0) {
+          const totalSecs = selectedDuration * 60;
+          if (secs >= totalSecs) el.className = 'q-timer overtime';
+          else if (secs >= totalSecs * 0.85) el.className = 'q-timer warn';
+          else el.className = 'q-timer';
+        }
+      }, 1000);
+
+      switchTab('interview');
+
+      // Restore whiteboard once Excalidraw mounts
+      if (Array.isArray(data.wb) && data.wb.length) {
+        const tryRestoreWb = () => {
+          if (window._excalidrawAPI) {
+            window._excalidrawAPI.updateScene({ elements: data.wb });
+          } else {
+            setTimeout(tryRestoreWb, 300);
+          }
+        };
+        tryRestoreWb();
+      }
+    } finally {
+      _restoring = false;
+    }
+  }
+
+  // Save on page hide (best-effort crash protection)
+  window.addEventListener('pagehide', saveSession);
+  window.addEventListener('beforeunload', saveSession);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restoreSession);
+  } else {
+    restoreSession();
+  }
 })();
 
 // ── Help panel scroll animations ──────────────────────

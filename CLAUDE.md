@@ -50,6 +50,7 @@ InterviewApp/
 | Level | Mid-level |
 | Style | Balanced |
 | Focus Areas | Scalability, Reliability, Latency |
+| Company Context | Empty (optional free-text; biases interviewer framing & scale) |
 
 ---
 
@@ -62,6 +63,27 @@ An **Excalidraw**-based whiteboard in a resizable right-edge drawer. Loaded via 
 1. **User → AI (every message):** `serializeWb()` reads Excalidraw scene elements. If non-empty, a `[WHITEBOARD CONTEXT]` block (components, connections, inferred gaps) is silently appended to the outgoing user message. The visible chat bubble and `history[]` remain unmodified.
 
 2. **AI → Whiteboard (hint / full answer):** The AI can include a ` ```whiteboard ` JSON block at the end of its response. `renderWhiteboardUpdate(reply)` parses it and programmatically adds components and arrows to the Excalidraw canvas. The ` ```whiteboard ` fence is stripped from the displayed chat text; an "✏️ *Updated whiteboard*" note is appended instead. The system prompt includes `WHITEBOARD_UPDATE FORMAT` instructions telling the AI when and how to emit these blocks (hint → single element; full answer → full diagram; feedback → text only).
+
+---
+
+## Export & History
+
+Two interview-tab actions extend session management:
+
+- **📥 Export**: downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file with the question, metadata (level / style / format / duration / elapsed / focus areas), full transcript, and an embedded base64 PNG of the whiteboard via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. Both `exportSession` and `exportHistEntry` delegate to `exportEntryFiles()`.
+- **📚 History**: opens a modal listing past sessions stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (cap `HISTORY_MAX = 20`, FIFO eviction). Each entry has **View** (inline transcript), **Export**, and **Delete** buttons. Modal closes via ✕ button, backdrop click, or `Escape` key.
+- **Snapshot triggers**: the current session is auto-pushed into history at `restartInterview()` and at `startInterview()` (before the new question overwrites state), preserving prior runs.
+
+---
+
+## Session Persistence
+
+Browser-crash recovery via `localStorage` key `interviewSession_v1`.
+
+- **Persisted fields:** `question`, `history`, `system`, `level`, `style`, `format`, `duration`, `focusAreas`, `companyContext`, `timerStart`, `whiteboard`.
+- **Save points:** every message sent/received, every whiteboard update, and on `pagehide` / `beforeunload`.
+- **Auto-restore** on page load if a saved session exists.
+- **Cleared** when a new interview starts.
 
 ---
 
