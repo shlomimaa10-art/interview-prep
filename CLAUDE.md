@@ -1,7 +1,9 @@
 # Interview Prep — CLAUDE.md
 
 ## Overview
-Single-file AI interview simulator. Users configure a session (level, style, focus areas, provider) and have a live back-and-forth conversation with an AI acting as a senior engineer interviewer.
+Single-file AI interview simulator with two modes:
+- **Interview mode** — configure a session (level, style, focus areas, provider) and have a live back-and-forth with an AI acting as a senior engineer interviewer.
+- **Study mode** — drill into a specific topic with a Socratic tutor (asks instead of lectures, tiered hints, mastery bar). Topics can be picked from a curated, category-grouped library or deep-linked from interview feedback gaps.
 
 **Live URL:** https://zealous-pond-0e6b2f103.2.azurestaticapps.net
 
@@ -49,8 +51,10 @@ InterviewApp/
 | Custom URL | `http://localhost:4141` |
 | Level | Mid-level |
 | Style | Balanced |
-| Focus Areas | Scalability, Reliability, Latency |
+| Target Duration | **No limit** (`selectedDuration = 0`; "No limit" toggle is the active default; `#sum-duration` reads "No limit") |
+| Focus Areas | Scalability, Reliability, Latency (plus user-added custom areas via "+ Add custom focus area" tile) |
 | Company Context | Empty (optional free-text; biases interviewer framing & scale) |
+| Setup Sections | Company Context / Interview Format / Interviewer Style / Target Duration / AI Provider & Model are collapsible (default collapsed; persisted in `localStorage` under `setupCollapsed_v1`; show summaries when collapsed) |
 
 ---
 
@@ -71,8 +75,21 @@ An **Excalidraw**-based whiteboard in a resizable right-edge drawer. Loaded via 
 Two interview-tab actions extend session management:
 
 - **📥 Export**: downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file with the question, metadata (level / style / format / duration / elapsed / focus areas), full transcript, and an embedded base64 PNG of the whiteboard via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. Both `exportSession` and `exportHistEntry` delegate to `exportEntryFiles()`.
-- **📚 History**: opens a modal listing past sessions stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (cap `HISTORY_MAX = 20`, FIFO eviction). Each entry has **View** (inline transcript), **Export**, **▶ Resume** (rehydrates question, config, chat, whiteboard, and timer with preserved elapsed time via `restoreSession()` data override; rebuilds `SYSTEM` via `buildSystemPrompt()`; snapshots current session first), and **Delete** buttons. Modal closes via ✕ button, backdrop click, or `Escape` key.
+- **📚 History**: opens a modal listing past sessions stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (cap `HISTORY_MAX = 20`, FIFO eviction). The modal is split into two tabs — **Interviews** and **📚 Study** — switched via `switchHistTab('interview' | 'study')`. Each interview entry has **View** (inline transcript), **Export**, **▶ Resume** (rehydrates question, config, chat, whiteboard, and timer with preserved elapsed time via `restoreSession()` data override; rebuilds `SYSTEM` via `buildSystemPrompt()`; snapshots current session first), and **Delete** buttons. Modal closes via ✕ button, backdrop click, or `Escape` key.
 - **Snapshot triggers**: `snapshotToHistory()` upserts by stable `currentSessionId` (set at `startInterview()` / `restartInterview()` / `resumeHistEntry()` and persisted in `interviewSession_v1`). Called at `restartInterview()`, `startInterview()` (before overwriting state), and on `pagehide` / `beforeunload`, so every session auto-appears in History and refresh/close-tab updates the same entry in place rather than duplicating.
+
+---
+
+## Study Mode
+
+Socratic tutor tab alongside Interviews. Major properties:
+
+- **Topic picker:** 2-column landing — left sidebar shows curated topics grouped by category (Scalability / Reliability / Latency / Databases / Security / Observability / Networking) with collapsible category headers, plus a "Gaps from past interviews" block surfaced from low-mastery topics that were deep-linked from interview feedback. Right column has a free-text topic input, resume card for the most recent in-progress study session, and a recent-sessions list with mastery bars.
+- **Socratic tutor:** `buildStudySystemPrompt()` constructs a prompt that asks instead of lectures, with a progressive hint ladder (`studyHintTier`) and explicit "STOP hinting and TEACH" rules when the learner signals they don't know the underlying concept. The AI appends a fenced ` ```mastery ` JSON block after each turn that updates a mastery bar (0–100%).
+- **Deep-link from interview feedback:** Interview feedback can deep-link the user into a targeted study session for a specific gap topic; the originating interview ID is tracked via `studySourceInterviewId` so progress can be tagged `gapSourcedFrom`.
+- **Storage:** Separate `localStorage` namespace — `studySession_v1` (in-progress session crash recovery) and `studyHistory_v1` (capped at `STUDY_HISTORY_MAX = 50`). Per-topic mastery progress is persisted separately (`loadStudyProgress` / `saveStudyProgress`).
+- **No visible timer:** Study Mode hides the running timer in the top bar; `studyTimerStart` is still tracked so elapsed time is recorded in History.
+- **Empty-session guard:** Study sessions with no real exchanges are skipped on snapshot (no empty rows in History).
 
 ---
 

@@ -12,10 +12,13 @@ Invoke the **`docs-update`** agent with:
 
 Wait for its report.
 
-## 3. Confirm to user
+## 3. Commit + push doc changes
+If `docs-update` made any edits, invoke the **`git-manager`** agent to stage, commit, and push the doc changes. Pass it a one-line summary like "docs-sync: refresh .md files against last 10 commits". Skip this step only if docs-update reported "no changes made".
+
+## 4. Confirm to user
 Tell the user:
 - How many commits were reviewed
 - Which `.md` files were changed / created / deleted (from docs-update's report)
-- Or "Docs are already up to date — no changes needed" if nothing was touched
+- Commit SHA + push status (from `git-manager`), or "no doc changes needed — nothing committed"
 
 Keep the final message tight (≤6 lines).

@@ -3,7 +3,7 @@
 ## File Structure
 ```
 InterviewApp/
-├── index.html          # Single-file app (~1410 lines: HTML + CSS + JS)
+├── index.html          # Single-file app (~3300 lines: HTML + CSS + JS)
 ├── CLAUDE.md
 ├── CODEBASE_ANALYSIS.md
 └── function/           # Azure Function proxy (unused by app, kept for future)
@@ -19,9 +19,9 @@ InterviewApp/
 ## index.html
 
 ### Tabs
-Four tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts) · **Help**
+Four tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts) · **📚 Study**
 
-The **Help** tab contains a **Commands & shortcuts** section listing in-chat commands (`feedback`, `hint`, `give full answer`), a **Live Excalidraw whiteboard** card, and a **🗣️ How to Start** entry describing the starter-sentence button.
+The **How it works** tab contains a **Commands & shortcuts** section listing in-chat commands (`feedback`, `hint`, `give full answer`), a **Live Excalidraw whiteboard** card, and a **🗣️ How to Start** entry describing the starter-sentence button.
 
 - No emojis in tab labels.
 - Status dot is hidden until the interview session starts.
@@ -33,14 +33,17 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 | Field | Options / Default |
 |---|---|
 | Candidate Level | Junior / **Mid-level** / Senior |
-| Focus Areas | **Scalability**, **Reliability**, **Latency**, Security, Cost, Observability |
+| Focus Areas | **Scalability**, **Reliability**, **Latency**, Security, Cost, Observability, plus **+ Add custom focus area** tile (free-text, removable via ✕) |
 | Company Context | Optional free-text note (e.g. "Stripe — payments infra…"); shapes interviewer framing, scale assumptions, and trade-off bias |
 | Interview Question | Pre-filled example; or hit ✨ Generate |
 | Interviewer Style | Strict / **Balanced** / Friendly |
+| Target Duration | **No limit** (default) / 15 / 30 / 45 / 60 min — `selectedDuration` initialized to `0`; `#sum-duration` summary reads "No limit" until changed |
 | Provider | **Custom/localhost** / Anthropic / OpenAI |
 | Model | **claude-sonnet-4.6** (custom default); provider-specific lists |
 | Custom URL | `http://localhost:4141` (shown for custom only) |
 | API Key | Stored in `sessionStorage` (shown for anthropic/openai only) |
+
+**Collapsible sections:** Five sections — Company Context, Interview Format, Interviewer Style, Target Duration, AI Provider & Model — are collapsible via chevron toggles on their `field-label`. Default state is collapsed; each shows a one-line summary (`.fg-summary`) when collapsed. State persists in `localStorage` under `setupCollapsed_v1`. Helpers: `toggleSetupSection`, `saveSetupCollapsed`, `loadSetupCollapsed`, `updateSectionSummaries`. Custom focus area tile uses `showFocusAddForm` / `confirmAddFocus` / `cancelAddFocus`.
 
 ### UI / Layout
 
@@ -141,12 +144,42 @@ Loaded via CDN: `react`, `react-dom`, `@excalidraw/excalidraw`. Mounted inside a
 
 ### Export & History
 - **📥 Export** (interview-tab action): downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file containing the question, metadata (level, style, format, duration, elapsed, focus areas), full transcript, and an embedded base64 PNG of the whiteboard rendered via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. `exportSession` and `exportHistEntry` were refactored to share `exportEntryFiles()`.
-- **📚 History** (interview-tab action): opens a modal listing past interviews stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (capped at `HISTORY_MAX = 20`, FIFO eviction). Each past entry exposes **View** (inline transcript), **Export** (same Markdown + `.excalidraw` pair), **▶ Resume** (rehydrates question, config, full chat, whiteboard, and timer with preserved elapsed time into the live interview — snapshots current session first, reuses `restoreSession()` with a data override, and rebuilds `SYSTEM` via `buildSystemPrompt()` from the entry's settings), and **Delete** buttons.
+- **📚 History** (interview-tab action): opens a modal listing past interviews stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (capped at `HISTORY_MAX = 20`, FIFO eviction). Modal is split into two tabs — **Interviews** and **📚 Study** — switched via `switchHistTab('interview' | 'study')` (state in `_histTab`). Each past interview entry exposes **View** (inline transcript), **Export** (same Markdown + `.excalidraw` pair), **▶ Resume** (rehydrates question, config, full chat, whiteboard, and timer with preserved elapsed time into the live interview — snapshots current session first, reuses `restoreSession()` with a data override, and rebuilds `SYSTEM` via `buildSystemPrompt()` from the entry's settings), and **Delete** buttons. Study entries (`renderStudyHistory()`) get **Resume** / **Delete** with topic, mastery %, message count, and elapsed time.
 - **Modal close**: ✕ button, backdrop click, or `Escape` key.
 - **Snapshot trigger points**: `snapshotToHistory()` upserts by stable `currentSessionId` (assigned at `startInterview()` / `restartInterview()` / `resumeHistEntry()` and persisted in `interviewSession_v1`). Called at:
   1. `restartInterview()` — before resetting current session state.
   2. `startInterview()` — before the new question overwrites state.
   3. `pagehide` / `beforeunload` — so every session auto-appears in History; refresh/close-tab updates the same entry in place rather than duplicating.
+
+### Study Mode (`#panel-study`)
+
+A separate Socratic-tutor tab. Distinct accent (`--study-accent`) and namespace; shares no state with Interview mode.
+
+**Landing layout** (`renderStudyLanding()`): 2-column grid (`.study-landing-grid`) — left sidebar lists curated topics (`STUDY_BUILTIN_TOPICS`) grouped by category in `STUDY_CAT_ORDER` (Scalability / Reliability / Latency / Databases / Security / Observability / Networking). Each category header is collapsible (`toggleStudyCat`, persisted via `loadStudyCollapsed` / `saveStudyCollapsed`). Right column has the topic input, an in-progress resume card, and a recent-sessions list with mastery bars. A separate "⚠ Gaps from past interviews" block surfaces low-mastery topics that were sourced from interview feedback gaps (`prog[id].gapSourcedFrom && mastery < 80`).
+
+**Tutor prompt** (`buildStudySystemPrompt(topic)`): instructs a Socratic teaching style (probe → tiered hints → mini-quizzes), with explicit "STOP hinting and TEACH" rules when the learner signals they don't know an underlying concept. Requires the AI to append a fenced ` ```mastery ` JSON block updating the mastery score 0–100, and (optionally) a fenced topic block.
+
+**Session functions:** `startStudySession(topic, topicId, sourceInterviewId)` initializes state and switches to the Study tab; `sendStudy()` mirrors Interview `send()` (whiteboard context appended if non-empty); `restartStudy()` snapshots then resets; `exitStudy(askConfirm)` returns to landing; `resumeStudyEntry(entry)` and `restoreStudySession()` rehydrate from history / crash recovery.
+
+**Topic categories:** Recently expanded with DB topics (Normalization vs Denormalization, Change Data Capture, Time-Series Databases).
+
+**Storage keys:**
+```js
+STUDY_SESSION_KEY = 'studySession_v1'   // in-progress crash recovery
+STUDY_HISTORY_KEY = 'studyHistory_v1'   // capped at STUDY_HISTORY_MAX = 50
+// per-topic mastery progress saved separately (loadStudyProgress / saveStudyProgress)
+```
+
+**State:**
+```js
+let studyTopic = '', studyTopicId = '', studyHistory = [], studySystem = '';
+let studyHintTier = 0, studyMastery = 0, studyTimerStart = null;
+let studySessionId = '', studySourceInterviewId = '';
+```
+
+**UX notes:** No visible top-bar timer (elapsed still tracked via `studyTimerStart`); Exit lives as a top-bar ✕; `snapshotStudyToHistory()` skips empty sessions.
+
+---
 
 ### Models (as of code)
 ```js

@@ -14,16 +14,23 @@ Make the change to ~/Desktop/InterviewApp/index.html (and any other relevant fil
 - Match existing code style exactly
 - No new frameworks, no build steps
 
-## 4. Deploy
-When the implementation is done, run /deploy automatically to push it live.
+## 4. Deploy + update docs IN PARALLEL
+Once the code change is written, kick off these two agents **in the same message** (single message, two Agent tool calls) so they run concurrently:
 
-## 5. Update docs
-After deploy completes, invoke the **@docs-update** agent with:
-> "trigger: feature — <one-line description of what changed>"
+- **`deploy`** agent: deploys the current `index.html` to the Azure SWA. Pass: "Deploy current state to production."
+- **`docs-update`** agent: audits all `.md` files vs the new code state. Pass: `"trigger: feature — <one-line description of what changed>"`
 
-Let it audit and patch the docs silently. Include its summary in the final confirmation.
+They are independent — deploy doesn't read docs, docs-update doesn't write code.
+
+## 5. Commit + push (as soon as docs-update returns — don't wait for deploy)
+The moment **`docs-update`** returns, immediately invoke the **`git-manager`** agent to stage, commit, and push everything (code + doc edits). Do NOT wait for the deploy agent to finish — the commit is independent of the deploy result.
+
+Pass git-manager a one-line summary of the feature change so it can write a proper commit message.
+
+Then wait for the `deploy` agent to finish (if it hasn't already).
 
 ## 6. Confirm
 Tell the user:
-- What changed and that it's live at https://zealous-pond-0e6b2f103.2.azurestaticapps.net
-- Docs update summary (from @docs-update, or "Docs are up to date — no changes needed")
+- What changed and that it's live at https://zealous-pond-0e6b2f103.2.azurestaticapps.net (from the deploy agent)
+- Docs update summary (from `docs-update`, or "Docs are up to date — no changes needed")
+- Commit SHA + push status (from `git-manager`)
