@@ -66,11 +66,31 @@
   .toggle-btn:hover{color:var(--text);background:var(--surface2)}
   .toggle-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:#a8c0ff}
   .focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .focus-chip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-muted);transition:background .15s,color .15s,border-color .15s;user-select:none}
+  .focus-chip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-muted);transition:background .15s,color .15s,border-color .15s;user-select:none;position:relative}
   .focus-chip input{display:none}
   .chip-box{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--text-faint);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:background .15s,border-color .15s}
   .focus-chip.checked{background:var(--accent-bg);border-color:var(--accent-border);color:#a8c0ff}
   .focus-chip.checked .chip-box{background:var(--accent);border-color:var(--accent);color:#fff}
+  .focus-chip .chip-remove{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;border:none;background:transparent;color:var(--text-faint);font-size:13px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;transition:color .15s,background .15s}
+  .focus-chip.custom .chip-remove{display:flex}
+  .focus-chip .chip-remove:hover{color:#ff9999;background:rgba(255,107,107,0.12)}
+  .focus-add-tile{display:flex;align-items:center;gap:8px;padding:8px 12px;background:transparent;border:0.5px dashed var(--border2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-faint);transition:color .15s,border-color .15s,background .15s;font-family:var(--font-ui)}
+  .focus-add-tile:hover{color:#a8c0ff;border-color:var(--accent-border);background:var(--accent-bg)}
+  .focus-add-form{grid-column:1 / -1;display:flex;gap:8px;align-items:center;padding:6px 0 2px}
+  .focus-add-form input{flex:1;background:var(--surface);border:0.5px solid var(--accent-border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:var(--font-ui);outline:none}
+  .focus-add-form input:focus{border-color:var(--accent)}
+  .focus-add-form button{padding:8px 14px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;font-family:var(--font-ui);cursor:pointer}
+  .focus-add-form button.cancel{background:var(--surface);color:var(--text-muted);border:0.5px solid var(--border2)}
+
+  /* Collapsible field-group */
+  .field-group.collapsible > .field-label{cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;transition:color .15s}
+  .field-group.collapsible > .field-label:hover{color:var(--text)}
+  .field-group.collapsible > .field-label::before{content:'▸';font-size:10px;color:var(--text-faint);transition:transform .2s ease,color .15s;display:inline-block;width:10px}
+  .field-group.collapsible.open > .field-label::before{transform:rotate(90deg);color:var(--accent)}
+  .field-group.collapsible > .collapsible-body{display:none;animation:fg-fade .2s ease}
+  .field-group.collapsible.open > .collapsible-body{display:block}
+  .field-group.collapsible > .field-label .fg-summary{margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:normal;text-transform:none;letter-spacing:0;font-family:var(--font-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+  @keyframes fg-fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
   .level-group{display:flex;gap:8px}
   .level-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-muted);transition:background .15s,color .15s,border-color .15s;user-select:none}
   .level-opt input{display:none}
@@ -367,6 +387,80 @@
   .modal-tab:hover{color:var(--text)}
   .modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
   .modal-tab.active.study{color:var(--study-accent);border-bottom-color:var(--study-accent)}
+
+  /* === Help Tab — redesigned === */
+  .help-wrap{max-width:780px}
+  .help-hero{position:relative;padding:28px 0 12px}
+  .help-medallion{width:96px;height:96px;border-radius:50%;margin:0 auto 18px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);box-shadow:0 0 0 1px rgba(79,124,255,0.25),0 0 40px rgba(79,124,255,0.25)}
+  .help-medallion::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,#4f7cff,#a864ff,#3ecf8e,#4f7cff);animation:hm-spin 6s linear infinite;filter:blur(2px);opacity:.85;z-index:-1}
+  .help-medallion::after{content:'';position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);z-index:0}
+  .help-medallion span{position:relative;z-index:1;font-size:42px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
+  @keyframes hm-spin{to{transform:rotate(360deg)}}
+  .help-hero h1{font-size:30px;font-weight:700;margin-bottom:10px;background:linear-gradient(90deg,#fff 0%,#a8c0ff 60%,#d3b8ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-0.01em}
+  .help-hero p{font-size:14px;color:var(--text-muted);line-height:1.7;max-width:520px;margin:0 auto}
+  .help-section-eyebrow{font-size:11px;font-weight:600;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:10px;margin-bottom:-8px}
+  .help-section-eyebrow::before,.help-section-eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+  .help-section-eyebrow::before{background:linear-gradient(90deg,transparent,var(--border2))}
+  .help-section-eyebrow::after{background:linear-gradient(90deg,var(--border2),transparent)}
+
+  .help-card-spotlight{position:relative;background:var(--surface);border-radius:14px;padding:22px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;overflow:hidden;opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease,box-shadow .25s}
+  .help-card-spotlight.visible{opacity:1;transform:translateY(0)}
+  .help-card-spotlight::before{content:'';position:absolute;inset:0;border-radius:14px;padding:1px;background:linear-gradient(135deg,rgba(79,124,255,0.5),rgba(168,100,255,0.4),rgba(62,207,142,0.35));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .help-card-spotlight:hover{box-shadow:0 0 30px rgba(79,124,255,0.18)}
+  .help-spotlight-icon{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,rgba(79,124,255,0.18),rgba(168,100,255,0.18));border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+  .help-spotlight-body{display:flex;flex-direction:column;gap:6px}
+  .help-spotlight-tag{font-size:10px;font-weight:600;font-family:var(--font-mono);color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:2px 8px;border-radius:4px;align-self:flex-start;letter-spacing:.06em;text-transform:uppercase}
+  .help-spotlight-title{font-size:16px;font-weight:600;color:var(--text)}
+  .help-spotlight-desc{font-size:13px;color:var(--text-muted);line-height:1.65}
+
+  .mode-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mode-card{position:relative;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:opacity .25s,border-color .2s,box-shadow .25s,transform .2s;opacity:0;transform:translateY(20px)}
+  .mode-card.visible{opacity:1;transform:translateY(0)}
+  .mode-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:14px 0 0 14px}
+  .mode-card.interview::before{background:linear-gradient(180deg,#4f7cff,#3ecf8e)}
+  .mode-card.study::before{background:linear-gradient(180deg,#a864ff,#4f7cff)}
+  .mode-compare:hover .mode-card:not(:hover){opacity:.55}
+  .mode-card:hover{transform:translateY(-2px)}
+  .mode-card.interview:hover{border-color:var(--accent-border);box-shadow:0 0 24px rgba(79,124,255,0.18)}
+  .mode-card.study:hover{border-color:var(--study-accent-border);box-shadow:0 0 24px rgba(168,100,255,0.18)}
+  .mode-head{display:flex;align-items:center;gap:10px}
+  .mode-icon{font-size:22px}
+  .mode-title{font-size:15px;font-weight:600;color:var(--text)}
+  .mode-card.interview .mode-title{color:#a8c0ff}
+  .mode-card.study .mode-title{color:#d3b8ff}
+  .mode-tag{font-size:10px;font-family:var(--font-mono);font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase;margin-left:auto}
+  .mode-card.interview .mode-tag{color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border)}
+  .mode-card.study .mode-tag{color:var(--study-accent);background:var(--study-accent-bg);border:0.5px solid var(--study-accent-border)}
+  .mode-desc{font-size:12.5px;color:var(--text-muted);line-height:1.6}
+  .mode-bullets{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px}
+  .mode-bullets li{font-size:12px;color:var(--text-muted);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+  .mode-bullets li::before{content:'';flex-shrink:0;width:5px;height:5px;border-radius:50%;margin-top:7px}
+  .mode-card.interview .mode-bullets li::before{background:var(--accent)}
+  .mode-card.study .mode-bullets li::before{background:var(--study-accent)}
+
+  .help-timeline{position:relative;padding:8px 0 8px 0;counter-reset:tl}
+  .help-timeline::before{content:'';position:absolute;left:18px;top:14px;bottom:14px;width:2px;background:linear-gradient(180deg,var(--accent),#a864ff,#3ecf8e)}
+  .help-tl-step{position:relative;padding:0 0 22px 56px;counter-increment:tl;opacity:0;transform:translateX(-18px);transition:opacity .45s ease,transform .45s ease}
+  .help-tl-step.visible{opacity:1;transform:translateX(0)}
+  .help-tl-step:last-child{padding-bottom:0}
+  .help-tl-step::before{content:counter(tl);position:absolute;left:0;top:-2px;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);border:1.5px solid var(--accent-border);color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--bg),0 0 20px rgba(79,124,255,0.25)}
+  .help-tl-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .help-tl-title .tl-icon{font-size:16px}
+  .help-tl-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
+  .help-tl-desc em{color:var(--accent);font-style:normal;font-family:var(--font-mono);font-size:12px;background:var(--accent-bg);padding:1px 6px;border-radius:4px}
+
+  .help-footer{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+  .help-footer-block{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:18px 20px;opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}
+  .help-footer-block.visible{opacity:1;transform:translateY(0)}
+
+  @media (max-width:680px){
+    .help-card-spotlight{grid-template-columns:1fr}
+    .mode-compare{grid-template-columns:1fr}
+    .help-footer{grid-template-columns:1fr}
+    .help-hero h1{font-size:24px}
+    .help-medallion{width:80px;height:80px}
+    .help-medallion span{font-size:34px}
+  }
 </style>
 </head>
 <body>
@@ -398,9 +492,20 @@
   <div class="help-wrap">
 
     <div class="help-hero">
-      <div class="help-icon">🎯</div>
+      <div class="help-medallion"><span>🎯</span></div>
       <h1>Your personal interview coach</h1>
       <p>Real pressure. AI that pushes back — just like a senior engineer would.</p>
+    </div>
+
+    <div class="help-section-eyebrow">What you get</div>
+
+    <div class="help-card-spotlight">
+      <div class="help-spotlight-icon">✏️</div>
+      <div class="help-spotlight-body">
+        <span class="help-spotlight-tag">Signature feature</span>
+        <div class="help-spotlight-title">Live Excalidraw whiteboard the AI can read</div>
+        <div class="help-spotlight-desc">Draw your architecture mid-interview using the built-in Excalidraw drawer. Every message you send silently includes a snapshot of your diagram — the AI reads boxes, arrows and labels, asks about missing links, and probes gaps. The AI can also draw back: hints and full answers can append components and connections directly to your canvas.</div>
+      </div>
     </div>
 
     <div class="help-cards">
@@ -420,19 +525,9 @@
         <div class="help-card-desc">Set your level (junior → senior), pick a style (strict / balanced / friendly), and choose your focus areas. The interviewer adapts.</div>
       </div>
       <div class="help-card">
-        <div class="help-card-icon">✏️</div>
-        <div class="help-card-title">Live Excalidraw whiteboard</div>
-        <div class="help-card-desc">Draw system diagrams mid-interview using the built-in Excalidraw canvas. A tab on the right edge of the screen opens and closes the whiteboard drawer. Sketch shapes, arrows, and labels freely. Your diagram is automatically sent with every message — the interviewer reads it, asks about missing links, and probes gaps in your design.</div>
-      </div>
-      <div class="help-card">
         <div class="help-card-icon">💾</div>
-        <div class="help-card-title">Crash-safe sessions</div>
-        <div class="help-card-desc">Your interview is auto-saved as you go. If your browser crashes or you accidentally close the tab, just reopen the app — chat, timer, and whiteboard pick up exactly where you left off. Every session you start also auto-lands in History so nothing is ever lost.</div>
-      </div>
-      <div class="help-card">
-        <div class="help-card-icon">📚</div>
-        <div class="help-card-title">History, Resume &amp; export</div>
-        <div class="help-card-desc">Every past interview is saved automatically. Open <em>📚 History</em> to view, <em>▶ Resume</em> any prior session and continue exactly where it left off (chat, whiteboard, and timer all restored), or <em>📥 Export</em> a Markdown copy with the full transcript and an embedded PNG of your whiteboard.</div>
+        <div class="help-card-title">Never lose progress</div>
+        <div class="help-card-desc">Every session is auto-saved as you go — chat, timer, and whiteboard. Crash, refresh or close the tab and the app picks up exactly where you left off. Open <em>📚 History</em> to <em>▶ Resume</em> any past run, or <em>📥 Export</em> a Markdown copy with the full transcript and an embedded PNG of your whiteboard.</div>
       </div>
       <div class="help-card">
         <div class="help-card-icon">🏢</div>
@@ -444,63 +539,95 @@
         <div class="help-card-title">Whiteboard-aware feedback</div>
         <div class="help-card-desc">Type <em>"feedback"</em> for a structured evaluation that grades the diagram itself — calling out specific elements you drew well and gaps in the architecture — alongside the verbal answer. Calibrated 1-10 score, no defaulting to 7.5.</div>
       </div>
-      <div class="help-card">
-        <div class="help-card-icon">📚</div>
-        <div class="help-card-title">Study Mode (Socratic tutor)</div>
-        <div class="help-card-desc">Open the <em>📚 Study</em> tab to learn a topic the right way: a Socratic tutor that asks instead of lectures, with tiered hints (<em>hint</em>/<em>I'm stuck</em>/<em>show me</em>), a hint-level indicator, mastery bar, end-of-session quiz, and a topic-locked whiteboard for partial diagrams. After any interview, click the <em>📚 Study these next</em> chips in your feedback to jump straight into a session on that gap.</div>
+    </div>
+
+    <div class="help-section-eyebrow">Two ways to practice</div>
+
+    <div class="mode-compare">
+      <div class="mode-card interview">
+        <div class="mode-head">
+          <span class="mode-icon">🎤</span>
+          <span class="mode-title">Interview Mode</span>
+          <span class="mode-tag">Pressure</span>
+        </div>
+        <div class="mode-desc">A real-feeling system-design loop with a senior engineer who pushes back, doesn't hand-hold, and grades you at the end.</div>
+        <ul class="mode-bullets">
+          <li>Cold open — no warm-up</li>
+          <li>Adjustable level, style &amp; focus areas</li>
+          <li>Whiteboard included with every message</li>
+          <li>Structured <em>"feedback"</em> at any point</li>
+        </ul>
+      </div>
+      <div class="mode-card study">
+        <div class="mode-head">
+          <span class="mode-icon">📚</span>
+          <span class="mode-title">Study Mode</span>
+          <span class="mode-tag">Socratic</span>
+        </div>
+        <div class="mode-desc">A patient tutor that <em>asks instead of lectures</em> — perfect for filling gaps the interviewer just exposed.</div>
+        <ul class="mode-bullets">
+          <li>Tiered hints: <em>hint</em> → <em>I'm stuck</em> → <em>show me</em></li>
+          <li>Mastery bar &amp; end-of-session quiz</li>
+          <li>Topic-locked whiteboard for partial diagrams</li>
+          <li>Jump in from any feedback's <em>📚 Study these next</em> chips</li>
+        </ul>
       </div>
     </div>
 
-    <div class="help-flow">
-      <div class="help-flow-title">How to use it</div>
-      <div class="help-step">
-        <div class="help-step-num">1</div>
-        <div class="help-step-text"><strong>Get a question</strong> — paste your own or hit <em>Generate</em> to get one tailored to your level and focus areas.</div>
+    <div class="help-section-eyebrow">How a session flows</div>
+
+    <div class="help-timeline">
+      <div class="help-tl-step">
+        <div class="help-tl-title"><span class="tl-icon">📝</span>Get a question</div>
+        <div class="help-tl-desc">Paste your own or hit <em>Generate</em> for one tailored to your level and focus areas.</div>
       </div>
-      <div class="help-step">
-        <div class="help-step-num">2</div>
-        <div class="help-step-text"><strong>Configure the session</strong> — set your level, style, focus areas, AI provider, and (optional) company context to bias the interviewer toward a specific company's domain.</div>
+      <div class="help-tl-step">
+        <div class="help-tl-title"><span class="tl-icon">⚙️</span>Configure the session</div>
+        <div class="help-tl-desc">Pick level, style, focus areas, AI provider, and (optional) company context to bias the interviewer's scenarios.</div>
       </div>
-      <div class="help-step">
-        <div class="help-step-num">3</div>
-        <div class="help-step-text"><strong>Start the interview</strong> — the AI opens cold, no intro. Drive the design exactly like a real session.</div>
+      <div class="help-tl-step">
+        <div class="help-tl-title"><span class="tl-icon">🎤</span>Start the interview</div>
+        <div class="help-tl-desc">The AI opens cold — no intro. Drive the design exactly like a real session.</div>
       </div>
-      <div class="help-step">
-        <div class="help-step-num">4</div>
-        <div class="help-step-text"><strong>Sketch on the whiteboard</strong> — click the <em>✏️ Whiteboard</em> tab on the right edge of the screen to open the Excalidraw drawer. Draw shapes, arrows, and labels to sketch your architecture as you explain it. When the whiteboard has content it is automatically included with every message — the AI reads your diagram in real time.</div>
+      <div class="help-tl-step">
+        <div class="help-tl-title"><span class="tl-icon">✏️</span>Sketch as you talk</div>
+        <div class="help-tl-desc">Open <em>✏️ Whiteboard</em> on the right edge. Sketch shapes and arrows; your diagram travels with every message so the AI can probe it.</div>
       </div>
-      <div class="help-step">
-        <div class="help-step-num">5</div>
-        <div class="help-step-text"><strong>Get feedback</strong> — type <em>"feedback"</em> at any point for a structured, honest evaluation of your answer.</div>
+      <div class="help-tl-step">
+        <div class="help-tl-title"><span class="tl-icon">📊</span>Get honest feedback</div>
+        <div class="help-tl-desc">Type <em>"feedback"</em> any time for a calibrated, structured evaluation — what you nailed, what you missed, and topics to study next.</div>
       </div>
-      <div class="help-step">
-        <div class="help-step-num">6</div>
-        <div class="help-step-text"><strong>Restart, export, or revisit</strong> — hit <em>🔄 Restart</em> to redo the same question, <em>📥 Export</em> to download a Markdown copy, or <em>📚 History</em> to browse past sessions and <em>▶ Resume</em> any one of them — chat, whiteboard, and timer pick up exactly where they left off.</div>
+      <div class="help-tl-step">
+        <div class="help-tl-title"><span class="tl-icon">🔁</span>Restart, export or revisit</div>
+        <div class="help-tl-desc">Hit <em>🔄 Restart</em> to redo, <em>📥 Export</em> for Markdown, or <em>📚 History</em> to <em>▶ Resume</em> any past run with chat + whiteboard + timer intact.</div>
       </div>
     </div>
 
-    <div class="help-cmds">
-      <div class="help-flow-title">Commands &amp; shortcuts</div>
-      <div class="help-cmd"><span class="cmd-key">"feedback"</span><span class="cmd-desc">Stop and get a full structured evaluation — what you nailed, what you missed</span></div>
-      <div class="help-cmd"><span class="cmd-key">"give full answer"</span><span class="cmd-desc">Ask the AI to reveal the model solution</span></div>
-      <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
-      <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Click to get 1-2 ready-to-send opening sentences dropped into your text box — edit and send as your own</span></div>
-      <div class="help-cmd"><span class="cmd-key">🔄 Restart</span><span class="cmd-desc">Reset the chat and timer for the same question — the previous run is saved into History</span></div>
-      <div class="help-cmd"><span class="cmd-key">📥 Export</span><span class="cmd-desc">Download the current session as a Markdown file (transcript + whiteboard PNG embedded)</span></div>
-      <div class="help-cmd"><span class="cmd-key">📚 History</span><span class="cmd-desc">Open the past-interviews modal — view, export, or delete any prior session</span></div>
-      <div class="help-cmd"><span class="cmd-key">▶ Resume</span><span class="cmd-desc">In the History modal — jump back into any past session and continue where it left off</span></div>
-      <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
-      <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Tab on the right edge — opens the Excalidraw drawer; drag its left edge to resize</span></div>
-    </div>
+    <div class="help-section-eyebrow">Reference</div>
 
-    <div class="help-cmds" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px 24px">
-      <div class="help-flow-title">About &amp; Contact</div>
-      <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
-        <div style="width:38px;height:38px;border-radius:10px;background:var(--accent-bg);border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--text)">Shlomi Maalumi</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Creator &amp; Owner of Interview Prep</div>
-          <div style="margin-top:6px;display:flex;align-items:center;gap:12px"><a href="mailto:shlomimaa10@gmail.com" style="font-size:12px;color:var(--accent);text-decoration:none;font-family:var(--font-mono)">shlomimaa10@gmail.com</a><a href="https://www.linkedin.com/in/shlomi-maalumi-060801277/" target="_blank" rel="noopener" style="font-size:12px;color:var(--text-muted);text-decoration:none;font-family:var(--font-ui);display:flex;align-items:center;gap:4px;transition:color .15s" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='var(--text-muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a></div>
+    <div class="help-footer">
+      <div class="help-footer-block help-cmds" style="opacity:1;transform:none">
+        <div class="help-flow-title">Commands &amp; shortcuts</div>
+        <div class="help-cmd"><span class="cmd-key">"feedback"</span><span class="cmd-desc">Stop and get a full structured evaluation — what you nailed, what you missed</span></div>
+        <div class="help-cmd"><span class="cmd-key">"give full answer"</span><span class="cmd-desc">Ask the AI to reveal the model solution</span></div>
+        <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
+        <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Drop 1-2 ready-to-send sentences into your text box</span></div>
+        <div class="help-cmd"><span class="cmd-key">🔄 Restart</span><span class="cmd-desc">Reset chat &amp; timer for the same question — previous run lands in History</span></div>
+        <div class="help-cmd"><span class="cmd-key">📥 Export</span><span class="cmd-desc">Download the current session as Markdown (transcript + whiteboard PNG)</span></div>
+        <div class="help-cmd"><span class="cmd-key">📚 History</span><span class="cmd-desc">Open the past-sessions modal — view, export, resume or delete</span></div>
+        <div class="help-cmd"><span class="cmd-key">▶ Resume</span><span class="cmd-desc">In History — jump back into any past session and continue</span></div>
+        <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
+        <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Right-edge tab — opens the Excalidraw drawer; drag its left edge to resize</span></div>
+      </div>
+      <div class="help-footer-block">
+        <div class="help-flow-title">About &amp; Contact</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+          <div style="width:42px;height:42px;border-radius:11px;background:var(--accent-bg);border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👤</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Shlomi Maalumi</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Creator &amp; Owner of Interview Prep</div>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="mailto:shlomimaa10@gmail.com" style="font-size:12px;color:var(--accent);text-decoration:none;font-family:var(--font-mono)">shlomimaa10@gmail.com</a><a href="https://www.linkedin.com/in/shlomi-maalumi-060801277/" target="_blank" rel="noopener" style="font-size:12px;color:var(--text-muted);text-decoration:none;font-family:var(--font-ui);display:flex;align-items:center;gap:4px;transition:color .15s" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='var(--text-muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a></div>
+          </div>
         </div>
       </div>
     </div>
@@ -531,13 +658,19 @@
 
     <div class="field-group">
       <div class="field-label">Focus Areas</div>
-      <div class="focus-grid">
+      <div class="focus-grid" id="focus-grid">
         <label class="focus-chip checked"><input type="checkbox" value="Scalability" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Scalability</label>
         <label class="focus-chip checked"><input type="checkbox" value="Reliability" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Reliability</label>
         <label class="focus-chip checked"><input type="checkbox" value="Latency" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Latency</label>
         <label class="focus-chip"><input type="checkbox" value="Security" onchange="toggleChip(this)"><span class="chip-box"></span>Security</label>
         <label class="focus-chip"><input type="checkbox" value="Cost optimization" onchange="toggleChip(this)"><span class="chip-box"></span>Cost</label>
         <label class="focus-chip"><input type="checkbox" value="Observability" onchange="toggleChip(this)"><span class="chip-box"></span>Observability</label>
+        <button type="button" class="focus-add-tile" id="focus-add-btn" onclick="showFocusAddForm()">+ Add custom focus area</button>
+        <div class="focus-add-form" id="focus-add-form" style="display:none">
+          <input id="focus-add-input" type="text" placeholder="e.g. Multi-region failover" maxlength="40" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmAddFocus()}else if(event.key==='Escape'){cancelAddFocus()}">
+          <button type="button" onclick="confirmAddFocus()">Add</button>
+          <button type="button" class="cancel" onclick="cancelAddFocus()">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -547,50 +680,59 @@
       <button id="gen-btn" onclick="generateQuestion()">✨ Generate question for my level &amp; focus</button>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">Company Context <span style="color:var(--text-muted);font-weight:normal">(optional)</span></div>
-      <textarea id="company-context" class="setup-field" rows="2" placeholder="e.g. Stripe — payments infra, hard reliability bar, global low-latency, SMB + enterprise customers"></textarea>
+    <div class="field-group collapsible" data-section="company">
+      <div class="field-label" onclick="toggleSetupSection(this)">Company Context <span style="color:var(--text-muted);font-weight:normal">(optional)</span><span class="fg-summary" id="sum-company"></span></div>
+      <div class="collapsible-body">
+      <textarea id="company-context" class="setup-field" rows="2" placeholder="e.g. Stripe — payments infra, hard reliability bar, global low-latency, SMB + enterprise customers" oninput="updateSectionSummaries()"></textarea>
       <div style="font-size:11px;color:var(--text-muted);margin-top:4px">A short note about the company you're interviewing at. Shapes the interviewer's framing, scale assumptions, and trade-off bias.</div>
+      </div>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">Interview Format</div>
+    <div class="field-group collapsible" data-section="format">
+      <div class="field-label" onclick="toggleSetupSection(this)">Interview Format<span class="fg-summary" id="sum-format">Open</span></div>
+      <div class="collapsible-body">
       <div class="toggle-group">
         <button class="toggle-btn active" data-format="open" onclick="selectFormat(this)">🎯 Open</button>
         <button class="toggle-btn" data-format="product" onclick="selectFormat(this)">🧑‍💻 Product Design</button>
         <button class="toggle-btn" data-format="infra" onclick="selectFormat(this)">⚙️ Infrastructure</button>
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="format-hint">Free-form — interviewer guides organically</div>
+      </div>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">Interviewer Style</div>
+    <div class="field-group collapsible" data-section="style">
+      <div class="field-label" onclick="toggleSetupSection(this)">Interviewer Style<span class="fg-summary" id="sum-style">Balanced</span></div>
+      <div class="collapsible-body">
       <div class="toggle-group">
         <button class="toggle-btn" data-style="Strict" onclick="selectStyle(this)">🔥 Strict</button>
         <button class="toggle-btn active" data-style="Balanced" onclick="selectStyle(this)">⚖️ Balanced</button>
         <button class="toggle-btn" data-style="Friendly" onclick="selectStyle(this)">😊 Friendly</button>
       </div>
-    </div>
-
-    <div class="field-group">
-      <div class="field-label">Target Duration</div>
-      <div class="toggle-group">
-        <button class="toggle-btn" data-duration="30" onclick="selectDuration(this)">30 min</button>
-        <button class="toggle-btn active" data-duration="45" onclick="selectDuration(this)">45 min</button>
-        <button class="toggle-btn" data-duration="60" onclick="selectDuration(this)">60 min</button>
-        <button class="toggle-btn" data-duration="0" onclick="selectDuration(this)">No limit</button>
       </div>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">AI Provider &amp; Model</div>
+    <div class="field-group collapsible" data-section="duration">
+      <div class="field-label" onclick="toggleSetupSection(this)">Target Duration<span class="fg-summary" id="sum-duration">No limit</span></div>
+      <div class="collapsible-body">
+      <div class="toggle-group">
+        <button class="toggle-btn" data-duration="30" onclick="selectDuration(this)">30 min</button>
+        <button class="toggle-btn" data-duration="45" onclick="selectDuration(this)">45 min</button>
+        <button class="toggle-btn" data-duration="60" onclick="selectDuration(this)">60 min</button>
+        <button class="toggle-btn active" data-duration="0" onclick="selectDuration(this)">No limit</button>
+      </div>
+      </div>
+    </div>
+
+    <div class="field-group collapsible" data-section="provider">
+      <div class="field-label" onclick="toggleSetupSection(this)">AI Provider &amp; Model<span class="fg-summary" id="sum-provider">Custom · claude-sonnet-4.6</span></div>
+      <div class="collapsible-body">
       <div class="api-row">
-        <select id="provider-select" class="setup-field" onchange="updateModelOptions()">
+        <select id="provider-select" class="setup-field" onchange="updateModelOptions();updateSectionSummaries()">
           <option value="custom" selected>Custom / localhost</option>
           <option value="anthropic">Anthropic Claude</option>
           <option value="openai">OpenAI</option>
         </select>
-        <select id="model-select" class="setup-field">
+        <select id="model-select" class="setup-field" onchange="updateSectionSummaries()">
           <option value="claude-sonnet-4.6" selected>claude-sonnet-4.6</option>
           <option value="claude-opus-4.6">claude-opus-4.6</option>
           <option value="claude-haiku-4.5">claude-haiku-4.5</option>
@@ -613,6 +755,7 @@
         oninput="sessionStorage.setItem('apiKey_' + document.getElementById('provider-select').value, this.value)">
       <div id="api-key-hint" style="display:none;font-size:11px;color:var(--text-faint);margin-top:5px;padding:0 2px">
         🔒 Your key is used directly in your browser and never sent to any server other than the AI provider.
+      </div>
       </div>
     </div>
 
@@ -741,6 +884,7 @@
           <span id="study-mastery-pct">0%</span>
         </span>
       </span>
+      <button class="study-exit-btn" onclick="restartStudy()" title="Restart this study session (saves current run to History)" style="font-size:13px">🔄</button>
       <button class="study-exit-btn" onclick="endStudySession(true)" title="Exit study session (saves to History)">✕</button>
     </div>
     <main>
@@ -780,7 +924,7 @@ let history = [];
 let selectedStyle = 'Balanced';
 let selectedLevel = 'mid-level';
 let selectedFormat = 'open';
-let selectedDuration = 45;
+let selectedDuration = 0;
 let timerInterval = null;
 let timerStart = null;
 let currentQuestion = '';
@@ -900,6 +1044,7 @@ function selectStyle(btn) {
   document.querySelectorAll('.toggle-btn[data-style]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedStyle = btn.dataset.style;
+  if (typeof updateSectionSummaries === 'function') updateSectionSummaries();
 }
 
 function selectFormat(btn) {
@@ -914,12 +1059,14 @@ function selectFormat(btn) {
   } else {
     hint.textContent = 'Free-form — interviewer guides organically';
   }
+  if (typeof updateSectionSummaries === 'function') updateSectionSummaries();
 }
 
 function selectDuration(btn) {
   document.querySelectorAll('.toggle-btn[data-duration]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedDuration = parseInt(btn.dataset.duration);
+  if (typeof updateSectionSummaries === 'function') updateSectionSummaries();
 }
 
 function startTimer() {
@@ -964,6 +1111,87 @@ function selectLevel(r) {
 function getFocusAreas() {
   return [...document.querySelectorAll('.focus-chip input:checked')].map(c => c.value);
 }
+
+// === Custom focus areas + collapsible setup sections ===
+const SETUP_COLLAPSED_KEY = 'setupCollapsed_v1';
+const SETUP_DEFAULT_COLLAPSED = ['company','format','style','duration','provider'];
+
+function showFocusAddForm() {
+  document.getElementById('focus-add-btn').style.display = 'none';
+  document.getElementById('focus-add-form').style.display = 'flex';
+  setTimeout(() => document.getElementById('focus-add-input').focus(), 10);
+}
+function cancelAddFocus() {
+  document.getElementById('focus-add-form').style.display = 'none';
+  document.getElementById('focus-add-btn').style.display = '';
+  document.getElementById('focus-add-input').value = '';
+}
+function confirmAddFocus() {
+  const inp = document.getElementById('focus-add-input');
+  const val = inp.value.trim();
+  if (!val) { inp.focus(); return; }
+  // Dedupe (case-insensitive)
+  const exists = [...document.querySelectorAll('.focus-chip input')].some(c => c.value.toLowerCase() === val.toLowerCase());
+  if (exists) { inp.focus(); inp.select(); return; }
+  const grid = document.getElementById('focus-grid');
+  const addBtn = document.getElementById('focus-add-btn');
+  const label = document.createElement('label');
+  label.className = 'focus-chip checked custom';
+  label.innerHTML = '<input type="checkbox" value="' + val.replace(/"/g,'&quot;') + '" checked onchange="toggleChip(this)"><span class="chip-box">✓</span><span class="chip-text"></span><button type="button" class="chip-remove" title="Remove" onclick="event.preventDefault();event.stopPropagation();this.closest(\'.focus-chip\').remove()">✕</button>';
+  label.querySelector('.chip-text').textContent = val;
+  grid.insertBefore(label, addBtn);
+  cancelAddFocus();
+}
+
+function toggleSetupSection(labelEl) {
+  const fg = labelEl.closest('.field-group');
+  fg.classList.toggle('open');
+  saveSetupCollapsed();
+}
+function saveSetupCollapsed() {
+  const collapsed = [...document.querySelectorAll('.field-group.collapsible')]
+    .filter(fg => !fg.classList.contains('open'))
+    .map(fg => fg.dataset.section);
+  try { localStorage.setItem(SETUP_COLLAPSED_KEY, JSON.stringify(collapsed)); } catch(e){}
+}
+function loadSetupCollapsed() {
+  let collapsed = SETUP_DEFAULT_COLLAPSED;
+  try {
+    const raw = localStorage.getItem(SETUP_COLLAPSED_KEY);
+    if (raw) collapsed = JSON.parse(raw);
+  } catch(e){}
+  document.querySelectorAll('.field-group.collapsible').forEach(fg => {
+    fg.classList.toggle('open', !collapsed.includes(fg.dataset.section));
+  });
+}
+function updateSectionSummaries() {
+  const cc = document.getElementById('company-context');
+  const sumC = document.getElementById('sum-company');
+  if (cc && sumC) {
+    const v = (cc.value || '').trim();
+    sumC.textContent = v ? (v.length > 32 ? v.slice(0,32) + '…' : v) : '';
+  }
+  const fmtBtn = document.querySelector('[data-format].active');
+  const sumF = document.getElementById('sum-format');
+  if (fmtBtn && sumF) sumF.textContent = fmtBtn.textContent.replace(/^[^\w]+/,'').trim();
+  const stBtn = document.querySelector('[data-style].active');
+  const sumS = document.getElementById('sum-style');
+  if (stBtn && sumS) sumS.textContent = stBtn.dataset.style;
+  const durBtn = document.querySelector('[data-duration].active');
+  const sumD = document.getElementById('sum-duration');
+  if (durBtn && sumD) sumD.textContent = durBtn.textContent.trim();
+  const prov = document.getElementById('provider-select');
+  const mod = document.getElementById('model-select');
+  const sumP = document.getElementById('sum-provider');
+  if (prov && mod && sumP) {
+    const provLabel = prov.options[prov.selectedIndex].textContent.split(' /')[0].split(' ')[0];
+    sumP.textContent = provLabel + ' · ' + mod.value;
+  }
+}
+// Init on DOM ready
+document.addEventListener('DOMContentLoaded', function(){
+  try { loadSetupCollapsed(); updateSectionSummaries(); } catch(e){}
+});
 
 function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -1245,14 +1473,14 @@ When you include whiteboard content, append a fenced block at the VERY END of yo
 \`\`\`
 Rules for whiteboard updates:
 - type must be one of: "rectangle", "ellipse", "diamond"
-- color: use "#a8e6cf" (green) for hint components, "#ffd3b6" (orange) for full-answer components
+- color: leave empty — the renderer auto-colors by component role (clients blue, caches orange, queues green, DBs yellow, gateways/LBs blue, services purple). Only override if you specifically need to.
 - Only include NEW elements to add — never re-describe what the candidate already drew
-- Keep labels short (2-4 words)
+- Keep labels SHORT and concrete (1-3 words max). "Postgres", "Redis", "API Gateway" — not "Postgres (Rule Store)" or "Co-located Redis (Rate Limit)".
 - For "hint": maximum 1-2 components, 0-1 connections. Do not give away the whole picture.
-- For "give full answer": include the complete architecture diagram with all components and connections
+- For "give full answer": include the COMPLETE architecture — aim for **8-12 components and 10-16 connections** for a real system-design question. Do not under-deliver. Cover: client → entry/edge → load balancer / gateway → service tier → cache → primary store → async pipeline (queue, workers, analytics) → observability. If a real production design needs more, group sensibly (e.g. "Workers" instead of 4 separate worker boxes), but DO NOT skip whole layers (no auth? no observability? no async path?) just to keep the picture small. A diagram with only 4-5 boxes for a millions-RPS question is a failure.
 - When adding connections, reference existing components on the whiteboard by their exact label from the [WHITEBOARD CONTEXT]
 - The JSON must be valid — no trailing commas, no comments
-- IMPORTANT LAYOUT RULE: Order components top-to-bottom by data flow (client/entry-point first, then services, then storage/databases last). Connections should mostly flow downward or between adjacent items — avoid long cross-connections. Keep it to 6-8 key components max for clarity. Each connection should connect neighbors that are close in the list order.
+- IMPORTANT LAYOUT RULE: Order components top-to-bottom by data flow (client/entry-point first, then services, then storage/databases last). Connections should mostly flow downward or between adjacent items — avoid long cross-connections. Each connection should connect neighbors that are close in the list order.
 
 ---
 
@@ -1425,19 +1653,40 @@ function removeTyping() {
   if (t) t.remove();
 }
 
+function buildOpenerInstant(question, style, format) {
+  // Strip trailing period for clean inline rendering
+  const q = question.replace(/\s+/g, ' ').trim().replace(/[.?!]+$/, '');
+  const formatHint = format === 'feedback'
+    ? "I'll give structured feedback at the end — type \"feedback\" any time for a checkpoint."
+    : (format === 'coding' ? "We'll keep it tight and code-focused." : "");
+  const openersByStyle = {
+    strict:    [`Question: **${q}.** The floor is yours.`,
+                `Here's the problem: **${q}.** Begin.`,
+                `Your task: **${q}.** Where do you start?`],
+    balanced:  [`Welcome — here's the problem: **${q}.** Where would you like to start?`,
+                `Here's your question: **${q}.** Take it from the top.`,
+                `The question is: **${q}.** Drive the design — where do you begin?`],
+    friendly:  [`Hey! Let's dig into this one: **${q}.** Where would you like to start?`,
+                `Welcome — fun problem: **${q}.** What's your opening move?`,
+                `Alright, here we go: **${q}.** Drive — where do you start?`],
+  };
+  const list = openersByStyle[style] || openersByStyle.balanced;
+  const opener = list[Math.floor(Math.random() * list.length)];
+  return formatHint ? `${opener}\n\n${formatHint}` : opener;
+}
+
 async function init() {
   btn.disabled = true;
-  showTyping();
+  // INSTANT opener — built from a local template so the user sees the question framed immediately,
+  // no round-trip to the model. The AI takes over from message #2 onward with full history context.
   try {
-    const reply = await callAI([{ role: 'user', content: 'Start.' }]);
-    removeTyping();
+    const opener = buildOpenerInstant(currentQuestion, selectedStyle, selectedFormat);
     history.push({ role: 'user', content: 'Start.' });
-    history.push({ role: 'assistant', content: reply });
-    addMsg('assistant', reply);
+    history.push({ role: 'assistant', content: opener });
+    addMsg('assistant', opener);
     saveSession();
   } catch (e) {
-    removeTyping();
-    showErr('Could not connect: ' + e.message);
+    showErr('Could not start: ' + e.message);
     switchTab('setup');
   }
   btn.disabled = false;
@@ -1913,115 +2162,71 @@ function renderWhiteboardUpdate(reply) {
   const components = data.components || [];
   const connections = data.connections || [];
 
-  // Layout: 3 columns, very generous spacing
-  const COLS = 3;
-  const CELL_W = 350;
-  const CELL_H = 280;
+  // Clean grid layout: 4 columns, generous spacing, simple labeled boxes (no clipart).
+  const COLS = 4;
+  const CELL_W = 250;
+  const CELL_H = 180;
+  const SHAPE_W = 190;
+  const SHAPE_H = 70;
   const startX = 80;
-  const startY = maxY + 140;
+  const startY = maxY + 80;
 
   const uid = function() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); };
+
+  // Color palette by role hint in label
+  function pickColor(label, explicit) {
+    if (explicit) return explicit;
+    const l = (label || '').toLowerCase();
+    if (/client|user|browser|mobile/.test(l)) return '#bde0fe';
+    if (/cache|redis|memcached/.test(l)) return '#ffd6a5';
+    if (/queue|kafka|pub.?sub|stream/.test(l)) return '#caffbf';
+    if (/db|database|postgres|mysql|store|sql/.test(l)) return '#fdffb6';
+    if (/lb|load.?balancer|gateway|proxy|edge|cdn/.test(l)) return '#a0c4ff';
+    if (/service|api|server|engine/.test(l)) return '#cdb4db';
+    return '#e8e8e8';
+  }
 
   components.forEach(function(comp, i) {
     var col = i % COLS;
     var row = Math.floor(i / COLS);
-    var cx = startX + col * CELL_W + CELL_W / 2;
-    var cy = startY + row * CELL_H;
+    var shapeX = startX + col * CELL_W;
+    var shapeY = startY + row * CELL_H;
+    var bgColor = pickColor(comp.label, comp.color && comp.color !== '#a8e6cf' && comp.color !== '#ffd3b6' ? comp.color : null);
+    var st = comp.type === 'ellipse' ? 'ellipse' : comp.type === 'diamond' ? 'diamond' : 'rectangle';
+    var shapeId = 'wbs_' + uid();
+    var labelId = 'wbl_' + uid();
 
-    var libIdx = _wbFindLibMatch(comp.label);
-    var shapeId, shapeX, shapeY, shapeW, shapeH;
-
-    if (libIdx !== null && typeof WB_LIBRARY_ITEMS !== 'undefined' && WB_LIBRARY_ITEMS[libIdx]) {
-      // Clone library item elements, reposition
-      var libEls = WB_LIBRARY_ITEMS[libIdx].elements;
-      var lMinX = Infinity, lMinY = Infinity, lMaxX = -Infinity, lMaxY = -Infinity;
-      for (var j = 0; j < libEls.length; j++) {
-        var le = libEls[j];
-        var lex = le.x || 0, ley = le.y || 0, lew = le.width || 0, leh = le.height || 0;
-        if (lex < lMinX) lMinX = lex;
-        if (ley < lMinY) lMinY = ley;
-        if (lex + lew > lMaxX) lMaxX = lex + lew;
-        if (ley + leh > lMaxY) lMaxY = ley + leh;
-      }
-      var lW = lMaxX - lMinX || 1;
-      var lH = lMaxY - lMinY || 1;
-      var scale = Math.min(160 / lW, 140 / lH, 1.2);
-      var scaledW = lW * scale;
-      var scaledH = lH * scale;
-      var offX = cx - scaledW / 2 - lMinX * scale;
-      var offY = cy - lMinY * scale;
-
-      var grpSfx = '_' + uid();
-      shapeId = 'wbs_' + uid();
-      var firstSet = false;
-
-      for (var k = 0; k < libEls.length; k++) {
-        var src = libEls[k];
-        var cloneId = src.id + grpSfx;
-        if (!firstSet && src.type !== 'text') { shapeId = cloneId; firstSet = true; }
-        var clone = JSON.parse(JSON.stringify(src));
-        clone.id = cloneId;
-        clone.x = (src.x || 0) * scale + offX;
-        clone.y = (src.y || 0) * scale + offY;
-        if (src.width) clone.width = src.width * scale;
-        if (src.height) clone.height = src.height * scale;
-        clone.seed = Math.floor(Math.random() * 2e9);
-        clone.version = 2;
-        clone.versionNonce = Math.floor(Math.random() * 2e9);
-        if (clone.groupIds) clone.groupIds = clone.groupIds.map(function(g) { return g + grpSfx; });
-        if (clone.boundElements) clone.boundElements = [];
-        if (clone.boundElementIds) clone.boundElementIds = [];
-        if (clone.startBinding) clone.startBinding = null;
-        if (clone.endBinding) clone.endBinding = null;
-        if (clone.points) clone.points = clone.points.map(function(p) { return [p[0] * scale, p[1] * scale]; });
-        if (clone.fontSize) clone.fontSize = clone.fontSize * scale;
-        newElements.push(clone);
-      }
-
-      shapeX = cx - scaledW / 2;
-      shapeY = cy;
-      shapeW = scaledW;
-      shapeH = scaledH;
-    } else {
-      // Fallback rectangle
-      var SW = 180, SH = 80;
-      shapeId = 'wbs_' + uid();
-      shapeX = cx - SW / 2;
-      shapeY = cy;
-      shapeW = SW;
-      shapeH = SH;
-      var bgColor = comp.color || '#a8e6cf';
-      var st = comp.type === 'ellipse' ? 'ellipse' : comp.type === 'diamond' ? 'diamond' : 'rectangle';
-      newElements.push({
-        id: shapeId, type: st,
-        x: shapeX, y: shapeY, width: SW, height: SH,
-        angle: 0, strokeColor: '#e0e0e0', backgroundColor: bgColor,
-        fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [],
-        roundness: st === 'rectangle' ? { type: 3 } : null,
-        seed: Math.floor(Math.random() * 2e9), version: 2,
-        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-        boundElements: [],
-      });
-    }
-
-    // Label BELOW shape — always visible, white text, large font
+    // Shape — no bound text (bound text has render-on-double-click bug). Label is overlaid below.
     newElements.push({
-      id: 'wbl_' + uid(), type: 'text',
-      x: cx - 90, y: shapeY + shapeH + 10,
-      width: 180, height: 28,
+      id: shapeId, type: st,
+      x: shapeX, y: shapeY, width: SHAPE_W, height: SHAPE_H,
+      angle: 0, strokeColor: '#1a1a1a', backgroundColor: bgColor,
+      fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
+      roughness: 0, opacity: 100, groupIds: [],
+      roundness: st === 'rectangle' ? { type: 3 } : null,
+      seed: Math.floor(Math.random() * 2e9), version: 2,
+      versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+      boundElements: [],
+    });
+
+    // Label BELOW the shape — outside the bounding box so Excalidraw cannot auto-bind it
+    // (auto-binding overlapping text causes the render-on-double-click bug).
+    newElements.push({
+      id: labelId, type: 'text',
+      x: shapeX, y: shapeY + SHAPE_H + 6,
+      width: SHAPE_W, height: 22,
       angle: 0, strokeColor: '#ffffff', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [], roundness: null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: null,
-      text: comp.label, fontSize: 20, fontFamily: 1,
+      text: comp.label, fontSize: 16, fontFamily: 1,
       textAlign: 'center', verticalAlign: 'top',
       containerId: null, originalText: comp.label, lineHeight: 1.25,
     });
 
-    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: shapeX, y: shapeY, w: shapeW, h: shapeH };
+    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: shapeX, y: shapeY, w: SHAPE_W, h: SHAPE_H };
   });
 
   // Arrows — no bindings (avoids Excalidraw binding bugs), just positioned
@@ -2312,8 +2517,16 @@ document.addEventListener('keydown', function(e) {
       el.dataset.delay = i * 110;
       obs.observe(el);
     });
-    document.querySelectorAll('.help-cmds, .help-cta').forEach((el, i) => {
+    document.querySelectorAll('.help-cmds, .help-cta, .help-card-spotlight, .help-footer-block').forEach((el, i) => {
       el.dataset.delay = i * 120;
+      obs.observe(el);
+    });
+    document.querySelectorAll('.mode-card').forEach((el, i) => {
+      el.dataset.delay = i * 120;
+      obs.observe(el);
+    });
+    document.querySelectorAll('.help-tl-step').forEach((el, i) => {
+      el.dataset.delay = i * 110;
       obs.observe(el);
     });
   }
@@ -2372,6 +2585,13 @@ const STUDY_BUILTIN_TOPICS = [
   { id:'normalization', title:'Normalization vs Denormalization', cat:'Databases', tags:['databases'] },
   { id:'change-data-capture', title:'Change Data Capture (CDC)', cat:'Databases', tags:['databases'] },
   { id:'time-series-db', title:'Time-Series Databases', cat:'Databases', tags:['databases'] },
+  { id:'oltp-vs-olap', title:'OLTP vs OLAP', cat:'Databases', tags:['databases','analytics'] },
+  { id:'data-warehouse-lake', title:'Data Warehouse vs Data Lake', cat:'Databases', tags:['databases','analytics'] },
+  { id:'sharding-strategies', title:'Sharding Strategies (range / hash / directory)', cat:'Databases', tags:['databases','scalability'] },
+  { id:'read-replicas', title:'Scaling Reads with Replicas', cat:'Databases', tags:['databases','scalability'] },
+  { id:'etl-vs-elt', title:'ETL vs ELT Pipelines', cat:'Databases', tags:['databases','analytics'] },
+  { id:'connection-pooling', title:'Connection Pooling & Limits', cat:'Databases', tags:['databases','reliability'] },
+  { id:'materialized-views', title:'Materialized Views & Pre-aggregation', cat:'Databases', tags:['databases','latency'] },
 
   { id:'rate-limiting', title:'Rate Limiting Algorithms', cat:'Security', tags:['reliability','security'] },
   { id:'oauth-jwt', title:'OAuth & JWT Auth', cat:'Security', tags:['security'] },
@@ -2648,6 +2868,22 @@ Trigger escalation when:
 CONCEPT CHECK (mandatory):
 After any concept lands, ask one short verification question before moving to the next sub-topic. Do not advance silently.
 
+TEACH-WHEN-UNKNOWN (override — do not skip):
+Socratic ≠ withholding. If the learner signals they do not know the underlying concept you are hinting at — phrases like "I'm not familiar with X", "I don't know what X is", "never heard of X", "what is X", or two consecutive empty / "I'm stuck" / clearly-confused responses on the SAME sub-question — STOP hinting and TEACH.
+Teaching format (use when triggered):
+1. ONE short paragraph (3–5 sentences) defining the concept in plain language with a concrete example.
+2. A tiny ASCII or worded illustration if it helps (optional, ≤3 lines).
+3. Then ONE check question to confirm they got it.
+Never keep escalating hints about a term the learner has explicitly said they don't know. Hints are for nudging recall, not for guessing vocabulary they were never taught.
+
+DIFFICULTY RATCHET (mandatory):
+Track how the learner is doing across the session. When they answer 2 sub-questions in a row correctly and confidently (no hints used, no "I'm stuck"), level up:
+- Move from definition → trade-offs → real failure modes → concrete system-design scenarios.
+- Introduce a NEW sub-concept tied to the topic (e.g. on "SQL vs NoSQL" after they nail CAP and denormalization, push into: quorum (R/W/N), tunable consistency, secondary indexes in NoSQL, write amplification, hot partitions, multi-region replication, change data capture).
+- Frame the next question as a concrete scenario at real scale: "You're designing X at Y scale, traffic pattern Z — which model and why?"
+Conversely, if they keep struggling, drop down a level (smaller sub-question, simpler example).
+Do NOT stay on the same difficulty band for more than 2 turns when they are clearly nailing it — that wastes the session.
+
 HONESTY (anti-sycophancy — strict):
 - Never write "great question", "excellent", "you're doing great", or similar empty praise.
 - If the learner is wrong: say "Not quite — [specific gap]." Then re-ask or hint. Never pretend a wrong answer was right.
@@ -2860,6 +3096,25 @@ function endStudySession(askConfirm) {
   studyHintTier = 0; studyMastery = 0; studyTimerStart = null; studySessionId = ''; studySourceInterviewId = '';
   clearStudySession();
   showStudyLanding();
+}
+
+async function restartStudy() {
+  if (!studyTopic) return;
+  if (studyHistory.length && !confirm('Restart this study session? The current run will be saved to History.')) return;
+  if (studyHistory.length) snapshotStudyToHistory();
+  const topic = studyTopic, topicId = studyTopicId, src = studySourceInterviewId;
+  studySessionId = newStudyId();
+  studyHistory = [];
+  studyHintTier = 0;
+  studyMastery = 0;
+  studyTimerStart = Date.now();
+  studySourceInterviewId = src;
+  studySystem = buildStudyPrompt(topic, selectedLevel);
+  document.getElementById('study-chat').innerHTML = '';
+  updateStudyHintDots();
+  updateStudyMastery();
+  clearStudySession();
+  await initStudy();
 }
 
 function resumeStudyEntry(id) {
