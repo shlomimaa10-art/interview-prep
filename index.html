@@ -291,6 +291,9 @@
   .study-gap-card .gap-icon{flex-shrink:0;color:#f5b041;font-size:11px}
   .study-gap-card .gap-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
   .study-gap-card .gap-mastery{flex-shrink:0;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);background:rgba(255,255,255,.05);padding:2px 6px;border-radius:10px}
+  .study-gap-card .gap-dismiss{flex-shrink:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:var(--text-muted);font-size:13px;line-height:1;border-radius:4px;cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s;padding:0}
+  .study-gap-card:hover .gap-dismiss{opacity:.7}
+  .study-gap-card .gap-dismiss:hover{opacity:1;background:rgba(245,176,65,.18);color:#f5b041}
 
   /* Right column main area */
   .study-main{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:40px 24px 60px;min-height:0;min-width:0}
@@ -1859,7 +1862,7 @@ function renderHistory() {
       +   '<button class="hist-btn" onclick="toggleHistTranscript(\'' + e.id + '\')">View</button>'
       +   '<button class="hist-btn" onclick="resumeHistEntry(\'' + e.id + '\')">▶ Resume</button>'
       +   '<button class="hist-btn" onclick="exportHistEntry(\'' + e.id + '\')">📥 Export</button>'
-      +   '<button class="hist-btn danger" onclick="if(confirm(\'Delete this past interview?\'))deleteHistoryEntry(\'' + e.id + '\')">Delete</button>'
+      +   '<button class="hist-btn danger" onclick="deleteHistoryEntry(\'' + e.id + '\')">Delete</button>'
       + '</div>'
       + '<div class="hist-transcript" id="ht-' + e.id + '"></div>'
       + '</div>';
@@ -2655,6 +2658,20 @@ function loadStudyProgress() {
 }
 function saveStudyProgress(p) { try { localStorage.setItem(STUDY_PROGRESS_KEY, JSON.stringify(p)); } catch(e) {} }
 
+function dismissStudyGap(topicId) {
+  if (!topicId) return;
+  const prog = loadStudyProgress();
+  if (!prog[topicId]) { renderStudyLanding(); return; }
+  // If the entry has real mastery progress, just clear the gap flag; otherwise drop it.
+  if ((prog[topicId].mastery || 0) > 0 || (prog[topicId].sessionsCount || 0) > 0) {
+    delete prog[topicId].gapSourcedFrom;
+  } else {
+    delete prog[topicId];
+  }
+  saveStudyProgress(prog);
+  renderStudyLanding();
+}
+
 function saveStudySession() {
   if (_studyRestoring || !studyTopic) return;
   try {
@@ -2782,10 +2799,19 @@ function renderStudyLanding() {
     gapBlock.style.display = '';
     gapList.innerHTML = gaps.map(g => {
       const m = Math.round(g.mastery || 0);
-      return `<button class="study-gap-card" data-topic="${escapeHtml(g.title || g.id)}" data-id="${escapeHtml(g.id)}"><span class="gap-icon">⚠</span><span class="gap-title">${escapeHtml(g.title || g.id)}</span><span class="gap-mastery">${m}%</span></button>`;
+      return `<div class="study-gap-card" data-topic="${escapeHtml(g.title || g.id)}" data-id="${escapeHtml(g.id)}" role="button" tabindex="0"><span class="gap-icon">⚠</span><span class="gap-title">${escapeHtml(g.title || g.id)}</span><span class="gap-mastery">${m}%</span><button class="gap-dismiss" data-dismiss="${escapeHtml(g.id)}" title="Remove from gaps" aria-label="Remove from gaps">×</button></div>`;
     }).join('');
     gapList.querySelectorAll('.study-gap-card').forEach(el => {
-      el.onclick = () => startStudySession(el.dataset.topic, el.dataset.id);
+      el.onclick = (ev) => {
+        if (ev.target.closest('.gap-dismiss')) return;
+        startStudySession(el.dataset.topic, el.dataset.id);
+      };
+    });
+    gapList.querySelectorAll('.gap-dismiss').forEach(btn => {
+      btn.onclick = (ev) => {
+        ev.stopPropagation();
+        dismissStudyGap(btn.dataset.dismiss);
+      };
     });
   } else {
     gapBlock.style.display = 'none';
@@ -2820,7 +2846,7 @@ function renderStudyLanding() {
         </div>
         <div class="rc-bar"><i style="width:${m}%"></i></div>
         <button class="rc-resume" onclick="resumeStudyEntry('${e.id}')">Resume →</button>
-        <button class="rc-del" onclick="if(confirm('Delete this study session?'))deleteStudyHistoryEntry('${e.id}')" title="Delete">×</button>
+        <button class="rc-del" onclick="deleteStudyHistoryEntry('${e.id}')" title="Delete">×</button>
       </div>`;
     }).join('');
   } else { recentBlock.style.display = 'none'; }
@@ -3226,7 +3252,7 @@ function renderStudyHistory() {
       + '</div>'
       + '<div class="hist-actions">'
       +   '<button class="hist-btn" onclick="resumeStudyEntry(\'' + e.id + '\')">▶ Resume</button>'
-      +   '<button class="hist-btn danger" onclick="if(confirm(\'Delete this study session?\'))deleteStudyHistoryEntry(\'' + e.id + '\')">Delete</button>'
+      +   '<button class="hist-btn danger" onclick="deleteStudyHistoryEntry(\'' + e.id + '\')">Delete</button>'
       + '</div>'
       + '</div>';
   }).join('');
