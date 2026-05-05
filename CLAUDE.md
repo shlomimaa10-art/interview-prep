@@ -54,7 +54,28 @@ InterviewApp/
 | Target Duration | **No limit** (`selectedDuration = 0`; "No limit" toggle is the active default; `#sum-duration` reads "No limit") |
 | Focus Areas | Scalability, Reliability, Latency (plus user-added custom areas via "+ Add custom focus area" tile) |
 | Company Context | Empty (optional free-text; biases interviewer framing & scale) |
-| Setup Sections | Company Context / Interview Format / Interviewer Style / Target Duration / AI Provider & Model are collapsible (default collapsed; persisted in `localStorage` under `setupCollapsed_v1`; show summaries when collapsed) |
+| Setup Sections | Company Context / Interview Format / Interviewer Style / Target Duration / Voice Mode / AI Provider & Model are collapsible (default collapsed; persisted in `localStorage` under `setupCollapsed_v1`; show summaries when collapsed) |
+| Voice Mode | Off (toggled in "Voice Mode" setup section; persisted in `localStorage` under `voiceMode_v1`) |
+
+---
+
+## Voice Mode
+
+Optional hands-free interview interaction, toggled via the **Voice Mode** collapsible section in Setup. Persisted to `localStorage` under `voiceMode_v1`.
+
+- **Push-to-talk STT**: a 🎙️ mic button is rendered next to the Send button in the interview composer. Hold to record; release to transcribe via Web Speech API and inject the result into `#user-input`.
+- **TTS for assistant replies**: when enabled, every interviewer message is spoken aloud via `speechSynthesis` after rendering. TTS is suppressed for fenced ` ```whiteboard ` payloads (they are stripped before speaking).
+- Mic button and TTS are no-ops (and the mic hidden) when Voice Mode is off.
+
+---
+
+## Cross-Session Memory
+
+`buildSystemPrompt()` injects a **PAST WEAK SPOTS** block built from `studyProgress_v1` so the interviewer steers follow-ups toward the candidate's known weak areas across sessions.
+
+- Selection: top 5 topics, prioritizing low-mastery (< 60%) and `gapSourcedFrom` (deep-linked from interview feedback gaps).
+- Block is omitted when no qualifying topics exist.
+- Read-only: the interviewer uses it to bias probing depth and topic selection without naming the source.
 
 ---
 

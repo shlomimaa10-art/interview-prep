@@ -43,7 +43,11 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 | Custom URL | `http://localhost:4141` (shown for custom only) |
 | API Key | Stored in `sessionStorage` (shown for anthropic/openai only) |
 
-**Collapsible sections:** Five sections — Company Context, Interview Format, Interviewer Style, Target Duration, AI Provider & Model — are collapsible via chevron toggles on their `field-label`. Default state is collapsed; each shows a one-line summary (`.fg-summary`) when collapsed. State persists in `localStorage` under `setupCollapsed_v1`. Helpers: `toggleSetupSection`, `saveSetupCollapsed`, `loadSetupCollapsed`, `updateSectionSummaries`. Custom focus area tile uses `showFocusAddForm` / `confirmAddFocus` / `cancelAddFocus`.
+**Collapsible sections:** Six sections — Company Context, Interview Format, Interviewer Style, Target Duration, Voice Mode, AI Provider & Model — are collapsible via chevron toggles on their `field-label`. Default state is collapsed; each shows a one-line summary (`.fg-summary`) when collapsed. State persists in `localStorage` under `setupCollapsed_v1`. Helpers: `toggleSetupSection`, `saveSetupCollapsed`, `loadSetupCollapsed`, `updateSectionSummaries`. Custom focus area tile uses `showFocusAddForm` / `confirmAddFocus` / `cancelAddFocus`.
+
+**Voice Mode** (toggle in dedicated setup section, persisted as `voiceMode_v1`):
+- **Push-to-talk STT** — 🎙️ mic button rendered next to Send in the interview composer. Hold-to-record via Web Speech API (`SpeechRecognition`); release transcribes into `#user-input` for review/edit before send. Mic button is hidden when Voice Mode is off.
+- **TTS** — assistant replies are spoken via `speechSynthesis` after render; ` ```whiteboard ` fenced blocks are stripped before speaking. Suppressed when Voice Mode is off.
 
 ### UI / Layout
 
@@ -71,6 +75,7 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 **`buildSystemPrompt(question, style, focusAreas, level, format, companyContext)`**
 Constructs a detailed interviewer system prompt covering:
 - Optional `COMPANY CONTEXT` block (when `companyContext` is non-empty) that biases scale assumptions, scenarios, trade-offs, and clarifying-question numbers toward the target company without naming it verbatim each turn
+- Optional `PAST WEAK SPOTS` block (cross-session memory): pulls top 5 entries from `studyProgress_v1` prioritizing low-mastery (< 60%) and `gapSourcedFrom` topics; instructs the interviewer to steer follow-ups and probe depth toward those weak areas without naming the source. Omitted when no qualifying topics exist.
 - `getCompanyContext()` reads `#company-context` textarea; also passed to `generateQuestion()` for company-flavored prompts
 - Style guide (Strict / Balanced / Friendly)
 - Level expectations (Junior / Mid-level / Senior)
