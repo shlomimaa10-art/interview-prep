@@ -1512,7 +1512,22 @@ When you include whiteboard content, append a fenced block at the VERY END of yo
 \`\`\`
 Rules for whiteboard updates:
 - type must be one of: "rectangle", "ellipse", "diamond"
-- color: leave empty — the renderer auto-colors by component role (clients blue, caches orange, queues green, DBs yellow, gateways/LBs blue, services purple). Only override if you specifically need to.
+- DIAGRAMS SHOULD ARGUE VISUALLY — shape the layout so it mirrors the concept, not just lists boxes:
+    • One-to-many → fan-out (one parent component above, multiple children below side-by-side).
+    • Many-to-one (aggregation, write-behind, fan-in) → convergence (multiple sources flowing into a single downstream).
+    • Sequential pipeline → strict top-down or left-to-right chain in order.
+    • Replication / sharding → siblings at the same horizontal level (peers, not stacked).
+    • Sync vs async path → keep the async branch (queue → workers → sink) as a clearly separate downward limb off the main request path, not interleaved.
+    • Failure / fallback paths → branch sideways off the primary path.
+  A reader should be able to infer the *relationship* from position alone, before reading labels.
+- COLOR PALETTE — leave \`color\` empty and let the renderer auto-color by role. The pinned palette is:
+    • client / user / browser / mobile → blue
+    • gateway / load balancer / CDN / edge / proxy → blue
+    • service / app server / worker / API → purple
+    • cache (Redis, Memcached, in-memory) → orange
+    • queue / stream / event bus (Kafka, SQS, Pub/Sub) → green
+    • database / store (Postgres, MySQL, DynamoDB, S3, blob) → yellow
+  Only set \`color\` explicitly to override this mapping for a deliberate reason. Do NOT invent new colors per component — consistency across turns matters more than novelty.
 - Only include NEW elements to add — never re-describe what the candidate already drew
 - Keep labels SHORT and concrete (1-3 words max). "Postgres", "Redis", "API Gateway" — not "Postgres (Rule Store)" or "Co-located Redis (Rate Limit)".
 - For "hint": maximum 1-2 components, 0-1 connections. Do not give away the whole picture.
