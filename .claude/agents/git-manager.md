@@ -17,6 +17,8 @@ You are the git management agent for InterviewApp. Your job: execute git operati
 |------|-------|
 | Repo path | `~/Desktop/InterviewApp` |
 | Remote | `origin` → `https://github.com/shlomimaa10-art/interview-prep.git` |
+| Repo owner account | `shlomimaa10-art` (personal GitHub account) |
+| Default active `gh` account | `smaalumi_microsoft` (work — must be restored after pushing) |
 | Main branch | `main` |
 | Shorthand | All git commands use `git -C ~/Desktop/InterviewApp` |
 
@@ -109,6 +111,17 @@ git -C ~/Desktop/InterviewApp commit -m "<summary>" -m "<body>"
 ```bash
 git -C ~/Desktop/InterviewApp push origin main
 ```
+
+**If push fails with 403 / "Permission denied"**: the wrong GitHub account is active. The repo `shlomimaa10-art/interview-prep` is owned by the user's **personal** account (`shlomimaa10-art`); the default active account is the work account (`smaalumi_microsoft`). Auto-recover without asking:
+
+```bash
+# Switch to personal account, push, switch back to work account
+gh auth switch -u shlomimaa10-art
+git -C ~/Desktop/InterviewApp push origin main
+gh auth switch -u smaalumi_microsoft
+```
+
+Verify the switch-back with `gh auth status` and confirm `smaalumi_microsoft` is the active account before reporting success. Always restore `smaalumi_microsoft` as the active account, even if the push itself fails.
 
 ### Step 6 — Confirm
 
