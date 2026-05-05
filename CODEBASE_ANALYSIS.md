@@ -74,6 +74,7 @@ Constructs a detailed interviewer system prompt covering:
 - 4-phase interview arc (Scoping → High-level → Deep dive → Wrap-up)
 - Interviewer rules (no hints unless asked, no restating, no bullet points)
 - Special commands: `"feedback"`, `"give full answer"`, `"hint"`
+  - `"feedback"` emits a fixed-order structured evaluation: **Whiteboard Assessment** (primary signal — names actual `[WHITEBOARD CONTEXT]` elements, flags empty/messy diagrams as red flags), Strengths, Gaps, Suggestions, and **Score: X/10** driven by a calibrated rubric (1–3 incoherent, 4 weak, 5 below-bar, 6 borderline, 7 solid hire, 8 strong hire, 9 exceptional, 10 staff+). Anti-7.5 calibration rules force using the full range; whiteboard quality caps/raises the score.
 - System prompt includes `WHITEBOARD_UPDATE FORMAT` instructions for AI-driven whiteboard updates
 
 **`renderWhiteboardUpdate(reply)`**
@@ -134,17 +135,18 @@ Loaded via CDN: `react`, `react-dom`, `@excalidraw/excalidraw`. Mounted inside a
 
 ### Session Persistence
 `localStorage` key `interviewSession_v1` enables browser-crash recovery.
-- **Persisted:** `question`, `history`, `system`, `level`, `style`, `format`, `duration`, `focusAreas`, `companyContext`, `timerStart`, `whiteboard`.
+- **Persisted:** `sessionId`, `question`, `history`, `system`, `level`, `style`, `format`, `duration`, `focusAreas`, `companyContext`, `timerStart`, `whiteboard`.
 - **Saved on:** every message (user + AI), every whiteboard update, `pagehide`, `beforeunload`.
 - **Auto-restore** on page load if present; **cleared** when a new interview starts.
 
 ### Export & History
 - **📥 Export** (interview-tab action): downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file containing the question, metadata (level, style, format, duration, elapsed, focus areas), full transcript, and an embedded base64 PNG of the whiteboard rendered via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. `exportSession` and `exportHistEntry` were refactored to share `exportEntryFiles()`.
-- **📚 History** (interview-tab action): opens a modal listing past interviews stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (capped at `HISTORY_MAX = 20`, FIFO eviction). Each past entry exposes **View** (inline transcript), **Export** (same Markdown + `.excalidraw` pair), and **Delete** buttons.
+- **📚 History** (interview-tab action): opens a modal listing past interviews stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (capped at `HISTORY_MAX = 20`, FIFO eviction). Each past entry exposes **View** (inline transcript), **Export** (same Markdown + `.excalidraw` pair), **▶ Resume** (rehydrates question, config, full chat, whiteboard, and timer with preserved elapsed time into the live interview — snapshots current session first, reuses `restoreSession()` with a data override, and rebuilds `SYSTEM` via `buildSystemPrompt()` from the entry's settings), and **Delete** buttons.
 - **Modal close**: ✕ button, backdrop click, or `Escape` key.
-- **Snapshot trigger points**: a session snapshot is auto-pushed into `interviewHistory_v1` at:
+- **Snapshot trigger points**: `snapshotToHistory()` upserts by stable `currentSessionId` (assigned at `startInterview()` / `restartInterview()` / `resumeHistEntry()` and persisted in `interviewSession_v1`). Called at:
   1. `restartInterview()` — before resetting current session state.
-  2. `startInterview()` — before the new question overwrites state, preserving any prior run.
+  2. `startInterview()` — before the new question overwrites state.
+  3. `pagehide` / `beforeunload` — so every session auto-appears in History; refresh/close-tab updates the same entry in place rather than duplicating.
 
 ### Models (as of code)
 ```js

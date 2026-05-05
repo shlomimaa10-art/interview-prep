@@ -543,6 +543,10 @@ let selectedDuration = 45;
 let timerInterval = null;
 let timerStart = null;
 let currentQuestion = '';
+let currentSessionId = '';
+function newSessionId() {
+  return 'ih_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
 
 // ── Session persistence (browser-crash recovery) ──────
 const SESSION_KEY = 'interviewSession_v1';
@@ -555,6 +559,7 @@ function saveSession() {
       : []);
     const data = {
       question: currentQuestion,
+      sessionId: currentSessionId,
       history: history,
       system: SYSTEM,
       level: selectedLevel,
@@ -602,8 +607,11 @@ function snapshotToHistory() {
   const wbEls = (window._excalidrawAPI
     ? window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted)
     : []);
+  if (!currentSessionId) currentSessionId = newSessionId();
+  const list = loadHistoryList();
+  const existing = list.find(e => e.id === currentSessionId);
   const entry = {
-    id: 'ih_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    id: currentSessionId,
     question: currentQuestion,
     history: history.slice(),
     level: selectedLevel,
@@ -614,11 +622,13 @@ function snapshotToHistory() {
     companyContext: getCompanyContext(),
     elapsedSec: timerStart ? Math.floor((Date.now() - timerStart) / 1000) : 0,
     wb: wbEls,
-    savedAt: Date.now()
+    savedAt: Date.now(),
+    createdAt: existing ? (existing.createdAt || existing.savedAt || Date.now()) : Date.now()
   };
-  const list = loadHistoryList();
-  list.unshift(entry);
-  saveHistoryList(list);
+  // Upsert: if a snapshot for this sessionId already exists, replace it in place
+  const next = list.filter(e => e.id !== currentSessionId);
+  next.unshift(entry);
+  saveHistoryList(next);
 }
 function deleteHistoryEntry(id) {
   saveHistoryList(loadHistoryList().filter(e => e.id !== id));
@@ -960,7 +970,30 @@ Do NOT assume the diagram is correct or complete. Treat it like a messy whiteboa
 ---
 
 SPECIAL COMMANDS:
-- "feedback" → exit interview mode; give a structured evaluation: strengths, gaps, overall verdict, score /10. Then add a "Suggested Study Topics" section: for each gap identified, list 1-2 specific topics or technologies the candidate should study, with enough detail to be actionable (e.g. "Read about: consistent hashing for partition rebalancing", "Study: circuit breaker pattern for cascading failure prevention", "Practice: back-of-envelope capacity estimation — start with QPS, storage, bandwidth"). Text only, no whiteboard update.
+- "feedback" → exit interview mode; give a structured evaluation in this exact section order:
+  1. **Whiteboard Assessment** — THIS IS A PRIMARY SIGNAL, NOT AN AFTERTHOUGHT. The diagram often reveals more than the spoken answer (clarity of thought, completeness, missing flows, isolated components, missing failure-handling like DLQs / retries / dead-letter paths, weak data-flow direction, missing storage tiers, no monitoring, etc.). Reference the candidate's actual whiteboard contents from [WHITEBOARD CONTEXT] by name. Call out specific elements they drew well AND specific gaps in the diagram. If they barely used the whiteboard or it's empty, say so explicitly and treat that as a meaningful gap — system design without a diagram is a red flag. Do NOT skip this section. Do NOT write generic "good diagram" — be specific about boxes, arrows, and what's missing.
+  2. **Strengths** — what the candidate (verbally) nailed.
+  3. **Gaps** — what the candidate (verbally) missed or hand-waved.
+  4. **Overall Verdict** — 2-3 sentences.
+  5. **Score: X/10** — see the SCORING RUBRIC below. Be honest. The score must reflect actual evidence, not politeness.
+  6. **Suggested Study Topics** — for each gap (verbal AND whiteboard), list 1-2 specific topics or technologies with enough detail to be actionable (e.g. "Read about: consistent hashing for partition rebalancing", "Study: circuit breaker pattern for cascading failure prevention").
+  Text only, no whiteboard update.
+
+SCORING RUBRIC (use the full range — do NOT default to 7 or 7.5):
+- 1-2: Could not engage with the problem. Major confusion about basic concepts. Did not produce a coherent design.
+- 3-4: Significant gaps. Skipped requirements or jumped to solutions. Design has structural flaws (no scaling story, missing critical components, wrong tech for the problem).
+- 5-6: Below bar for the candidate's stated level. Got the basics but missed several important things, hand-waved hard parts, or made unjustified choices. Mid-level candidate giving junior answers lands here.
+- 7: Solid for the level. Hit most expected beats, justified main choices, surfaced some failure modes. Clear bar for the level but didn't exceed it.
+- 8: Above bar. Surfaced concerns proactively (not just when prompted), gave crisp trade-off reasoning, used the whiteboard well. Would recommend hire at this level.
+- 9: Exceptional for the level. Demonstrated thinking from the level above. Proactively raised hard problems, gave nuanced answers, anticipated follow-ups.
+- 10: Reserved for truly outstanding — would skip-level recommend.
+
+CALIBRATION RULES — read these before scoring:
+- Do NOT default to 7.5. If you find yourself reaching for 7.5, force a decision: was it a 7 (met bar) or an 8 (exceeded bar)? Pick one based on evidence.
+- A 7.5 is only valid if you can name a specific reason it's between 7 and 8 — otherwise round.
+- The score should match your written feedback. Lots of "Gaps" with thin "Strengths" → 5 or 6, not 7. Lots of proactive depth → 8 or 9, not 7.
+- Whiteboard quality counts toward the score. A great verbal answer with an empty/messy whiteboard caps at ~7. A clean diagram with crisp verbal reasoning earns 8+.
+- Vary scores across sessions — different candidates and sessions should land at different points in the range. Do not converge to a comfortable middle.
 - "give full answer" → reveal a complete model solution. If the question involves system design / architecture, ALSO include a WHITEBOARD_UPDATE block (see format below) with the full component diagram. If purely algorithmic or conceptual, text only.
 - "hint" → give one small nudge without solving anything. If the candidate is in Phase 2 or 3 (high-level/deep-dive) AND the hint relates to architecture, components, or data flow, include a WHITEBOARD_UPDATE block showing ONLY the hinted element(s) — e.g. a single missing component or one connection. If the hint is conceptual (e.g. "think about consistency vs availability") or still in Phase 1, text only — no whiteboard update.
 
@@ -1078,6 +1111,7 @@ async function startInterview() {
   // Snapshot any prior in-flight session into history before overwriting
   snapshotToHistory();
   currentQuestion = q;
+  currentSessionId = newSessionId();
   document.getElementById('q-text').textContent = q;
   document.getElementById('header-sub').textContent =
     selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1) + ' · ' + selectedStyle;
@@ -1179,6 +1213,8 @@ async function restartInterview() {
   if (!confirm('Restart this interview? Your current chat and whiteboard will be cleared. The same question, level, and style will be used.')) return;
   // Snapshot current run into past-interviews history before resetting
   snapshotToHistory();
+  // New sessionId so the restarted run becomes its own history entry
+  currentSessionId = newSessionId();
   // Reset state — keep currentQuestion, SYSTEM, level/style/format/duration/focus
   history = [];
   document.getElementById('chat').innerHTML = '';
@@ -1320,6 +1356,7 @@ function renderHistory() {
       + '</div>'
       + '<div class="hist-actions">'
       +   '<button class="hist-btn" onclick="toggleHistTranscript(\'' + e.id + '\')">View</button>'
+      +   '<button class="hist-btn" onclick="resumeHistEntry(\'' + e.id + '\')">▶ Resume</button>'
       +   '<button class="hist-btn" onclick="exportHistEntry(\'' + e.id + '\')">📥 Export</button>'
       +   '<button class="hist-btn danger" onclick="if(confirm(\'Delete this past interview?\'))deleteHistoryEntry(\'' + e.id + '\')">Delete</button>'
       + '</div>'
@@ -1343,6 +1380,44 @@ async function exportHistEntry(id) {
   const entry = loadHistoryList().find(e => e.id === id);
   if (!entry) return;
   await exportEntryMarkdown(entry);
+}
+
+function resumeHistEntry(id) {
+  const entry = loadHistoryList().find(e => e.id === id);
+  if (!entry) return;
+  if (currentQuestion && history.length && !confirm('Resume this past interview? Your current session will be snapshotted to history first.')) return;
+  // Snapshot current in-flight session so nothing is lost
+  snapshotToHistory();
+  // Adopt the entry's id so further snapshots update this entry in-place
+  currentSessionId = entry.id;
+  // Rebuild SYSTEM prompt from the entry's settings (older entries didn't store SYSTEM)
+  const sys = buildSystemPrompt(
+    entry.question,
+    entry.style,
+    entry.focusAreas || [],
+    entry.level,
+    entry.format,
+    entry.companyContext || ''
+  );
+  // Reuse restoreSession's hydration path
+  const data = {
+    question: entry.question,
+    sessionId: entry.id,
+    history: entry.history,
+    system: sys,
+    level: entry.level,
+    style: entry.style,
+    format: entry.format,
+    duration: entry.duration,
+    focusAreas: entry.focusAreas,
+    companyContext: entry.companyContext || '',
+    timerStart: Date.now() - (entry.elapsedSec || 0) * 1000,
+    wb: entry.wb || []
+  };
+  // Persist so refresh keeps the resumed session
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(Object.assign({}, data, { savedAt: Date.now() }))); } catch (e) {}
+  closeHistory();
+  if (window._restoreSessionFromData) window._restoreSessionFromData(data);
 }
 
 async function fillStarterSentence() {
@@ -1877,12 +1952,13 @@ document.addEventListener('keydown', function(e) {
 
 // ── Restore session on page load (browser-crash recovery) ──
 (function() {
-  function restoreSession() {
-    const data = loadSession();
+  function restoreSession(dataOverride) {
+    const data = dataOverride || loadSession();
     if (!data || !data.question || !Array.isArray(data.history) || !data.history.length) return;
     _restoring = true;
     try {
       currentQuestion = data.question;
+      currentSessionId = data.sessionId || newSessionId();
       SYSTEM = data.system || '';
       selectedLevel = data.level || selectedLevel;
       selectedStyle = data.style || selectedStyle;
@@ -1941,11 +2017,12 @@ document.addEventListener('keydown', function(e) {
 
       switchTab('interview');
 
-      // Restore whiteboard once Excalidraw mounts
-      if (Array.isArray(data.wb) && data.wb.length) {
+      // Restore whiteboard once Excalidraw mounts (always reset scene when called with override)
+      const wbEls = Array.isArray(data.wb) ? data.wb : [];
+      if (wbEls.length || dataOverride) {
         const tryRestoreWb = () => {
           if (window._excalidrawAPI) {
-            window._excalidrawAPI.updateScene({ elements: data.wb });
+            window._excalidrawAPI.updateScene({ elements: wbEls });
           } else {
             setTimeout(tryRestoreWb, 300);
           }
@@ -1958,8 +2035,12 @@ document.addEventListener('keydown', function(e) {
   }
 
   // Save on page hide (best-effort crash protection)
-  window.addEventListener('pagehide', saveSession);
-  window.addEventListener('beforeunload', saveSession);
+  function persistOnExit() { try { snapshotToHistory(); } catch (e) {} saveSession(); }
+  window.addEventListener('pagehide', persistOnExit);
+  window.addEventListener('beforeunload', persistOnExit);
+
+  // Expose for History "Resume" button
+  window._restoreSessionFromData = restoreSession;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', restoreSession);

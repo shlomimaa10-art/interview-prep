@@ -71,8 +71,8 @@ An **Excalidraw**-based whiteboard in a resizable right-edge drawer. Loaded via 
 Two interview-tab actions extend session management:
 
 - **📥 Export**: downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file with the question, metadata (level / style / format / duration / elapsed / focus areas), full transcript, and an embedded base64 PNG of the whiteboard via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. Both `exportSession` and `exportHistEntry` delegate to `exportEntryFiles()`.
-- **📚 History**: opens a modal listing past sessions stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (cap `HISTORY_MAX = 20`, FIFO eviction). Each entry has **View** (inline transcript), **Export**, and **Delete** buttons. Modal closes via ✕ button, backdrop click, or `Escape` key.
-- **Snapshot triggers**: the current session is auto-pushed into history at `restartInterview()` and at `startInterview()` (before the new question overwrites state), preserving prior runs.
+- **📚 History**: opens a modal listing past sessions stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (cap `HISTORY_MAX = 20`, FIFO eviction). Each entry has **View** (inline transcript), **Export**, **▶ Resume** (rehydrates question, config, chat, whiteboard, and timer with preserved elapsed time via `restoreSession()` data override; rebuilds `SYSTEM` via `buildSystemPrompt()`; snapshots current session first), and **Delete** buttons. Modal closes via ✕ button, backdrop click, or `Escape` key.
+- **Snapshot triggers**: `snapshotToHistory()` upserts by stable `currentSessionId` (set at `startInterview()` / `restartInterview()` / `resumeHistEntry()` and persisted in `interviewSession_v1`). Called at `restartInterview()`, `startInterview()` (before overwriting state), and on `pagehide` / `beforeunload`, so every session auto-appears in History and refresh/close-tab updates the same entry in place rather than duplicating.
 
 ---
 
@@ -80,7 +80,7 @@ Two interview-tab actions extend session management:
 
 Browser-crash recovery via `localStorage` key `interviewSession_v1`.
 
-- **Persisted fields:** `question`, `history`, `system`, `level`, `style`, `format`, `duration`, `focusAreas`, `companyContext`, `timerStart`, `whiteboard`.
+- **Persisted fields:** `sessionId`, `question`, `history`, `system`, `level`, `style`, `format`, `duration`, `focusAreas`, `companyContext`, `timerStart`, `whiteboard`.
 - **Save points:** every message sent/received, every whiteboard update, and on `pagehide` / `beforeunload`.
 - **Auto-restore** on page load if a saved session exists.
 - **Cleared** when a new interview starts.
