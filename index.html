@@ -267,6 +267,17 @@
   .study-recent-topic{font-size:13px;color:var(--text);flex:1}
   .study-recent-mastery{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);min-width:60px;text-align:right}
   .study-recent-actions{display:flex;gap:6px}
+  /* Study textarea — match interview input */
+  #study-input{flex:1;min-height:52px;max-height:400px;resize:vertical;background:var(--surface);border:0.5px solid var(--border2);border-radius:10px;padding:14px 16px;font-size:14px;color:var(--text);font-family:var(--font-ui);line-height:1.5;outline:none;transition:border-color .15s}
+  #study-input:focus{border-color:var(--study-accent-border)}
+  #study-input::placeholder{color:var(--text-faint)}
+  #study-send-btn{padding:0 20px;height:52px;background:var(--study-accent);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:500;font-family:var(--font-ui);cursor:pointer;flex-shrink:0;transition:opacity .15s,transform .1s}
+  #study-send-btn:hover{opacity:.88}
+  #study-send-btn:active{transform:scale(.97)}
+  #study-send-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+  /* Exit ✕ in top bar */
+  .study-exit-btn{background:none;border:0.5px solid var(--border2);color:var(--text-muted);font-size:14px;line-height:1;width:26px;height:26px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s,background .15s}
+  .study-exit-btn:hover{color:#ff9999;border-color:rgba(255,107,107,0.35);background:rgba(255,107,107,0.08)}
   /* In-session bar */
   .study-bar{background:var(--surface);border-bottom:0.5px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .study-bar .study-label{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--study-accent);background:var(--study-accent-bg);border:0.5px solid var(--study-accent-border);padding:3px 9px;border-radius:4px;letter-spacing:.06em}
@@ -656,6 +667,7 @@
         <span id="study-mastery-pct">0%</span>
       </span>
       <span class="study-timer" id="study-timer">⏱ 00:00</span>
+      <button class="study-exit-btn" onclick="endStudySession(true)" title="Exit study session (saves to History)">✕</button>
     </div>
     <main>
       <div id="study-chat" style="flex:1;display:flex;flex-direction:column;gap:20px;overflow-y:auto;padding-bottom:16px;min-height:0"></div>
@@ -670,7 +682,6 @@
           <button class="action-btn" onclick="quickStudy('show me')">👁 Show me</button>
           <button class="action-btn" onclick="quickStudy('quiz')">✅ Quiz me</button>
           <button class="action-btn" onclick="quickStudy('done')">🏁 Done</button>
-          <button class="action-btn" onclick="endStudySession(true)">🚪 Exit</button>
           <button class="action-btn" onclick="openHistory('study')">📚 History</button>
           <span class="tip" style="margin-left:auto"><span>Shift+Enter</span> → new line</span>
         </div>
@@ -2321,7 +2332,9 @@ function loadStudySession() {
 function snapshotStudyToHistory() {
   if (!studyTopic || !studyHistory.length) return;
   const realMsgs = studyHistory.filter(m => !(m.role === 'user' && m.content === '__START__'));
-  if (!realMsgs.length) return;
+  // Require at least one real exchange (a user reply OR more than just the opening tutor message)
+  const userMsgs = realMsgs.filter(m => m.role === 'user');
+  if (!userMsgs.length) return;
   if (!studySessionId) studySessionId = newStudyId();
   const list = loadStudyHistoryList();
   const existing = list.find(e => e.id === studySessionId);
@@ -2851,7 +2864,7 @@ const _origSwitchTabFn = window.switchTab;
 window.switchTab = function(name) {
   _origSwitchTabFn(name);
   if (name === 'study') {
-    if (studyTopic && studyHistory.length) showStudySession(); else showStudyLanding();
+    if (studyTopic) showStudySession(); else showStudyLanding();
   }
 };
 
