@@ -240,8 +240,8 @@
   :root{--study-accent:#a864ff;--study-accent-bg:rgba(168,100,255,0.13);--study-accent-border:rgba(168,100,255,0.38)}
   #panel-study{flex-direction:column;flex:1;min-height:0}
   #study-landing{flex:1;display:flex;overflow:hidden}
-  .study-landing-grid{display:grid;grid-template-columns:300px 1fr;gap:0;width:100%;flex:1;min-height:0}
-  .study-sidebar{background:var(--surface);border-right:0.5px solid var(--border);padding:22px 16px;overflow-y:auto}
+  .study-landing-grid{display:grid;grid-template-columns:300px 1fr;grid-template-rows:minmax(0,1fr);gap:0;width:100%;flex:1;min-height:0}
+  .study-sidebar{background:var(--surface);border-right:0.5px solid var(--border);padding:22px 16px;overflow-y:auto;min-height:0;min-width:0}
   .study-sidebar-title{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-left:4px}
 
   /* Collapsible category */
@@ -262,7 +262,7 @@
   .study-cat-topic.gap::before{content:'⚠ ';opacity:.7}
 
   /* Right column main area */
-  .study-main{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:40px 24px 60px}
+  .study-main{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:40px 24px 60px;min-height:0;min-width:0}
   .study-wrap{width:100%;max-width:600px;display:flex;flex-direction:column;gap:24px}
   /* Hero card */
   .study-hero-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:32px 28px;box-shadow:0 4px 24px rgba(0,0,0,0.18);text-align:center;position:relative;overflow:hidden}
@@ -2369,6 +2369,9 @@ const STUDY_BUILTIN_TOPICS = [
   { id:'db-replication', title:'DB Replication (sync vs async)', cat:'Databases', tags:['databases','reliability'] },
   { id:'isolation-levels', title:'Transaction Isolation Levels', cat:'Databases', tags:['databases'] },
   { id:'indexing-basics', title:'Indexing & Query Plans', cat:'Databases', tags:['databases','latency'] },
+  { id:'normalization', title:'Normalization vs Denormalization', cat:'Databases', tags:['databases'] },
+  { id:'change-data-capture', title:'Change Data Capture (CDC)', cat:'Databases', tags:['databases'] },
+  { id:'time-series-db', title:'Time-Series Databases', cat:'Databases', tags:['databases'] },
 
   { id:'rate-limiting', title:'Rate Limiting Algorithms', cat:'Security', tags:['reliability','security'] },
   { id:'oauth-jwt', title:'OAuth & JWT Auth', cat:'Security', tags:['security'] },
