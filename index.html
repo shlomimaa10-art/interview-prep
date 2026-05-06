@@ -1789,7 +1789,7 @@ async function buildWhiteboardPngBlob(entry) {
   try {
     return await ExcalidrawLib.exportToBlob({
       elements: entry.wb,
-      appState: { exportBackground: true, viewBackgroundColor: '#1a1d27' },
+      appState: { exportBackground: true, viewBackgroundColor: '#ffffff', exportPadding: 24 },
       mimeType: 'image/png',
     });
   } catch (e) { return null; }
@@ -1865,7 +1865,7 @@ function exportEntryExcalidraw(entry) {
     version: 2,
     source: 'https://excalidraw.com',
     elements: els,
-    appState: { viewBackgroundColor: '#1a1d27', gridSize: null },
+    appState: { viewBackgroundColor: '#ffffff', gridSize: null },
     files: {}
   };
   downloadBlob(
