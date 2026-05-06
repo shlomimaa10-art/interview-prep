@@ -1784,7 +1784,19 @@ function downloadBlob(blob, filename) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
-async function buildSessionMarkdown(entry) {
+async function buildWhiteboardPngBlob(entry) {
+  if (!(entry.wb && entry.wb.length && window.ExcalidrawLib && ExcalidrawLib.exportToBlob)) return null;
+  try {
+    return await ExcalidrawLib.exportToBlob({
+      elements: entry.wb,
+      appState: { exportBackground: true, viewBackgroundColor: '#1a1d27' },
+      mimeType: 'image/png',
+    });
+  } catch (e) { return null; }
+}
+async function buildSessionMarkdown(entry, opts) {
+  opts = opts || {};
+  const baseName = opts.baseName || entryBaseName(entry);
   const dt = new Date(entry.savedAt || Date.now());
   const lines = [];
   lines.push('# Interview Session');
@@ -1812,26 +1824,25 @@ async function buildSessionMarkdown(entry) {
     lines.push(m.content);
     lines.push('');
   }
-  // Whiteboard PNG (base64-embedded)
-  if (entry.wb && entry.wb.length && window.ExcalidrawLib && ExcalidrawLib.exportToBlob) {
-    try {
-      const blob = await ExcalidrawLib.exportToBlob({
-        elements: entry.wb,
-        appState: { exportBackground: true, viewBackgroundColor: '#1a1d27' },
-        mimeType: 'image/png',
-      });
-      const dataUrl = await new Promise((resolve) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result);
-        r.readAsDataURL(blob);
-      });
-      lines.push('---');
+  // Whiteboard — reference sibling files so markdown previewers actually render them.
+  if (entry.wb && entry.wb.length) {
+    lines.push('---');
+    lines.push('');
+    lines.push('## Whiteboard');
+    lines.push('');
+    if (opts.includePngLink !== false) {
+      lines.push('![Whiteboard](' + baseName + '.png)');
       lines.push('');
-      lines.push('## Whiteboard');
-      lines.push('');
-      lines.push('![Whiteboard](' + dataUrl + ')');
-      lines.push('');
-    } catch (e) { /* skip image on failure */ }
+    }
+    lines.push('> Editable scene: [`' + baseName + '.excalidraw`](' + baseName + '.excalidraw) — open at https://excalidraw.com (File → Open).');
+    lines.push('');
+  } else {
+    lines.push('---');
+    lines.push('');
+    lines.push('## Whiteboard');
+    lines.push('');
+    lines.push('_No whiteboard content for this session._');
+    lines.push('');
   }
   return lines.join('\n');
 }
@@ -1841,8 +1852,9 @@ function entryBaseName(entry) {
   return 'interview-' + ts + '-' + safeQ;
 }
 function exportEntryMarkdown(entry) {
-  return buildSessionMarkdown(entry).then(md =>
-    downloadBlob(new Blob([md], { type: 'text/markdown' }), entryBaseName(entry) + '.md')
+  const baseName = entryBaseName(entry);
+  return buildSessionMarkdown(entry, { baseName }).then(md =>
+    downloadBlob(new Blob([md], { type: 'text/markdown' }), baseName + '.md')
   );
 }
 function exportEntryExcalidraw(entry) {
@@ -1861,9 +1873,15 @@ function exportEntryExcalidraw(entry) {
     entryBaseName(entry) + '.excalidraw'
   );
 }
+async function exportEntryPng(entry) {
+  const blob = await buildWhiteboardPngBlob(entry);
+  if (!blob) return;
+  downloadBlob(blob, entryBaseName(entry) + '.png');
+}
 async function exportEntryFiles(entry) {
   await exportEntryMarkdown(entry);
   exportEntryExcalidraw(entry);
+  await exportEntryPng(entry);
 }
 function buildCurrentEntry() {
   const wbEls = (window._excalidrawAPI
