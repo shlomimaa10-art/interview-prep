@@ -1845,6 +1845,26 @@ function exportEntryMarkdown(entry) {
     downloadBlob(new Blob([md], { type: 'text/markdown' }), entryBaseName(entry) + '.md')
   );
 }
+function exportEntryExcalidraw(entry) {
+  const els = Array.isArray(entry.wb) ? entry.wb : [];
+  if (!els.length) return;
+  const scene = {
+    type: 'excalidraw',
+    version: 2,
+    source: 'https://excalidraw.com',
+    elements: els,
+    appState: { viewBackgroundColor: '#1a1d27', gridSize: null },
+    files: {}
+  };
+  downloadBlob(
+    new Blob([JSON.stringify(scene, null, 2)], { type: 'application/vnd.excalidraw+json' }),
+    entryBaseName(entry) + '.excalidraw'
+  );
+}
+async function exportEntryFiles(entry) {
+  await exportEntryMarkdown(entry);
+  exportEntryExcalidraw(entry);
+}
 function buildCurrentEntry() {
   const wbEls = (window._excalidrawAPI
     ? window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted)
@@ -1868,7 +1888,7 @@ async function exportSession() {
     alert('Nothing to export yet — start the interview first.');
     return;
   }
-  await exportEntryMarkdown(buildCurrentEntry());
+  await exportEntryFiles(buildCurrentEntry());
 }
 
 // ── History modal ─────────────────────────────────────
@@ -1924,7 +1944,7 @@ function toggleHistTranscript(id) {
 async function exportHistEntry(id) {
   const entry = loadHistoryList().find(e => e.id === id);
   if (!entry) return;
-  await exportEntryMarkdown(entry);
+  await exportEntryFiles(entry);
 }
 
 function resumeHistEntry(id) {
