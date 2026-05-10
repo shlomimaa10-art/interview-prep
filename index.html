@@ -1508,33 +1508,30 @@ CALIBRATION RULES — read these before scoring:
 WHITEBOARD_UPDATE FORMAT (when applicable):
 When you include whiteboard content, append a fenced block at the VERY END of your response, after all chat text:
 \`\`\`whiteboard
-{"components":[{"label":"Redis Cache","type":"rectangle","color":"#a8e6cf"}],"connections":[{"from":"API Server","to":"Redis Cache","label":"cache reads"}]}
+{"sections":[{"title":"Functional Requirements","items":["Allow/block HTTP requests in real-time","Configurable rules: rate limiting, IP blocking, geo"]},{"title":"Non-Functional Requirements","items":["5M RPS, sub-5ms decision latency","99.99% availability, eventual rule consistency <5s"]}],"components":[{"label":"Client","type":"ellipse"},{"label":"Redis Cache","type":"rectangle"}],"connections":[{"from":"API Server","to":"Redis Cache","label":"cache reads"}]}
 \`\`\`
 Rules for whiteboard updates:
-- type must be one of: "rectangle", "ellipse", "diamond"
-- DIAGRAMS SHOULD ARGUE VISUALLY — shape the layout so it mirrors the concept, not just lists boxes:
-    • One-to-many → fan-out (one parent component above, multiple children below side-by-side).
-    • Many-to-one (aggregation, write-behind, fan-in) → convergence (multiple sources flowing into a single downstream).
-    • Sequential pipeline → strict top-down or left-to-right chain in order.
-    • Replication / sharding → siblings at the same horizontal level (peers, not stacked).
-    • Sync vs async path → keep the async branch (queue → workers → sink) as a clearly separate downward limb off the main request path, not interleaved.
-    • Failure / fallback paths → branch sideways off the primary path.
-  A reader should be able to infer the *relationship* from position alone, before reading labels.
-- COLOR PALETTE — leave \`color\` empty and let the renderer auto-color by role. The pinned palette is:
-    • client / user / browser / mobile → blue
-    • gateway / load balancer / CDN / edge / proxy → blue
-    • service / app server / worker / API → purple
+- **sections** (optional): array of {title, items[]} rendered as a clean text block above the diagram. Use for Functional Requirements and Non-Functional Requirements. 2-5 bullet items each, terse.
+- **type** must be one of: "rectangle", "ellipse", "diamond"
+  - ellipse → client / user / browser / mobile
+  - diamond → database / store / persistent storage (Postgres, MySQL, DynamoDB, S3, Redis-as-store)
+  - rectangle → everything else (services, caches, queues, gateways, workers)
+- **LAYOUT RULE**: Order components so the renderer can assign rows by data-flow depth. Put components roughly in the order they appear in the request path: client first, then edge/gateway, then service tier, then cache/queue/async, then databases last. Components that are peers (same depth in the data flow) should be listed consecutively — the renderer automatically spreads them horizontally on the same row.
+- **COLOR PALETTE** — omit \`color\` and let the renderer auto-assign by role:
+    • client / user / browser / mobile → sky blue
+    • gateway / load balancer / CDN / edge / proxy / anycast → blue
+    • service / API / worker / rule engine → purple
     • cache (Redis, Memcached, in-memory) → orange
-    • queue / stream / event bus (Kafka, SQS, Pub/Sub) → green
-    • database / store (Postgres, MySQL, DynamoDB, S3, blob) → yellow
-  Only set \`color\` explicitly to override this mapping for a deliberate reason. Do NOT invent new colors per component — consistency across turns matters more than novelty.
-- Only include NEW elements to add — never re-describe what the candidate already drew
-- Keep labels SHORT and concrete (1-3 words max). "Postgres", "Redis", "API Gateway" — not "Postgres (Rule Store)" or "Co-located Redis (Rate Limit)".
-- For "hint": maximum 1-2 components, 0-1 connections. Do not give away the whole picture.
-- For "give full answer": include the COMPLETE architecture — aim for **8-12 components and 10-16 connections** for a real system-design question. Do not under-deliver. Cover: client → entry/edge → load balancer / gateway → service tier → cache → primary store → async pipeline (queue, workers, analytics) → observability. If a real production design needs more, group sensibly (e.g. "Workers" instead of 4 separate worker boxes), but DO NOT skip whole layers (no auth? no observability? no async path?) just to keep the picture small. A diagram with only 4-5 boxes for a millions-RPS question is a failure.
-- When adding connections, reference existing components on the whiteboard by their exact label from the [WHITEBOARD CONTEXT]
-- The JSON must be valid — no trailing commas, no comments
-- IMPORTANT LAYOUT RULE: Order components top-to-bottom by data flow (client/entry-point first, then services, then storage/databases last). Connections should mostly flow downward or between adjacent items — avoid long cross-connections. Each connection should connect neighbors that are close in the list order.
+    • queue / stream / Kafka / SQS / Pub-Sub → green
+    • database / store / Postgres / DynamoDB / S3 / ClickHouse → yellow
+    • observability / metrics / monitoring → light grey
+  Only set \`color\` explicitly to override for a deliberate reason.
+- **Labels**: SHORT and concrete (1-4 words). Prefer "Postgres" over "Postgres (Rules DB)". If two components of the same type exist, disambiguate with one word: "Redis Rate" and "Redis Rules".
+- For **"hint"**: max 1-2 components, 0-1 connections. No sections. Do not reveal the full picture.
+- For **"give full answer"**: include sections (FR + NFR) + the COMPLETE architecture. Aim for **10-14 components and 12-18 connections**. Cover every layer: client → edge → enforcement/service → cache(s) → queue → workers → DB(s) → analytics/observability. A diagram with < 8 boxes for a millions-RPS question is a failure.
+- When adding connections, reference existing components by their exact label from [WHITEBOARD CONTEXT].
+- Arrow labels: 1-4 words, describe the interaction ("cache miss", "publish event", "CRUD rules", "allow / block").
+- The JSON must be valid — no trailing commas, no comments.
 
 ---
 
@@ -2260,6 +2257,8 @@ function serializeWb() {
     // Standalone text (no containerId): treat as its own component.
     // Bound text (has containerId): skip — it's already attached to its container as a label.
     if (el.type === 'text' && el.containerId) continue;
+    // Skip section header/bullet text elements (start with ▸ or •)
+    if (el.type === 'text' && /^[▸•]/.test((el.text || '').trim())) continue;
     const bound = containerIdToText[el.id];
     const lbl = (bound || el.text || '').trim() || el.type;
     idToLabel[el.id] = lbl;
@@ -2344,11 +2343,11 @@ function renderWhiteboardUpdate(reply) {
 
   if (!window._excalidrawAPI) return { text: cleanText, hadWbUpdate: false };
 
-  const existing = window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted);
+  const existing = window._excalidrawAPI.getSceneElements().filter(function(el) { return !el.isDeleted; });
 
   let maxY = 0;
   for (const el of existing) {
-    if (el.type === 'text') continue; // skip text labels — only measure shape bounding boxes
+    if (el.type === 'text') continue;
     const bottom = (el.y || 0) + (el.height || 80);
     if (bottom > maxY) maxY = bottom;
   }
@@ -2356,19 +2355,15 @@ function renderWhiteboardUpdate(reply) {
   const newElements = [];
   const labelToMeta = {};
 
-  // Index existing labels → map label text to shape geometry for arrow routing
-  // Pass 1: shapes with properly bound text (containerId set on text element)
+  // Index existing component geometry for arrow routing (3 passes)
   for (const el of existing) {
     if (el.type === 'text' && el.text && el.containerId) {
       const lbl = el.text.trim();
       if (!lbl) continue;
       const container = existing.find(function(e) { return e.id === el.containerId; });
-      if (container) {
-        labelToMeta[lbl.toLowerCase()] = { id: el.containerId, x: container.x, y: container.y, w: container.width, h: container.height };
-      }
+      if (container) labelToMeta[lbl.toLowerCase()] = { id: el.containerId, x: container.x, y: container.y, w: container.width, h: container.height };
     }
   }
-  // Pass 2: shapes with boundElements array (text bound via shape side)
   for (const el of existing) {
     if (el.boundElements) {
       for (const b of el.boundElements) {
@@ -2379,58 +2374,150 @@ function renderWhiteboardUpdate(reply) {
       }
     }
   }
-  // Pass 3: legacy format — standalone text below shape (no containerId). Heuristic: shape is SHAPE_H+6 above the text.
-  for (const el of existing) {
-    if (el.type === 'text' && el.text && !el.containerId) {
-      const lbl = el.text.trim();
-      if (!lbl || labelToMeta[lbl.toLowerCase()]) continue;
-      // Guess the shape sits immediately above
-      const inferredShapeY = el.y - SHAPE_H - 6;
-      labelToMeta[lbl.toLowerCase()] = { id: el.id, x: el.x, y: inferredShapeY, w: el.width || SHAPE_W, h: SHAPE_H };
-    }
-  }
-
-  const components = data.components || [];
-  const connections = data.connections || [];
-
-  // Clean grid layout: 4 columns, generous spacing, labels inside boxes.
-  const COLS = 4;
-  const CELL_W = 230;
-  const CELL_H = 120;
-  const SHAPE_W = 190;
-  const SHAPE_H = 70;
-  const startX = 80;
-  const startY = maxY + 80;
 
   const uid = function() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); };
 
-  // Color palette by role hint in label
+  // ── Layout constants ────────────────────────────────────────────────────────
+  const SHAPE_W = 200;
+  const SHAPE_H = 72;
+  const ROW_GAP = 140;   // vertical distance between row tops
+  const COL_GAP = 240;   // horizontal distance between shape centres
+  const CANVAS_W = 1600; // total canvas width to centre within
+
+  // ── Color palette ───────────────────────────────────────────────────────────
   function pickColor(label, explicit) {
     if (explicit) return explicit;
     const l = (label || '').toLowerCase();
-    if (/client|user|browser|mobile/.test(l)) return '#bde0fe';
-    if (/cache|redis|memcached/.test(l)) return '#ffd6a5';
-    if (/queue|kafka|pub.?sub|stream/.test(l)) return '#caffbf';
-    if (/db|database|postgres|mysql|store|sql/.test(l)) return '#fdffb6';
-    if (/lb|load.?balancer|gateway|proxy|edge|cdn/.test(l)) return '#a0c4ff';
-    if (/service|api|server|engine/.test(l)) return '#cdb4db';
+    if (/client|user|browser|mobile/.test(l))                  return '#bde0fe'; // sky blue
+    if (/cache|redis|memcached|in.?mem/.test(l))               return '#ffd6a5'; // orange
+    if (/queue|kafka|pub.?sub|stream|sqs|event.?bus/.test(l))  return '#caffbf'; // green
+    if (/db|database|postgres|mysql|dynamo|clickhouse|store|sql|s3|blob/.test(l)) return '#fdffb6'; // yellow
+    if (/gateway|lb|load.?bal|cdn|edge|proxy|anycast|dns/.test(l)) return '#a0c4ff'; // blue
+    if (/service|api|server|engine|worker|rule|enforce/.test(l)) return '#cdb4db'; // purple
+    if (/metric|monitor|observ|alert|grafana|prometheus/.test(l)) return '#e8e8e8'; // grey
     return '#e8e8e8';
   }
 
+  // ── Sections (FR / NFR header blocks) ──────────────────────────────────────
+  const sections = data.sections || [];
+  let sectionY = maxY + 60;
+  const SECTION_LINE_H = 22;
+
+  sections.forEach(function(sec) {
+    // Title text
+    const titleId = 'wbst_' + uid();
+    newElements.push({
+      id: titleId, type: 'text',
+      x: 60, y: sectionY,
+      width: 500, height: 24,
+      angle: 0, strokeColor: '#333333', backgroundColor: 'transparent',
+      fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+      roughness: 0, opacity: 100, groupIds: [], roundness: null,
+      seed: Math.floor(Math.random() * 2e9), version: 2,
+      versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+      boundElements: null, containerId: null,
+      text: '▸ ' + sec.title, fontSize: 16, fontFamily: 1,
+      textAlign: 'left', verticalAlign: 'top', originalText: '▸ ' + sec.title, lineHeight: 1.25,
+    });
+    sectionY += 28;
+    (sec.items || []).forEach(function(item) {
+      const lineId = 'wbsi_' + uid();
+      newElements.push({
+        id: lineId, type: 'text',
+        x: 80, y: sectionY,
+        width: 580, height: SECTION_LINE_H,
+        angle: 0, strokeColor: '#555555', backgroundColor: 'transparent',
+        fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        seed: Math.floor(Math.random() * 2e9), version: 2,
+        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+        boundElements: null, containerId: null,
+        text: '• ' + item, fontSize: 14, fontFamily: 1,
+        textAlign: 'left', verticalAlign: 'top', originalText: '• ' + item, lineHeight: 1.25,
+      });
+      sectionY += SECTION_LINE_H + 4;
+    });
+    sectionY += 16; // gap between sections
+  });
+
+  // ── Layered layout engine ───────────────────────────────────────────────────
+  // BFS from nodes with no incoming edges → assign each node a row (depth).
+  // Then centre each row horizontally within CANVAS_W.
+  const components = data.components || [];
+  const connections = data.connections || [];
+
+  if (components.length === 0) {
+    if (newElements.length) {
+      window._excalidrawAPI.updateScene({ elements: existing.concat(newElements) });
+      saveSession();
+    }
+    return { text: cleanText, hadWbUpdate: newElements.length > 0 };
+  }
+
+  // Build adjacency for layout
+  const nameIndex = {};
+  components.forEach(function(c, i) { nameIndex[c.label.toLowerCase()] = i; });
+
+  const outEdges = components.map(function() { return []; });
+  const inDegree = components.map(function() { return 0; });
+  connections.forEach(function(conn) {
+    var fi = nameIndex[(conn.from || '').toLowerCase()];
+    var ti = nameIndex[(conn.to || '').toLowerCase()];
+    if (fi == null || ti == null || fi === ti) return;
+    outEdges[fi].push(ti);
+    inDegree[ti]++;
+  });
+
+  // BFS to assign rows
+  const rowOf = components.map(function() { return -1; });
+  const queue = [];
+  components.forEach(function(_, i) { if (inDegree[i] === 0) { rowOf[i] = 0; queue.push(i); } });
+  // If everything has incoming edges (cycle), seed with index 0
+  if (queue.length === 0) { rowOf[0] = 0; queue.push(0); }
+  var head = 0;
+  while (head < queue.length) {
+    var cur = queue[head++];
+    outEdges[cur].forEach(function(nxt) {
+      if (rowOf[nxt] < rowOf[cur] + 1) {
+        rowOf[nxt] = rowOf[cur] + 1;
+        queue.push(nxt);
+      }
+    });
+  }
+  // Any still unvisited (disconnected) go in their own row
+  components.forEach(function(_, i) { if (rowOf[i] === -1) rowOf[i] = 0; });
+
+  // Group by row
+  const maxRow = Math.max.apply(null, rowOf);
+  const rows = [];
+  for (var r = 0; r <= maxRow; r++) { rows.push([]); }
+  components.forEach(function(_, i) { rows[rowOf[i]].push(i); });
+
+  // Compute (x, y) for each component — centred within CANVAS_W
+  const posX = [];
+  const posY = [];
+  const diagramStartY = sections.length > 0 ? sectionY + 40 : maxY + 80;
+
+  rows.forEach(function(rowItems, r) {
+    var totalW = rowItems.length * SHAPE_W + (rowItems.length - 1) * (COL_GAP - SHAPE_W);
+    var startX = Math.max(60, (CANVAS_W - totalW) / 2);
+    rowItems.forEach(function(compIdx, col) {
+      posX[compIdx] = startX + col * COL_GAP;
+      posY[compIdx] = diagramStartY + r * ROW_GAP;
+    });
+  });
+
+  // Emit shapes
   components.forEach(function(comp, i) {
-    var col = i % COLS;
-    var row = Math.floor(i / COLS);
-    var shapeX = startX + col * CELL_W;
-    var shapeY = startY + row * CELL_H;
-    var bgColor = pickColor(comp.label, comp.color && comp.color !== '#a8e6cf' && comp.color !== '#ffd3b6' ? comp.color : null);
-    var st = comp.type === 'ellipse' ? 'ellipse' : comp.type === 'diamond' ? 'diamond' : 'rectangle';
     var shapeId = 'wbs_' + uid();
     var labelId = 'wbl_' + uid();
+    var sx = posX[i], sy = posY[i];
+    var bgColor = pickColor(comp.label, comp.color && comp.color !== '#a8e6cf' && comp.color !== '#ffd3b6' ? comp.color : null);
+    var st = comp.type === 'ellipse' ? 'ellipse' : comp.type === 'diamond' ? 'diamond' : 'rectangle';
 
-    // Shape with text label embedded inside (containerId binding).
     newElements.push({
       id: shapeId, type: st,
-      x: shapeX, y: shapeY, width: SHAPE_W, height: SHAPE_H,
+      x: sx, y: sy, width: SHAPE_W, height: SHAPE_H,
       angle: 0, strokeColor: '#1a1a1a', backgroundColor: bgColor,
       fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [],
@@ -2440,10 +2527,9 @@ function renderWhiteboardUpdate(reply) {
       boundElements: [{ id: labelId, type: 'text' }],
     });
 
-    // Label INSIDE the shape (containerId = shapeId so Excalidraw renders it correctly).
     newElements.push({
       id: labelId, type: 'text',
-      x: shapeX, y: shapeY + SHAPE_H / 2 - 11,
+      x: sx, y: sy + SHAPE_H / 2 - 11,
       width: SHAPE_W, height: 22,
       angle: 0, strokeColor: '#1e1e1e', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
@@ -2456,13 +2542,13 @@ function renderWhiteboardUpdate(reply) {
       containerId: shapeId, originalText: comp.label, lineHeight: 1.25,
     });
 
-    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: shapeX, y: shapeY, w: SHAPE_W, h: SHAPE_H };
+    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
   });
 
-  // Arrows — no bindings (avoids Excalidraw binding bugs), just positioned
+  // Emit arrows
   connections.forEach(function(conn) {
     var fromMeta = labelToMeta[(conn.from || '').toLowerCase()];
-    var toMeta = labelToMeta[(conn.to || '').toLowerCase()];
+    var toMeta   = labelToMeta[(conn.to   || '').toLowerCase()];
     if (!fromMeta || !toMeta || fromMeta.id === toMeta.id) return;
     if (fromMeta.x == null || toMeta.x == null) return;
 
@@ -2473,7 +2559,7 @@ function renderWhiteboardUpdate(reply) {
     var dx = tCx - fCx, dy = tCy - fCy;
     var sx, sy, ex, ey;
 
-    if (Math.abs(dx) > Math.abs(dy)) {
+    if (Math.abs(dx) >= Math.abs(dy)) {
       sy = fCy; ey = tCy;
       if (dx > 0) { sx = fromMeta.x + fromMeta.w + 4; ex = toMeta.x - 4; }
       else        { sx = fromMeta.x - 4;               ex = toMeta.x + toMeta.w + 4; }
@@ -2483,11 +2569,12 @@ function renderWhiteboardUpdate(reply) {
       else        { sy = fromMeta.y - 4;               ey = toMeta.y + toMeta.h + 4; }
     }
 
+    var arrowId = 'wba_' + uid();
     newElements.push({
-      id: 'wba_' + uid(), type: 'arrow',
+      id: arrowId, type: 'arrow',
       x: sx, y: sy,
       width: Math.abs(ex - sx) || 1, height: Math.abs(ey - sy) || 1,
-      angle: 0, strokeColor: '#a0a0a0', backgroundColor: 'transparent',
+      angle: 0, strokeColor: '#666666', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [],
       roundness: { type: 2 },
@@ -2501,19 +2588,21 @@ function renderWhiteboardUpdate(reply) {
     });
 
     if (conn.label) {
+      var midX = sx + (ex - sx) / 2;
+      var midY = sy + (ey - sy) / 2;
+      var lblW = Math.min(160, Math.max(80, conn.label.length * 9));
       newElements.push({
         id: 'wblc_' + uid(), type: 'text',
-        x: sx + (ex - sx) / 2 - 40, y: sy + (ey - sy) / 2 - 10,
-        width: 80, height: 18,
-        angle: 0, strokeColor: '#cccccc', backgroundColor: 'transparent',
+        x: midX - lblW / 2, y: midY - 12,
+        width: lblW, height: 18,
+        angle: 0, strokeColor: '#444444', backgroundColor: 'transparent',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
         roughness: 0, opacity: 100, groupIds: [], roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-        boundElements: null,
-        text: conn.label, fontSize: 14, fontFamily: 1,
-        textAlign: 'center', verticalAlign: 'top',
-        containerId: null, originalText: conn.label, lineHeight: 1.25,
+        boundElements: null, containerId: null,
+        text: conn.label, fontSize: 12, fontFamily: 1,
+        textAlign: 'center', verticalAlign: 'top', originalText: conn.label, lineHeight: 1.25,
       });
     }
   });
@@ -2526,11 +2615,6 @@ function renderWhiteboardUpdate(reply) {
     setTimeout(function() {
       if (!window._excalidrawAPI) return;
       window._excalidrawAPI.scrollToContent(newElements, { fitToContent: true, animate: true });
-      setTimeout(function() {
-        if (!window._excalidrawAPI) return;
-        var st = window._excalidrawAPI.getAppState();
-        window._excalidrawAPI.updateScene({ appState: { zoom: { value: 1 }, scrollX: st.scrollX, scrollY: st.scrollY } });
-      }, 400);
     }, 300);
   }
 
@@ -3183,7 +3267,7 @@ Append a fenced block at the VERY END of your response (after any mastery block)
 \`\`\`whiteboard
 {"components":[{"label":"???","type":"rectangle","color":"#cdb4db"}],"connections":[]}
 \`\`\`
-Rules: type ∈ {rectangle, ellipse, diamond}; color #cdb4db (placeholder), #a8e6cf (hint), #ffd3b6 (full); short labels (2-4 words); 1-3 components for partials, full set only on "show me"/end.
+Rules: type ∈ {rectangle, ellipse, diamond} (diamond for databases/stores); color #cdb4db (placeholder), #a8e6cf (hint), #ffd3b6 (full); short labels (2-4 words); 1-3 components for partials, full set only on "show me"/end.
 
 TONE: Warm, curious, patient — but rigorous. Use "let's", "notice that", "what would happen if…". Never grade the learner. Never adjective-praise effort.
 
