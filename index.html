@@ -2220,9 +2220,25 @@ function editMsg(wrap, msgEl, histIdx) {
 
 // ── serializeWb — Excalidraw → AI context ────────────
 function serializeWb() {
-  if (!window._excalidrawAPI) return null;
-  const elements = window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted);
-  if (!elements.length) return null;
+  // Prefer the live Excalidraw scene; fall back to the persisted session whiteboard
+  // when the drawer hasn't been opened yet (lazy-mount means _excalidrawAPI may be
+  // null even though wb elements exist in localStorage from a restored session).
+  let elements = null;
+  if (window._excalidrawAPI) {
+    elements = window._excalidrawAPI.getSceneElements().filter(el => !el.isDeleted);
+  }
+  if (!elements || !elements.length) {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (Array.isArray(data.wb) && data.wb.length) {
+          elements = data.wb.filter(el => !el.isDeleted);
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+  if (!elements || !elements.length) return null;
 
   const components = [];
   const connections = [];
@@ -2661,9 +2677,14 @@ document.addEventListener('keydown', function(e) {
 
       switchTab('interview');
 
-      // Restore whiteboard once Excalidraw mounts (always reset scene when called with override)
+      // Restore whiteboard once Excalidraw mounts (always reset scene when called with override).
+      // Eagerly mount Excalidraw so the API is available even if the user doesn't open the
+      // drawer — otherwise serializeWb() can't read the scene and the AI sees no whiteboard.
       const wbEls = Array.isArray(data.wb) ? data.wb : [];
       if (wbEls.length || dataOverride) {
+        if (!window._excalidrawAPI && typeof initExcalidraw === 'function') {
+          try { initExcalidraw(); } catch (e) {}
+        }
         const tryRestoreWb = () => {
           if (window._excalidrawAPI) {
             window._excalidrawAPI.updateScene({ elements: wbEls });
