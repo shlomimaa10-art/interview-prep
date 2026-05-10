@@ -2348,6 +2348,7 @@ function renderWhiteboardUpdate(reply) {
 
   let maxY = 0;
   for (const el of existing) {
+    if (el.type === 'text') continue; // skip text labels — only measure shape bounding boxes
     const bottom = (el.y || 0) + (el.height || 80);
     if (bottom > maxY) maxY = bottom;
   }
@@ -2355,31 +2356,47 @@ function renderWhiteboardUpdate(reply) {
   const newElements = [];
   const labelToMeta = {};
 
-  // Index existing labels
+  // Index existing labels → map label text to shape geometry for arrow routing
+  // Pass 1: shapes with properly bound text (containerId set on text element)
   for (const el of existing) {
-    if (el.type === 'text') {
-      const lbl = (el.text || '').trim();
-      if (lbl) labelToMeta[lbl.toLowerCase()] = { id: el.containerId || el.id };
+    if (el.type === 'text' && el.text && el.containerId) {
+      const lbl = el.text.trim();
+      if (!lbl) continue;
+      const container = existing.find(function(e) { return e.id === el.containerId; });
+      if (container) {
+        labelToMeta[lbl.toLowerCase()] = { id: el.containerId, x: container.x, y: container.y, w: container.width, h: container.height };
+      }
     }
   }
+  // Pass 2: shapes with boundElements array (text bound via shape side)
   for (const el of existing) {
     if (el.boundElements) {
       for (const b of el.boundElements) {
         if (b.type === 'text') {
-          const textEl = existing.find(e => e.id === b.id);
+          const textEl = existing.find(function(e) { return e.id === b.id; });
           if (textEl && textEl.text) labelToMeta[textEl.text.trim().toLowerCase()] = { id: el.id, x: el.x, y: el.y, w: el.width, h: el.height };
         }
       }
+    }
+  }
+  // Pass 3: legacy format — standalone text below shape (no containerId). Heuristic: shape is SHAPE_H+6 above the text.
+  for (const el of existing) {
+    if (el.type === 'text' && el.text && !el.containerId) {
+      const lbl = el.text.trim();
+      if (!lbl || labelToMeta[lbl.toLowerCase()]) continue;
+      // Guess the shape sits immediately above
+      const inferredShapeY = el.y - SHAPE_H - 6;
+      labelToMeta[lbl.toLowerCase()] = { id: el.id, x: el.x, y: inferredShapeY, w: el.width || SHAPE_W, h: SHAPE_H };
     }
   }
 
   const components = data.components || [];
   const connections = data.connections || [];
 
-  // Clean grid layout: 4 columns, generous spacing, simple labeled boxes (no clipart).
+  // Clean grid layout: 4 columns, generous spacing, labels inside boxes.
   const COLS = 4;
-  const CELL_W = 250;
-  const CELL_H = 180;
+  const CELL_W = 230;
+  const CELL_H = 120;
   const SHAPE_W = 190;
   const SHAPE_H = 70;
   const startX = 80;
@@ -2410,7 +2427,7 @@ function renderWhiteboardUpdate(reply) {
     var shapeId = 'wbs_' + uid();
     var labelId = 'wbl_' + uid();
 
-    // Shape — no bound text (bound text has render-on-double-click bug). Label is overlaid below.
+    // Shape with text label embedded inside (containerId binding).
     newElements.push({
       id: shapeId, type: st,
       x: shapeX, y: shapeY, width: SHAPE_W, height: SHAPE_H,
@@ -2420,24 +2437,23 @@ function renderWhiteboardUpdate(reply) {
       roundness: st === 'rectangle' ? { type: 3 } : null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-      boundElements: [],
+      boundElements: [{ id: labelId, type: 'text' }],
     });
 
-    // Label BELOW the shape — outside the bounding box so Excalidraw cannot auto-bind it
-    // (auto-binding overlapping text causes the render-on-double-click bug).
+    // Label INSIDE the shape (containerId = shapeId so Excalidraw renders it correctly).
     newElements.push({
       id: labelId, type: 'text',
-      x: shapeX, y: shapeY + SHAPE_H + 6,
+      x: shapeX, y: shapeY + SHAPE_H / 2 - 11,
       width: SHAPE_W, height: 22,
-      angle: 0, strokeColor: '#ffffff', backgroundColor: 'transparent',
+      angle: 0, strokeColor: '#1e1e1e', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [], roundness: null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: null,
-      text: comp.label, fontSize: 16, fontFamily: 1,
-      textAlign: 'center', verticalAlign: 'top',
-      containerId: null, originalText: comp.label, lineHeight: 1.25,
+      text: comp.label, fontSize: 15, fontFamily: 1,
+      textAlign: 'center', verticalAlign: 'middle',
+      containerId: shapeId, originalText: comp.label, lineHeight: 1.25,
     });
 
     labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: shapeX, y: shapeY, w: SHAPE_W, h: SHAPE_H };
