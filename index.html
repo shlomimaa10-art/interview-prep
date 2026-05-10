@@ -2228,9 +2228,24 @@ function serializeWb() {
   const connections = [];
   const idToLabel = {};
 
+  // Excalidraw stores labels as separate text elements with containerId pointing
+  // to their parent shape/arrow. Build that lookup first so we can resolve the
+  // real label for each container instead of falling back to el.type.
+  const containerIdToText = {};
+  for (const el of elements) {
+    if (el.type === 'text' && el.containerId) {
+      const t = (el.text || '').trim();
+      if (t) containerIdToText[el.containerId] = t;
+    }
+  }
+
   for (const el of elements) {
     if (el.type === 'arrow') continue;
-    const lbl = (el.text || el.label?.text || '').trim() || el.type;
+    // Standalone text (no containerId): treat as its own component.
+    // Bound text (has containerId): skip — it's already attached to its container as a label.
+    if (el.type === 'text' && el.containerId) continue;
+    const bound = containerIdToText[el.id];
+    const lbl = (bound || el.text || '').trim() || el.type;
     idToLabel[el.id] = lbl;
     components.push(lbl);
   }
@@ -2240,8 +2255,8 @@ function serializeWb() {
     const src = el.startBinding ? idToLabel[el.startBinding.elementId] : null;
     const tgt = el.endBinding   ? idToLabel[el.endBinding.elementId]   : null;
     if (src && tgt) {
-      const arrowLabel = (el.label?.text || '').trim();
-      connections.push(arrowLabel ? `${src} →[${arrowLabel}]→ ${tgt}` : `${src} → ${tgt}`);
+      const arrowLabel = (containerIdToText[el.id] || el.label?.text || '').trim();
+      connections.push(arrowLabel ? `${src} —[${arrowLabel}]→ ${tgt}` : `${src} → ${tgt}`);
     }
   }
 
