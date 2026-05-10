@@ -1546,7 +1546,28 @@ Your very first message (triggered by "Start."): ${style === 'Friendly'
 }
 
 // ── AI call ───────────────────────────────────────────
+// Collapse consecutive same-role messages (API requires strict alternation).
+// Adjacent user turns are joined with '\n\n'; adjacent assistant turns keep only the last.
+function sanitizeMessages(messages) {
+  const out = [];
+  for (const msg of messages) {
+    if (out.length && out[out.length - 1].role === msg.role) {
+      if (msg.role === 'user') {
+        out[out.length - 1] = { role: 'user', content: out[out.length - 1].content + '\n\n' + msg.content };
+      } else {
+        out[out.length - 1] = { role: 'assistant', content: msg.content };
+      }
+    } else {
+      out.push({ role: msg.role, content: msg.content });
+    }
+  }
+  // Must start with user
+  if (out.length && out[0].role !== 'user') out.shift();
+  return out;
+}
+
 async function callAI(messages, lowTokens = false, overrideSystem = null) {
+  messages = sanitizeMessages(messages);
   const provider  = document.getElementById('provider-select').value;
   const model     = document.getElementById('model-select').value;
   const customUrl = document.getElementById('custom-url').value.trim();
@@ -1746,6 +1767,7 @@ async function init() {
 }
 
 function quickSend(text) {
+  if (btn.disabled) return;
   document.getElementById('user-input').value = text;
   send();
 }
