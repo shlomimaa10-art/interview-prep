@@ -2559,12 +2559,18 @@ function renderWhiteboardUpdate(reply) {
     });
 
     labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
+    // Also index a normalised key (no spaces/punctuation) for fuzzy matching
+    labelToMeta[comp.label.toLowerCase().replace(/[\s\-_]+/g, '')] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
   });
 
   // Emit arrows
+  var fuzzyLookup = function(name) {
+    var k = (name || '').toLowerCase();
+    return labelToMeta[k] || labelToMeta[k.replace(/[\s\-_]+/g, '')] || null;
+  };
   connections.forEach(function(conn) {
-    var fromMeta = labelToMeta[(conn.from || '').toLowerCase()];
-    var toMeta   = labelToMeta[(conn.to   || '').toLowerCase()];
+    var fromMeta = fuzzyLookup(conn.from);
+    var toMeta   = fuzzyLookup(conn.to);
     if (!fromMeta || !toMeta || fromMeta.id === toMeta.id) return;
     if (fromMeta.x == null || toMeta.x == null) return;
 
@@ -2617,9 +2623,9 @@ function renderWhiteboardUpdate(reply) {
         id: 'wbal_' + uid(), type: 'text',
         x: lx, y: ly,
         width: 120, height: 20,
-        angle: 0, strokeColor: '#999999', backgroundColor: 'transparent',
+        angle: 0, strokeColor: '#888888', backgroundColor: '#ffffff',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        roughness: 0, opacity: 100, groupIds: [], roundness: { type: 3 },
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
         boundElements: null, containerId: null,
