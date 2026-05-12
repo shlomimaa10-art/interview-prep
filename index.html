@@ -1571,7 +1571,7 @@ async function callAI(messages, lowTokens = false, overrideSystem = null) {
   const provider  = document.getElementById('provider-select').value;
   const model     = document.getElementById('model-select').value;
   const customUrl = document.getElementById('custom-url').value.trim();
-  const max_tokens = lowTokens ? 300 : 2000;
+  const max_tokens = lowTokens ? 300 : 8000;
   const sysPrompt = overrideSystem !== null ? overrideSystem : SYSTEM;
 
   if (provider === 'custom') {
@@ -2365,6 +2365,8 @@ function renderWhiteboardUpdate(reply) {
 
   if (!window._excalidrawAPI) return { text: cleanText, hadWbUpdate: false };
 
+  try {
+
   const existing = window._excalidrawAPI.getSceneElements().filter(function(el) { return !el.isDeleted; });
 
   let maxY = 0;
@@ -2633,6 +2635,10 @@ function renderWhiteboardUpdate(reply) {
   }
 
   return { text: cleanText, hadWbUpdate: newElements.length > 0 };
+  } catch(e) {
+    console.warn('Whiteboard render error:', e);
+    return { text: cleanText, hadWbUpdate: false };
+  }
 }
 
 // ── Excalidraw init ───────────────────────────────────
