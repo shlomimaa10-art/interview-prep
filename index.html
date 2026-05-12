@@ -2643,10 +2643,17 @@ function renderWhiteboardUpdate(reply) {
     saveSession();
     var drawer = document.getElementById('wb-drawer');
     if (drawer && !drawer.classList.contains('wb-open')) toggleWhiteboard();
+    // Excalidraw defers bound-text reconciliation to the next render cycle.
+    // A second updateScene ~100ms later forces labels to render (same fix as copy-paste).
+    setTimeout(function() {
+      if (!window._excalidrawAPI) return;
+      var all = window._excalidrawAPI.getSceneElements().filter(function(e) { return !e.isDeleted; });
+      window._excalidrawAPI.updateScene({ elements: all });
+    }, 100);
     setTimeout(function() {
       if (!window._excalidrawAPI) return;
       window._excalidrawAPI.scrollToContent(newElements, { fitToContent: true, animate: true });
-    }, 300);
+    }, 350);
   }
 
   return { text: cleanText, hadWbUpdate: newElements.length > 0 };
