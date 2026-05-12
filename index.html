@@ -2610,17 +2610,31 @@ function renderWhiteboardUpdate(reply) {
       startArrowhead: null, endArrowhead: 'arrow',
       lastCommittedPoint: null,
     };
-    if (conn.label) {
-      // Embed label ON the arrow so it moves with it when dragged
-      arrowEl.label = {
-        text: conn.label,
-        fontSize: 13,
-        fontFamily: 1,
-        textAlign: 'center',
-        verticalAlign: 'middle',
-      };
-    }
     newElements.push(arrowEl);
+
+    if (conn.label) {
+      var midX = sx + (ex - sx) / 2;
+      var midY = sy + (ey - sy) / 2;
+      var lblW = Math.min(160, Math.max(80, conn.label.length * 9));
+      // Offset label perpendicular to arrow to avoid overlapping shapes
+      var dx = ex - sx, dy = ey - sy;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var perpX = -dy / len * 14;
+      var perpY = dx / len * 14;
+      newElements.push({
+        id: 'wblc_' + uid(), type: 'text',
+        x: midX - lblW / 2 + perpX, y: midY - 10 + perpY,
+        width: lblW, height: 18,
+        angle: 0, strokeColor: '#444444', backgroundColor: 'transparent',
+        fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+        roughness: 0, opacity: 100, groupIds: [arrowId], roundness: null,
+        seed: Math.floor(Math.random() * 2e9), version: 2,
+        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+        boundElements: null, containerId: null,
+        text: conn.label, fontSize: 12, fontFamily: 1,
+        textAlign: 'center', verticalAlign: 'top', originalText: conn.label, lineHeight: 1.25,
+      });
+    }
   });
 
   if (newElements.length) {
