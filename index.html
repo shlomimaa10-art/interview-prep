@@ -2435,40 +2435,25 @@ function renderWhiteboardUpdate(reply) {
   const SECTION_LINE_H = 22;
 
   sections.forEach(function(sec) {
-    // Title text
-    const titleId = 'wbst_' + uid();
+    // Combine title + all items into one text element
+    var lines = ['▸ ' + sec.title].concat((sec.items || []).map(function(item) { return '  • ' + item; }));
+    var combined = lines.join('\n');
+    var lineCount = lines.length;
+    var blockH = 20 + lineCount * SECTION_LINE_H;
     newElements.push({
-      id: titleId, type: 'text',
+      id: 'wbst_' + uid(), type: 'text',
       x: 60, y: sectionY,
-      width: 500, height: 24,
+      width: 580, height: blockH,
       angle: 0, strokeColor: '#333333', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [], roundness: null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: null, containerId: null,
-      text: '▸ ' + sec.title, fontSize: 16, fontFamily: 1,
-      textAlign: 'left', verticalAlign: 'top', originalText: '▸ ' + sec.title, lineHeight: 1.25,
+      text: combined, fontSize: 14, fontFamily: 1,
+      textAlign: 'left', verticalAlign: 'top', originalText: combined, lineHeight: 1.25,
     });
-    sectionY += 28;
-    (sec.items || []).forEach(function(item) {
-      const lineId = 'wbsi_' + uid();
-      newElements.push({
-        id: lineId, type: 'text',
-        x: 80, y: sectionY,
-        width: 580, height: SECTION_LINE_H,
-        angle: 0, strokeColor: '#555555', backgroundColor: 'transparent',
-        fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [], roundness: null,
-        seed: Math.floor(Math.random() * 2e9), version: 2,
-        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-        boundElements: null, containerId: null,
-        text: '• ' + item, fontSize: 14, fontFamily: 1,
-        textAlign: 'left', verticalAlign: 'top', originalText: '• ' + item, lineHeight: 1.25,
-      });
-      sectionY += SECTION_LINE_H + 4;
-    });
-    sectionY += 16; // gap between sections
+    sectionY += blockH + 20; // gap between sections
   });
 
   // ── Layered layout engine ───────────────────────────────────────────────────
@@ -2619,12 +2604,18 @@ function renderWhiteboardUpdate(reply) {
     };
     newElements.push(arrowEl);
 
-    // Emit a plain text label at the arrow midpoint (no containerId — avoids crash)
+    // Emit a plain text label offset perpendicular to the arrow direction
+    // (above for horizontal arrows, right-side for vertical arrows)
     if (conn.label && conn.label.trim()) {
       var mx = (sx + ex) / 2, my = (sy + ey) / 2;
+      var isHoriz = Math.abs(ex - sx) >= Math.abs(ey - sy);
+      // horizontal → centre label horizontally, place it above the arrow line
+      // vertical   → place label to the right of the arrow line, centre it vertically
+      var lx = isHoriz ? mx - 60 : mx + 14;
+      var ly = isHoriz ? my - 22 : my - 10;
       newElements.push({
         id: 'wbal_' + uid(), type: 'text',
-        x: mx - 60, y: my - 10,
+        x: lx, y: ly,
         width: 120, height: 20,
         angle: 0, strokeColor: '#999999', backgroundColor: 'transparent',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
@@ -2633,7 +2624,7 @@ function renderWhiteboardUpdate(reply) {
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
         boundElements: null, containerId: null,
         text: conn.label.trim(), fontSize: 11, fontFamily: 1,
-        textAlign: 'center', verticalAlign: 'middle',
+        textAlign: isHoriz ? 'center' : 'left', verticalAlign: 'middle',
         originalText: conn.label.trim(), lineHeight: 1.25,
       });
     }
