@@ -2616,27 +2616,23 @@ function renderWhiteboardUpdate(reply) {
       if (shapeEl) shapeEl.boundElements.push({ id: arrowId, type: 'arrow' });
     });
 
-    // Emit a plain text label offset perpendicular to the arrow direction
-    // (above for horizontal arrows, right-side for vertical arrows)
+    // Emit label bound to the arrow (moves with it when dragged)
     if (conn.label && conn.label.trim()) {
-      var mx = (sx + ex) / 2, my = (sy + ey) / 2;
-      var isHoriz = Math.abs(ex - sx) >= Math.abs(ey - sy);
-      // horizontal → centre label horizontally, place it above the arrow line
-      // vertical   → place label to the right of the arrow line, centre it vertically
-      var lx = isHoriz ? mx - 60 : mx + 14;
-      var ly = isHoriz ? my - 22 : my - 10;
+      var mx = sx + (ex - sx) / 2, my = sy + (ey - sy) / 2;
+      var labelId = 'wbal_' + uid();
+      arrowEl.boundElements.push({ id: labelId, type: 'text' });
       newElements.push({
-        id: 'wbal_' + uid(), type: 'text',
-        x: lx, y: ly,
+        id: labelId, type: 'text',
+        x: mx - 60, y: my - 10,
         width: 120, height: 20,
-        angle: 0, strokeColor: '#888888', backgroundColor: '#ffffff',
+        angle: 0, strokeColor: '#555555', backgroundColor: 'transparent',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [], roundness: { type: 3 },
+        roughness: 0, opacity: 100, groupIds: [], roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-        boundElements: null, containerId: null,
+        boundElements: null, containerId: arrowId,
         text: conn.label.trim(), fontSize: 11, fontFamily: 1,
-        textAlign: isHoriz ? 'center' : 'left', verticalAlign: 'middle',
+        textAlign: 'center', verticalAlign: 'middle',
         originalText: conn.label.trim(), lineHeight: 1.25,
       });
     }
