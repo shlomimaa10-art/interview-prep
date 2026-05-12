@@ -2618,6 +2618,25 @@ function renderWhiteboardUpdate(reply) {
       lastCommittedPoint: null,
     };
     newElements.push(arrowEl);
+
+    // Emit a plain text label at the arrow midpoint (no containerId — avoids crash)
+    if (conn.label && conn.label.trim()) {
+      var mx = (sx + ex) / 2, my = (sy + ey) / 2;
+      newElements.push({
+        id: 'wbal_' + uid(), type: 'text',
+        x: mx - 60, y: my - 10,
+        width: 120, height: 20,
+        angle: 0, strokeColor: '#999999', backgroundColor: 'transparent',
+        fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        seed: Math.floor(Math.random() * 2e9), version: 2,
+        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+        boundElements: null, containerId: null,
+        text: conn.label.trim(), fontSize: 11, fontFamily: 1,
+        textAlign: 'center', verticalAlign: 'middle',
+        originalText: conn.label.trim(), lineHeight: 1.25,
+      });
+    }
   });
 
   if (newElements.length) {
