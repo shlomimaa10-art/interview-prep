@@ -2604,11 +2604,17 @@ function renderWhiteboardUpdate(reply) {
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: [],
       points: [[0, 0], [ex - sx, ey - sy]],
-      startBinding: null, endBinding: null,
+      startBinding: { elementId: fromMeta.id, focus: 0, gap: 6 },
+      endBinding:   { elementId: toMeta.id,   focus: 0, gap: 6 },
       startArrowhead: null, endArrowhead: 'arrow',
       lastCommittedPoint: null,
     };
     newElements.push(arrowEl);
+    // Register this arrow on its source and target shapes' boundElements
+    [fromMeta.id, toMeta.id].forEach(function(shapeId) {
+      var shapeEl = newElements.find(function(e) { return e.id === shapeId; });
+      if (shapeEl) shapeEl.boundElements.push({ id: arrowId, type: 'arrow' });
+    });
 
     // Emit a plain text label offset perpendicular to the arrow direction
     // (above for horizontal arrows, right-side for vertical arrows)
