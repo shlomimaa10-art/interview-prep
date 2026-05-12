@@ -2363,7 +2363,27 @@ function renderWhiteboardUpdate(reply) {
 
   const cleanText = reply.replace(re, '').trim();
 
-  if (!window._excalidrawAPI) return { text: cleanText, hadWbUpdate: false };
+  // If Excalidraw hasn't been mounted yet, open the drawer (which mounts it),
+  // then retry once the API becomes available.
+  if (!window._excalidrawAPI) {
+    // Ensure Excalidraw is initialised
+    if (typeof initExcalidraw === 'function') { try { initExcalidraw(); } catch(e) {} }
+    var drawer = document.getElementById('wb-drawer');
+    if (drawer && !drawer.classList.contains('wb-open') && typeof toggleWhiteboard === 'function') {
+      toggleWhiteboard();
+    }
+    // Retry up to ~3 seconds
+    var attempts = 0;
+    var retryWb = function() {
+      if (window._excalidrawAPI) {
+        renderWhiteboardUpdate(reply); // re-run with API available
+        return;
+      }
+      if (++attempts < 30) setTimeout(retryWb, 100);
+    };
+    setTimeout(retryWb, 100);
+    return { text: cleanText, hadWbUpdate: true }; // optimistically strip the fence
+  }
 
   try {
 
@@ -2540,9 +2560,10 @@ function renderWhiteboardUpdate(reply) {
       roundness: st === 'rectangle' ? { type: 3 } : null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-      boundElements: [{ id: labelId, type: 'text' }],
+      boundElements: [],
     });
 
+    // Standalone text — no containerId so Excalidraw renders it immediately
     newElements.push({
       id: labelId, type: 'text',
       x: sx, y: sy + SHAPE_H / 2 - 11,
@@ -2555,7 +2576,7 @@ function renderWhiteboardUpdate(reply) {
       boundElements: null,
       text: comp.label, fontSize: 15, fontFamily: 1,
       textAlign: 'center', verticalAlign: 'middle',
-      containerId: shapeId, originalText: comp.label, lineHeight: 1.25,
+      containerId: null, originalText: comp.label, lineHeight: 1.25,
     });
 
     labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
@@ -2620,7 +2641,8 @@ function renderWhiteboardUpdate(reply) {
     if (conn.label && conn.label.trim()) {
       var mx = sx + (ex - sx) / 2, my = sy + (ey - sy) / 2;
       var labelId = 'wbal_' + uid();
-      arrowEl.boundElements.push({ id: labelId, type: 'text' });
+      // Arrow labels as standalone floating text (no containerId) — renders immediately
+      arrowEl.boundElements = []; // don't link; standalone text won't move with arrow but renders reliably
       newElements.push({
         id: labelId, type: 'text',
         x: mx - 60, y: my - 10,
@@ -2630,7 +2652,7 @@ function renderWhiteboardUpdate(reply) {
         roughness: 0, opacity: 100, groupIds: [], roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-        boundElements: null, containerId: arrowId,
+        boundElements: null, containerId: null,
         text: conn.label.trim(), fontSize: 11, fontFamily: 1,
         textAlign: 'center', verticalAlign: 'middle',
         originalText: conn.label.trim(), lineHeight: 1.25,
@@ -2643,13 +2665,6 @@ function renderWhiteboardUpdate(reply) {
     saveSession();
     var drawer = document.getElementById('wb-drawer');
     if (drawer && !drawer.classList.contains('wb-open')) toggleWhiteboard();
-    // Excalidraw defers bound-text reconciliation to the next render cycle.
-    // A second updateScene ~100ms later forces labels to render (same fix as copy-paste).
-    setTimeout(function() {
-      if (!window._excalidrawAPI) return;
-      var all = window._excalidrawAPI.getSceneElements().filter(function(e) { return !e.isDeleted; });
-      window._excalidrawAPI.updateScene({ elements: all });
-    }, 100);
     setTimeout(function() {
       if (!window._excalidrawAPI) return;
       window._excalidrawAPI.scrollToContent(newElements, { fitToContent: true, animate: true });
@@ -2707,11 +2722,13 @@ document.addEventListener('keydown', function(e) {
     isOpen = !isOpen;
     drawer.classList.toggle('wb-open', isOpen);
     if (isOpen && !wbInited) {
-      // Wait for slide-in transition to finish before mounting Excalidraw
+      // Wait for slide-in transition to finish before refreshing
       drawer.addEventListener('transitionend', function onTE() {
         drawer.removeEventListener('transitionend', onTE);
         wbInited = true;
-        initExcalidraw();
+        // initExcalidraw was called eagerly at startup; if it hasn't resolved yet, call it now
+        if (!window._excalidrawAPI) initExcalidraw();
+        else window._excalidrawAPI.refresh();
       });
     } else if (isOpen && window._excalidrawAPI) {
       drawer.addEventListener('transitionend', function onTE() {
@@ -2750,6 +2767,15 @@ document.addEventListener('keydown', function(e) {
   new ResizeObserver(() => {
     if (window._excalidrawAPI) window._excalidrawAPI.refresh();
   }).observe(drawer);
+
+  // Eagerly init Excalidraw in the background so the API is available for
+  // whiteboard updates even if the user never opens the drawer.
+  // The container exists in the DOM but is off-screen (translateX 100%).
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { try { initExcalidraw(); } catch(e) {} });
+  } else {
+    try { initExcalidraw(); } catch(e) {}
+  }
 })();
 
 // ── Restore session on page load (browser-crash recovery) ──
