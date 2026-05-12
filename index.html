@@ -2509,7 +2509,7 @@ function renderWhiteboardUpdate(reply) {
   while (head < queue.length) {
     var cur = queue[head++];
     outEdges[cur].forEach(function(nxt) {
-      if (rowOf[nxt] < rowOf[cur] + 1) {
+      if (rowOf[nxt] === -1) {
         rowOf[nxt] = rowOf[cur] + 1;
         queue.push(nxt);
       }
