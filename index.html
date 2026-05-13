@@ -1625,7 +1625,7 @@ When you include whiteboard content, append a fenced block at the VERY END of yo
 {"sections":[{"title":"Functional Requirements","items":["Allow/block HTTP requests in real-time","Configurable rules: rate limiting, IP blocking, geo"]},{"title":"Non-Functional Requirements","items":["5M RPS, sub-5ms decision latency","99.99% availability, eventual rule consistency <5s"]}],"components":[{"label":"Client","type":"ellipse"},{"label":"Redis Cache","type":"rectangle"}],"connections":[{"from":"API Server","to":"Redis Cache","label":"cache reads"}]}
 \`\`\`
 Rules for whiteboard updates:
-- **sections** (optional): array of {title, items[]} rendered as a clean text block above the diagram. Use for Functional Requirements and Non-Functional Requirements. 2-5 bullet items each, terse.
+- **sections** (MANDATORY for "give full answer" on any system-design / architecture question; omit only for pure algorithmic or conceptual answers): array of {title, items[]} rendered as a clean text block above the diagram. MUST always include BOTH a "Functional Requirements" section AND a "Non-Functional Requirements" section together — including one without the other is a bug. 2-5 bullet items each, terse. Omitting a section title while still listing its bullets is also a bug — always include the title key.
 - **type** must be one of: "rectangle", "ellipse", "diamond"
   - ellipse → client / user / browser / mobile
   - diamond → database / store / persistent storage (Postgres, MySQL, DynamoDB, S3, Redis-as-store)
@@ -1642,7 +1642,7 @@ Rules for whiteboard updates:
   Only set \`color\` explicitly to override for a deliberate reason.
 - **Labels**: SHORT and concrete (1-4 words). Prefer "Postgres" over "Postgres (Rules DB)". If two components of the same type exist, disambiguate with one word: "Redis Rate" and "Redis Rules".
 - For **"hint"**: max 1-2 components, 0-1 connections. No sections. Do not reveal the full picture.
-- For **"give full answer"**: include sections (FR + NFR) + the COMPLETE architecture. Aim for **10-14 components and 12-18 connections**. Cover every layer: client → edge → enforcement/service → cache(s) → queue → workers → DB(s) → analytics/observability. A diagram with < 8 boxes for a millions-RPS question is a failure.
+- For **"give full answer"**: sections are MANDATORY — include BOTH "Functional Requirements" and "Non-Functional Requirements" (each as a separate titled entry). Then the COMPLETE architecture. Aim for **10-14 components and 12-18 connections**. Cover every layer: client → edge → enforcement/service → cache(s) → queue → workers → DB(s) → analytics/observability. A diagram with < 8 boxes for a millions-RPS question is a failure.
 - When adding connections, reference existing components by their exact label from [WHITEBOARD CONTEXT].
 - Arrow labels: 1-4 words, describe the interaction ("cache miss", "publish event", "CRUD rules", "allow / block").
 - The JSON must be valid — no trailing commas, no comments.
@@ -2533,8 +2533,15 @@ function renderWhiteboardUpdate(reply) {
   // that Excalidraw sometimes attaches to arrows — they carry invalid groupIds
   // and crash updateScene when re-submitted.
   const arrowIds = new Set(rawExisting.filter(function(el) { return el.type === 'arrow'; }).map(function(el) { return el.id; }));
+  const hasSections = (data.sections || []).length > 0;
+  const isFullAnswer = (data.components || []).length > 0;
   const existing = rawExisting.filter(function(el) {
-    return !(el.type === 'text' && el.containerId && arrowIds.has(el.containerId));
+    if (el.type === 'text' && el.containerId && arrowIds.has(el.containerId)) return false;
+    // Strip old wbst_ section blocks whenever a full-answer update arrives
+    // (has components), not only when the new update itself carries sections.
+    // This prevents duplicate FR/NFR blocks when a second full-answer is rendered.
+    if (isFullAnswer && el.type === 'text' && el.id && el.id.startsWith('wbst_')) return false;
+    return true;
   });
 
   let maxY = 0;
@@ -2701,10 +2708,9 @@ function renderWhiteboardUpdate(reply) {
       roundness: st === 'rectangle' ? { type: 3 } : null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-      boundElements: [],
+      boundElements: [{ id: labelId, type: 'text' }],
     });
 
-    // Standalone text — no containerId so Excalidraw renders it immediately
     newElements.push({
       id: labelId, type: 'text',
       x: sx, y: sy + SHAPE_H / 2 - 11,
@@ -2717,7 +2723,8 @@ function renderWhiteboardUpdate(reply) {
       boundElements: null,
       text: comp.label, fontSize: 15, fontFamily: 1,
       textAlign: 'center', verticalAlign: 'middle',
-      containerId: null, originalText: comp.label, lineHeight: 1.25,
+      containerId: shapeId, originalText: comp.label, lineHeight: 1.25,
+      baseline: 13,
     });
 
     labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
@@ -2782,8 +2789,7 @@ function renderWhiteboardUpdate(reply) {
     if (conn.label && conn.label.trim()) {
       var mx = sx + (ex - sx) / 2, my = sy + (ey - sy) / 2;
       var labelId = 'wbal_' + uid();
-      // Arrow labels as standalone floating text (no containerId) — renders immediately
-      arrowEl.boundElements = []; // don't link; standalone text won't move with arrow but renders reliably
+      arrowEl.boundElements.push({ id: labelId, type: 'text' });
       newElements.push({
         id: labelId, type: 'text',
         x: mx - 60, y: my - 10,
@@ -2793,10 +2799,11 @@ function renderWhiteboardUpdate(reply) {
         roughness: 0, opacity: 100, groupIds: [], roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
-        boundElements: null, containerId: null,
+        boundElements: null, containerId: arrowId,
         text: conn.label.trim(), fontSize: 11, fontFamily: 1,
         textAlign: 'center', verticalAlign: 'middle',
         originalText: conn.label.trim(), lineHeight: 1.25,
+        baseline: 10,
       });
     }
   });
