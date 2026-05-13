@@ -215,6 +215,18 @@
   .modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;width:100%;max-width:720px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
   .modal-head{padding:14px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surface2)}
   .modal-head h3{font-size:14px;font-weight:600;color:var(--text)}
+  /* ── DB Cheatsheet modal ── */
+  #cs-modal .modal{max-width:900px}
+  .cs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px}
+  @media(max-width:700px){.cs-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.cs-grid{grid-template-columns:1fr}}
+  .cs-section{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+  .cs-section-title{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;padding-bottom:6px;border-bottom:0.5px solid var(--border);margin-bottom:4px}
+  .cs-section dl{margin:0;display:flex;flex-direction:column;gap:5px}
+  .cs-section dt{font-size:11px;font-weight:600;color:var(--accent);margin:0}
+  .cs-section dd{font-size:11px;color:var(--text-muted);margin:0 0 2px 0;line-height:1.5}
+  .cs-open-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}
+  .cs-open-btn:hover{background:var(--accent-bg);border-color:var(--accent-border)}
   .modal-close{margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:6px}
   .modal-close:hover{color:var(--text);background:var(--border)}
   .modal-body{padding:14px 20px;overflow-y:auto;flex:1}
@@ -517,6 +529,10 @@
     </div>
 
     <div class="help-section-eyebrow">What you get</div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+      <button class="cs-open-btn" onclick="openCheatsheet()">🗃 DB Cheatsheet</button>
+    </div>
 
     <div class="help-card-spotlight">
       <div class="help-spotlight-icon">✏️</div>
@@ -849,6 +865,105 @@
       <button class="modal-tab study" id="hist-tab-study" onclick="switchHistTab('study')">📚 Study</button>
     </div>
     <div class="modal-body" id="hist-body"></div>
+  </div>
+</div>
+
+<!-- ═══ DB CHEATSHEET MODAL ═══ -->
+<div id="cs-modal" class="modal-backdrop" onclick="if(event.target===this)closeCheatsheet()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🗃 Database Systems — Interview Cheatsheet</h3>
+      <button class="modal-close" onclick="closeCheatsheet()" title="Close">✕</button>
+    </div>
+    <div class="modal-body cs-grid">
+
+      <!-- SQL -->
+      <div class="cs-section">
+        <div class="cs-section-title">SQL</div>
+        <dl>
+          <dt>PostgreSQL / MySQL</dt>
+          <dd>B-Tree (InnoDB) / heap+MVCC (Postgres). WAL for crash recovery; MVCC for concurrent reads. NOT built-in → Vitess (MySQL) or Citus (Postgres). Cross-shard txns need 2PC — expensive, often avoided. CAP: CP → refuses writes under partition.</dd>
+          <dt>Cassandra</dt>
+          <dd>Storage: LSM-Tree → MemTable(RAM) → SSTable(disk, immutable). Index: partition key only (consistent hash ring). Secondary indexes expensive — model data around queries. Sharding: consistent hashing; vnodes → add node moves ~1/N keys. CAP: AP by default; tunable per-query (ONE/QUORUM/ALL).</dd>
+        </dl>
+      </div>
+
+      <!-- NoSQL -->
+      <div class="cs-section">
+        <div class="cs-section-title">NoSQL</div>
+        <dl>
+          <dt>MongoDB</dt>
+          <dd>WiredTiger (B-Tree underneath) — same as MySQL. Model: document (BSON) → flexible schema, no joins needed. ACID: single-doc always; multi-doc txns since v4. Sharding: native → range or hash shard key; config server tracks chunks; mongos router directs queries. CAP: tunable → CP default, AP with lower write concern.</dd>
+          <dt>Cosmos DB</dt>
+          <dd>Index: inverted index on ALL fields by default. Multi-model: SQL, Mongo, Cassandra, Gremlin, Table APIs. Sharding: automatic on partition key; global distribution. CAP: 5 consistency levels per request (Strong→Eventual). Azure Table Storage: KV; PartitionKey+RowKey; auto-sharded.</dd>
+          <dt>DynamoDB</dt>
+          <dd>KV + document; partition key → consistent hash. Secondary indexes: GSI (eventually consistent), LSI (strongly). CAP: AP default; strongly consistent reads opt-in per request.</dd>
+        </dl>
+      </div>
+
+      <!-- OLAP -->
+      <div class="cs-section">
+        <div class="cs-section-title">OLAP / Analytics</div>
+        <dl>
+          <dt>Snowflake</dt>
+          <dd>Column store; micro-partitions (~16MB compressed). Index: NONE → metadata pruning skips irrelevant partitions. Separates storage (S3) from compute (virtual warehouses).</dd>
+          <dt>Kusto / ADX</dt>
+          <dd>Storage: each column stored+compressed separately. Index: inverted index per column (term→row bitmap). Fast WHERE col CONTAINS 'x' without scanning all rows. No B-Tree; built for log/telemetry pattern queries.</dd>
+          <dt>ClickHouse</dt>
+          <dd>MergeTree (LSM-inspired) — data sorted by primary key. Sparse primary index (1 entry/~8K rows) vs B-Tree's 1/row. Distributed table engine routes queries to shards. SQL syntax; extreme col compression; real-time OLAP.</dd>
+          <dt>Azure Synapse</dt>
+          <dd>Clustered columnstore; MPP: 60 hash-distributed nodes.</dd>
+          <dt>RocksDB</dt>
+          <dd>Pure LSM: write→MemTable→L0 SSTables→Lmax via compaction. Bloom filter per SSTable — skip disk I/O for absent keys. Write amp high (compaction rewrites); read amp medium. Embedded KV only — no server, no sharding; host DB manages. Powers: MyRocks (MySQL), TiKV (TiDB), Cassandra storage.</dd>
+        </dl>
+      </div>
+
+      <!-- Storage Engines -->
+      <div class="cs-section">
+        <div class="cs-section-title">Storage Engines</div>
+        <dl>
+          <dt>B-Tree</dt>
+          <dd>Pages (4–16KB) on disk, sorted by key. Root→leaf traversal: 3–4 I/Os for millions of rows. Writes: in-place page update + WAL (crash safety). Strengths: point reads, range scans. Weakness: random writes under high load.</dd>
+          <dt>LSM-Tree</dt>
+          <dd>Write→MemTable(RAM)→SSTable(disk, immutable). Compaction: merges SSTables, reclaims tombstones. Bloom filter: skips disk read if key absent. Strengths: sequential writes = high write throughput. Weakness: read amp (check multiple SSTables), space amp.</dd>
+          <dt>Column store</dt>
+          <dd>Each column stored contiguously, not rows. Compression: RLE/delta/dict on same-type values → 10×. Aggregations touch one column, not whole rows. Weakness: single-row random writes expensive.</dd>
+          <dt>Inverted index</dt>
+          <dd>term → sorted posting list of row IDs. Fast: col CONTAINS 'x' without scanning all rows. No efficient range scans over key order.</dd>
+        </dl>
+      </div>
+
+      <!-- Sharding -->
+      <div class="cs-section">
+        <div class="cs-section-title">Sharding Patterns</div>
+        <dl>
+          <dt>Hash sharding</dt>
+          <dd>key → hash(key) % N → shard. Even distribution. Cannot range-scan across shards. Resharding = full reshuffle.</dd>
+          <dt>Range sharding</dt>
+          <dd>Sorted key space split into ranges per shard. Efficient range scans. Hot-key risk: monotonic keys (e.g. timestamps) funnel all writes to one shard.</dd>
+          <dt>Consistent hashing</dt>
+          <dd>Nodes on a ring; key → nearest node clockwise. Add/remove node: only ~1/N keys migrate. Vnodes: each node owns multiple ring segments → even distribution.</dd>
+          <dt>Hot key fix</dt>
+          <dd>Append random suffix → scatter across N shards, aggregate on read. Write-behind cache absorbs burst, drains to shard.</dd>
+        </dl>
+      </div>
+
+      <!-- CAP & Consistency -->
+      <div class="cs-section">
+        <div class="cs-section-title">CAP &amp; Consistency</div>
+        <dl>
+          <dt>CAP theorem</dt>
+          <dd>P (partition tolerance) is mandatory → real choice: C vs A. CP: refuse ops during partition (Postgres, etcd, Zookeeper). AP: always serve, may return stale (Cassandra, DynamoDB).</dd>
+          <dt>Tunable consistency (Cassandra)</dt>
+          <dd>ONE: 1 ack. Fastest; stalest. Use: logs/metrics. QUORUM: floor(N/2)+1 acks. Balanced. Use: sessions. ALL: N acks. Strongest. Use: financial ledgers. Trick: R+W &gt; N → at least 1 replica overlaps → strong consistency from AP system (e.g. N=3, R=2, W=2).</dd>
+          <dt>Consistency spectrum</dt>
+          <dd>Linearizable &gt; Sequential &gt; Causal &gt; Read-your-writes &gt; Monotonic reads &gt; Eventual. Cosmos DB exposes all 5 as selectable levels.</dd>
+          <dt>Repair mechanisms</dt>
+          <dd>Hinted handoff: store hint for downed replica; replay on recovery. Read repair: QUORUM finds stale replica → fixes in background. Anti-entropy: Merkle tree diff syncs without client trigger.</dd>
+        </dl>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -1936,6 +2051,12 @@ function openHistory() {
 function closeHistory() {
   document.getElementById('hist-modal').classList.remove('show');
 }
+function openCheatsheet() {
+  document.getElementById('cs-modal').classList.add('show');
+}
+function closeCheatsheet() {
+  document.getElementById('cs-modal').classList.remove('show');
+}
 function escapeHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -2711,6 +2832,7 @@ document.getElementById('question-input').addEventListener('animationend', funct
 });
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.getElementById('hist-modal').classList.contains('show')) closeHistory();
+  if (e.key === 'Escape' && document.getElementById('cs-modal').classList.contains('show')) closeCheatsheet();
 });
 
 // ── Whiteboard drawer ─────────────────────────────────
