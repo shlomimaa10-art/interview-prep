@@ -1987,12 +1987,12 @@ function entryBaseName(entry) {
 function exportEntryMarkdown(entry) {
   const baseName = entryBaseName(entry);
   return buildSessionMarkdown(entry, { baseName }).then(md =>
-    downloadBlob(new Blob([md], { type: 'text/markdown' }), baseName + '.md')
+    new Blob([md], { type: 'text/markdown' })
   );
 }
 function exportEntryExcalidraw(entry) {
   const els = Array.isArray(entry.wb) ? entry.wb : [];
-  if (!els.length) return;
+  if (!els.length) return null;
   const scene = {
     type: 'excalidraw',
     version: 2,
@@ -2001,20 +2001,37 @@ function exportEntryExcalidraw(entry) {
     appState: { viewBackgroundColor: '#ffffff', gridSize: null },
     files: {}
   };
-  downloadBlob(
-    new Blob([JSON.stringify(scene, null, 2)], { type: 'application/vnd.excalidraw+json' }),
-    entryBaseName(entry) + '.excalidraw'
-  );
+  return new Blob([JSON.stringify(scene, null, 2)], { type: 'application/vnd.excalidraw+json' });
 }
 async function exportEntryPng(entry) {
-  const blob = await buildWhiteboardPngBlob(entry);
-  if (!blob) return;
-  downloadBlob(blob, entryBaseName(entry) + '.png');
+  return await buildWhiteboardPngBlob(entry); // returns Blob or null
 }
 async function exportEntryFiles(entry) {
-  await exportEntryMarkdown(entry);
-  exportEntryExcalidraw(entry);
-  await exportEntryPng(entry);
+  const baseName = entryBaseName(entry);
+  const folder = baseName + '/';
+
+  const [mdBlob, pngBlob] = await Promise.all([
+    exportEntryMarkdown(entry),
+    exportEntryPng(entry),
+  ]);
+  const excBlob = exportEntryExcalidraw(entry);
+
+  if (typeof JSZip === 'undefined') {
+    // Fallback: download files separately if JSZip failed to load
+    if (mdBlob) downloadBlob(mdBlob, baseName + '.md');
+    if (excBlob) downloadBlob(excBlob, baseName + '.excalidraw');
+    if (pngBlob) downloadBlob(pngBlob, baseName + '.png');
+    return;
+  }
+
+  const zip = new JSZip();
+  const dir = zip.folder(baseName);
+  if (mdBlob)  dir.file(baseName + '.md',         mdBlob);
+  if (pngBlob) dir.file(baseName + '.png',        pngBlob);
+  if (excBlob) dir.file(baseName + '.excalidraw', excBlob);
+
+  const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+  downloadBlob(zipBlob, baseName + '.zip');
 }
 function buildCurrentEntry() {
   const wbEls = (window._excalidrawAPI
@@ -3831,5 +3848,6 @@ if (document.readyState === 'loading') {
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </body>
 </html>
