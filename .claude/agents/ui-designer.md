@@ -50,5 +50,4 @@ Use Edit with `old_string` / `new_string` to make the change. Never use line num
 - Preserve surrounding whitespace and indentation exactly
 
 ### Step 4 — Confirm
-Describe what changed in one sentence. If the caller is `/feature-and-validate`, say:
-> "UI change applied. /feature-and-validate will now run /test."
+Describe what changed in one sentence.

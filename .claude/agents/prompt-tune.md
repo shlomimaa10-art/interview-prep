@@ -90,4 +90,4 @@ Do NOT edit any file until the user explicitly says "apply" or equivalent.
 
 Then say:
 
-> "Done. Run /test to validate the fix, or /feature-and-validate to test and deploy."
+> "Done. Try the interviewer in the live app, then run /deploy when ready to ship."
