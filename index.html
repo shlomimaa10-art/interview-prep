@@ -46,12 +46,40 @@
   .tab-panel{display:none}
   .tab-panel.active{display:flex;flex-direction:column;flex:1}
 
-  /* Setup */
-  #panel-setup{align-items:center;padding:40px 24px 60px;overflow-y:auto}
-  .setup-form{width:100%;max-width:620px;display:flex;flex-direction:column;gap:24px}
-  .setup-hero{text-align:center}
-  .setup-hero h1{font-size:22px;font-weight:600;margin-bottom:6px}
-  .setup-hero p{font-size:13px;color:var(--text-muted);line-height:1.5}
+  /* Setup — rebuilt to match Home aesthetic */
+  #panel-setup{align-items:flex-start;padding:0 24px 80px;overflow-y:auto;position:relative}
+  .cfg-aurora{position:absolute;top:0;left:0;width:100%;height:380px;pointer-events:none;z-index:0;overflow:hidden;opacity:0;transition:opacity .6s}
+  #panel-setup.active .cfg-aurora{opacity:1}
+  .cfg-beam{position:absolute;width:60%;height:300px;border-radius:50%;filter:blur(90px);animation:aurora-drift 11s ease-in-out infinite alternate}
+  .cfg-beam:nth-child(1){background:rgba(79,124,255,0.20);left:-12%;top:-100px}
+  .cfg-beam:nth-child(2){background:rgba(62,207,142,0.10);left:30%;top:-140px;animation-delay:-3s;animation-duration:13s}
+  .cfg-beam:nth-child(3){background:rgba(168,100,255,0.14);left:62%;top:-80px;animation-delay:-6s;animation-duration:15s}
+  .cfg-wrap{position:relative;z-index:1;width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px;padding-top:48px}
+  .cfg-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin-bottom:6px}
+  .cfg-eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.18em}
+  .cfg-headline{font-size:30px;font-weight:600;letter-spacing:-0.02em;line-height:1.15;background:linear-gradient(180deg,#fff 0%,#c9d6ff 70%,#a8c0ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .cfg-sub{font-size:14px;color:var(--text-muted);line-height:1.55;max-width:520px}
+  .cfg-card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:0.5px solid var(--border2);border-radius:16px;padding:22px 22px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s,box-shadow .25s}
+  .cfg-card:hover{border-color:rgba(255,255,255,0.18)}
+  .cfg-card-hero{background:linear-gradient(160deg,rgba(79,124,255,0.08),rgba(168,100,255,0.05) 60%,rgba(255,255,255,0.005));border-color:var(--accent-border)}
+  .cfg-card-hero:hover{box-shadow:0 16px 40px -20px rgba(79,124,255,0.35)}
+  .cfg-card-head{display:flex;flex-direction:column;gap:4px}
+  .cfg-tag{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:3px 9px;border-radius:5px;align-self:flex-start;letter-spacing:.08em;text-transform:uppercase}
+  .cfg-card-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.01em;line-height:1.3;margin-top:2px}
+  .cfg-card-sub{font-size:12.5px;color:var(--text-muted);line-height:1.55}
+  .cfg-card-actions{display:flex;justify-content:flex-end}
+  .cfg-row{display:flex;flex-direction:column;gap:8px}
+  .cfg-row-label{font-size:11px;font-weight:500;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em}
+  .cfg-opt{margin-left:6px;font-family:var(--font-ui);font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text-faint);background:rgba(255,255,255,0.04);padding:2px 7px;border-radius:10px}
+  .cfg-hint{font-size:11.5px;color:var(--text-muted);margin-top:6px;line-height:1.55;padding:0 2px}
+  .cfg-hint-lock{color:var(--text-faint)}
+  .cfg-check{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted);cursor:pointer;padding:4px 2px;user-select:none}
+  .cfg-check input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
+  .cfg-card .field-group.collapsible{gap:6px;padding:8px 0;border-top:0.5px solid var(--border)}
+  .cfg-card .field-group.collapsible:first-of-type{border-top:none;padding-top:0}
+  .cfg-card .field-group.collapsible > .field-label{font-size:12px;color:var(--text);padding:4px 0;text-transform:none;letter-spacing:.01em;font-family:var(--font-ui);font-weight:500}
+  .cfg-card .field-group.collapsible.open > .field-label{color:#a8c0ff}
+  .cfg-card .field-group.collapsible > .collapsible-body{padding:4px 2px 6px}
   .field-group{display:flex;flex-direction:column;gap:8px}
   .field-label{font-size:11px;font-weight:500;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em}
   .setup-field{width:100%;background:var(--surface);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--text);font-family:var(--font-ui);line-height:1.6;outline:none;transition:border-color .15s}
@@ -681,133 +709,170 @@
 
 <!-- ═══ SETUP ═══ -->
 <div id="panel-setup" class="tab-panel">
-  <div class="setup-form">
+  <div class="cfg-aurora"><div class="cfg-beam"></div><div class="cfg-beam"></div><div class="cfg-beam"></div></div>
+  <div class="cfg-wrap">
 
-    <div class="setup-hero">
-      <p>Paste a question or generate one, configure the interviewer, and start.</p>
+    <div class="cfg-head">
+      <div class="cfg-eyebrow">Configure Session</div>
+      <div class="cfg-headline">Set up your interview.</div>
+      <div class="cfg-sub">Pick a question, dial in the interviewer, hit start. Defaults are sane — only open what you want to change.</div>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">Candidate Level</div>
-      <div class="level-group">
-        <label class="level-opt"><input type="radio" name="level" value="junior" onchange="selectLevel(this)"><span class="level-dot"></span>Junior</label>
-        <label class="level-opt checked"><input type="radio" name="level" value="mid-level" checked onchange="selectLevel(this)"><span class="level-dot"></span>Mid-level</label>
-        <label class="level-opt"><input type="radio" name="level" value="senior" onchange="selectLevel(this)"><span class="level-dot"></span>Senior</label>
+    <!-- Card 1: the question (hero) -->
+    <div class="cfg-card cfg-card-hero">
+      <div class="cfg-card-head">
+        <span class="cfg-tag">Step 1</span>
+        <div class="cfg-card-title">The question</div>
+        <div class="cfg-card-sub">Paste a real one you got asked, or let the AI invent one tuned to your level and focus areas.</div>
+      </div>
+      <div class="field-group">
+        <textarea id="question-input" class="setup-field">Design a system that processes millions of HTTP requests per second and decides in real time whether to allow or block each request based on configurable rules (rate limiting, IP blocking, geo-restrictions, etc.).</textarea>
+      </div>
+      <div class="cfg-card-actions">
+        <button id="gen-btn" onclick="generateQuestion()">✨ Generate for me</button>
       </div>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">Focus Areas</div>
-      <div class="focus-grid" id="focus-grid">
-        <label class="focus-chip checked"><input type="checkbox" value="Scalability" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Scalability</label>
-        <label class="focus-chip checked"><input type="checkbox" value="Reliability" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Reliability</label>
-        <label class="focus-chip checked"><input type="checkbox" value="Latency" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Latency</label>
-        <label class="focus-chip"><input type="checkbox" value="Security" onchange="toggleChip(this)"><span class="chip-box"></span>Security</label>
-        <label class="focus-chip"><input type="checkbox" value="Cost optimization" onchange="toggleChip(this)"><span class="chip-box"></span>Cost</label>
-        <label class="focus-chip"><input type="checkbox" value="Observability" onchange="toggleChip(this)"><span class="chip-box"></span>Observability</label>
-        <button type="button" class="focus-add-tile" id="focus-add-btn" onclick="showFocusAddForm()">+ Add custom focus area</button>
-        <div class="focus-add-form" id="focus-add-form" style="display:none">
-          <input id="focus-add-input" type="text" placeholder="e.g. Multi-region failover" maxlength="40" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmAddFocus()}else if(event.key==='Escape'){cancelAddFocus()}">
-          <button type="button" onclick="confirmAddFocus()">Add</button>
-          <button type="button" class="cancel" onclick="cancelAddFocus()">Cancel</button>
+    <!-- Card 2: candidate profile (level + focus) -->
+    <div class="cfg-card">
+      <div class="cfg-card-head">
+        <span class="cfg-tag">Step 2</span>
+        <div class="cfg-card-title">Your profile</div>
+        <div class="cfg-card-sub">Tells the interviewer how hard to push and what to dig into.</div>
+      </div>
+
+      <div class="cfg-row">
+        <div class="cfg-row-label">Candidate level</div>
+        <div class="level-group">
+          <label class="level-opt"><input type="radio" name="level" value="junior" onchange="selectLevel(this)"><span class="level-dot"></span>Junior</label>
+          <label class="level-opt checked"><input type="radio" name="level" value="mid-level" checked onchange="selectLevel(this)"><span class="level-dot"></span>Mid-level</label>
+          <label class="level-opt"><input type="radio" name="level" value="senior" onchange="selectLevel(this)"><span class="level-dot"></span>Senior</label>
+        </div>
+      </div>
+
+      <div class="cfg-row">
+        <div class="cfg-row-label">Focus areas</div>
+        <div class="focus-grid" id="focus-grid">
+          <label class="focus-chip checked"><input type="checkbox" value="Scalability" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Scalability</label>
+          <label class="focus-chip checked"><input type="checkbox" value="Reliability" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Reliability</label>
+          <label class="focus-chip checked"><input type="checkbox" value="Latency" checked onchange="toggleChip(this)"><span class="chip-box">✓</span>Latency</label>
+          <label class="focus-chip"><input type="checkbox" value="Security" onchange="toggleChip(this)"><span class="chip-box"></span>Security</label>
+          <label class="focus-chip"><input type="checkbox" value="Cost optimization" onchange="toggleChip(this)"><span class="chip-box"></span>Cost</label>
+          <label class="focus-chip"><input type="checkbox" value="Observability" onchange="toggleChip(this)"><span class="chip-box"></span>Observability</label>
+          <button type="button" class="focus-add-tile" id="focus-add-btn" onclick="showFocusAddForm()">+ Add custom focus area</button>
+          <div class="focus-add-form" id="focus-add-form" style="display:none">
+            <input id="focus-add-input" type="text" placeholder="e.g. Multi-region failover" maxlength="40" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmAddFocus()}else if(event.key==='Escape'){cancelAddFocus()}">
+            <button type="button" onclick="confirmAddFocus()">Add</button>
+            <button type="button" class="cancel" onclick="cancelAddFocus()">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="field-group">
-      <div class="field-label">Interview Question</div>
-      <textarea id="question-input" class="setup-field">Design a system that processes millions of HTTP requests per second and decides in real time whether to allow or block each request based on configurable rules (rate limiting, IP blocking, geo-restrictions, etc.).</textarea>
-      <button id="gen-btn" onclick="generateQuestion()">✨ Generate question for my level &amp; focus</button>
-    </div>
+    <!-- Card 3: interviewer tuning (everything collapsible) -->
+    <div class="cfg-card">
+      <div class="cfg-card-head">
+        <span class="cfg-tag">Step 3</span>
+        <div class="cfg-card-title">Interviewer tuning <span class="cfg-opt">optional</span></div>
+        <div class="cfg-card-sub">All defaults are fine. Open a section to override.</div>
+      </div>
 
-    <div class="field-group collapsible" data-section="company">
-      <div class="field-label" onclick="toggleSetupSection(this)">Company Context <span style="color:var(--text-muted);font-weight:normal">(optional)</span><span class="fg-summary" id="sum-company"></span></div>
-      <div class="collapsible-body">
-      <textarea id="company-context" class="setup-field" rows="2" placeholder="e.g. Stripe — payments infra, hard reliability bar, global low-latency, SMB + enterprise customers" oninput="updateSectionSummaries()"></textarea>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">A short note about the company you're interviewing at. Shapes the interviewer's framing, scale assumptions, and trade-off bias.</div>
+      <div class="field-group collapsible" data-section="company">
+        <div class="field-label" onclick="toggleSetupSection(this)">Company context<span class="fg-summary" id="sum-company"></span></div>
+        <div class="collapsible-body">
+          <textarea id="company-context" class="setup-field" rows="2" placeholder="e.g. Stripe — payments infra, hard reliability bar, global low-latency, SMB + enterprise customers" oninput="updateSectionSummaries()"></textarea>
+          <div class="cfg-hint">Shapes the interviewer's framing, scale assumptions, and trade-off bias.</div>
+        </div>
       </div>
-    </div>
 
-    <div class="field-group collapsible" data-section="format">
-      <div class="field-label" onclick="toggleSetupSection(this)">Interview Format<span class="fg-summary" id="sum-format">Open</span></div>
-      <div class="collapsible-body">
-      <div class="toggle-group">
-        <button class="toggle-btn active" data-format="open" onclick="selectFormat(this)">🎯 Open</button>
-        <button class="toggle-btn" data-format="product" onclick="selectFormat(this)">🧑‍💻 Product Design</button>
-        <button class="toggle-btn" data-format="infra" onclick="selectFormat(this)">⚙️ Infrastructure</button>
+      <div class="field-group collapsible" data-section="format">
+        <div class="field-label" onclick="toggleSetupSection(this)">Interview format<span class="fg-summary" id="sum-format">Open</span></div>
+        <div class="collapsible-body">
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-format="open" onclick="selectFormat(this)">🎯 Open</button>
+            <button class="toggle-btn" data-format="product" onclick="selectFormat(this)">🧑‍💻 Product</button>
+            <button class="toggle-btn" data-format="infra" onclick="selectFormat(this)">⚙️ Infrastructure</button>
+          </div>
+          <div class="cfg-hint" id="format-hint">Free-form — interviewer guides organically</div>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="format-hint">Free-form — interviewer guides organically</div>
-      </div>
-    </div>
 
-    <div class="field-group collapsible" data-section="style">
-      <div class="field-label" onclick="toggleSetupSection(this)">Interviewer Style<span class="fg-summary" id="sum-style">Balanced</span></div>
-      <div class="collapsible-body">
-      <div class="toggle-group">
-        <button class="toggle-btn" data-style="Strict" onclick="selectStyle(this)">🔥 Strict</button>
-        <button class="toggle-btn active" data-style="Balanced" onclick="selectStyle(this)">⚖️ Balanced</button>
-        <button class="toggle-btn" data-style="Friendly" onclick="selectStyle(this)">😊 Friendly</button>
+      <div class="field-group collapsible" data-section="style">
+        <div class="field-label" onclick="toggleSetupSection(this)">Interviewer style<span class="fg-summary" id="sum-style">Balanced</span></div>
+        <div class="collapsible-body">
+          <div class="toggle-group">
+            <button class="toggle-btn" data-style="Strict" onclick="selectStyle(this)">🔥 Strict</button>
+            <button class="toggle-btn active" data-style="Balanced" onclick="selectStyle(this)">⚖️ Balanced</button>
+            <button class="toggle-btn" data-style="Friendly" onclick="selectStyle(this)">😊 Friendly</button>
+          </div>
+        </div>
       </div>
-      </div>
-    </div>
 
-    <div class="field-group collapsible" data-section="duration">
-      <div class="field-label" onclick="toggleSetupSection(this)">Target Duration<span class="fg-summary" id="sum-duration">No limit</span></div>
-      <div class="collapsible-body">
-      <div class="toggle-group">
-        <button class="toggle-btn" data-duration="30" onclick="selectDuration(this)">30 min</button>
-        <button class="toggle-btn" data-duration="45" onclick="selectDuration(this)">45 min</button>
-        <button class="toggle-btn" data-duration="60" onclick="selectDuration(this)">60 min</button>
-        <button class="toggle-btn active" data-duration="0" onclick="selectDuration(this)">No limit</button>
-      </div>
-      </div>
-    </div>
-
-    <div class="field-group collapsible" data-section="provider">
-      <div class="field-label" onclick="toggleSetupSection(this)">AI Provider &amp; Model<span class="fg-summary" id="sum-provider">Custom · claude-sonnet-4.6</span></div>
-      <div class="collapsible-body">
-      <div class="api-row">
-        <select id="provider-select" class="setup-field" onchange="updateModelOptions();updateSectionSummaries()">
-          <option value="custom" selected>Custom / localhost</option>
-          <option value="anthropic">Anthropic Claude</option>
-          <option value="openai">OpenAI</option>
-        </select>
-        <select id="model-select" class="setup-field" onchange="updateSectionSummaries()">
-          <option value="claude-sonnet-4.6" selected>claude-sonnet-4.6</option>
-          <option value="claude-opus-4.6">claude-opus-4.6</option>
-          <option value="claude-haiku-4.5">claude-haiku-4.5</option>
-          <option value="claude-sonnet-4.5">claude-sonnet-4.5</option>
-          <option value="claude-opus-4.5">claude-opus-4.5</option>
-          <option value="gpt-5.2">gpt-5.2</option>
-          <option value="gpt-5.1">gpt-5.1</option>
-          <option value="gpt-4o">gpt-4o</option>
-          <option value="gpt-4o-mini">gpt-4o-mini</option>
-          <option value="gemini-2.5-pro">gemini-2.5-pro</option>
-        </select>
-      </div>
-      <input id="custom-url" class="setup-field" type="text"
-        value="http://localhost:4141"
-        placeholder="http://localhost:4141"
-        style="display:block;margin-top:8px">
-      <input id="api-key-input" class="setup-field" type="password"
-        placeholder="Paste your API key here (sk-ant-... or sk-...)"
-        style="display:none;margin-top:8px"
-        oninput="sessionStorage.setItem('apiKey_' + document.getElementById('provider-select').value, this.value)">
-      <div id="api-key-hint" style="display:none;font-size:11px;color:var(--text-faint);margin-top:5px;padding:0 2px">
-        🔒 Your key is used directly in your browser and never sent to any server other than the AI provider.
-      </div>
+      <div class="field-group collapsible" data-section="duration">
+        <div class="field-label" onclick="toggleSetupSection(this)">Target duration<span class="fg-summary" id="sum-duration">No limit</span></div>
+        <div class="collapsible-body">
+          <div class="toggle-group">
+            <button class="toggle-btn" data-duration="30" onclick="selectDuration(this)">30 min</button>
+            <button class="toggle-btn" data-duration="45" onclick="selectDuration(this)">45 min</button>
+            <button class="toggle-btn" data-duration="60" onclick="selectDuration(this)">60 min</button>
+            <button class="toggle-btn active" data-duration="0" onclick="selectDuration(this)">No limit</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="setup-section">
-      <div class="field-label" onclick="toggleSetupSection(this)">Voice Mode<span class="fg-summary" id="sum-voice">Off</span></div>
-      <div class="collapsible-body">
-        <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted);cursor:pointer;padding:4px 2px">
-          <input type="checkbox" id="voice-mode-toggle" onchange="setVoiceMode(this.checked)" style="width:16px;height:16px;cursor:pointer">
-          <span>🎙️ Speak answers (push-to-talk) and hear the interviewer reply aloud</span>
-        </label>
-        <div style="font-size:11px;color:var(--text-faint);margin-top:6px;padding-left:26px">
-          Uses your browser's built-in Web Speech API. Click the mic button next to Send and hold/talk — release to stop. Works best in Chrome.
+    <!-- Card 4: runtime (voice + provider) -->
+    <div class="cfg-card">
+      <div class="cfg-card-head">
+        <span class="cfg-tag">Step 4</span>
+        <div class="cfg-card-title">Runtime <span class="cfg-opt">optional</span></div>
+        <div class="cfg-card-sub">Voice and model — defaults talk to your local copilot-api on :4141.</div>
+      </div>
+
+      <div class="field-group collapsible" data-section="voice">
+        <div class="field-label" onclick="toggleSetupSection(this)">Voice mode<span class="fg-summary" id="sum-voice">Off</span></div>
+        <div class="collapsible-body">
+          <label class="cfg-check">
+            <input type="checkbox" id="voice-mode-toggle" onchange="setVoiceMode(this.checked)">
+            <span>🎙️ Speak answers (push-to-talk) and hear the interviewer reply aloud</span>
+          </label>
+          <div class="cfg-hint cfg-hint-lock">Uses your browser's Web Speech API. Hold the mic next to Send, release to stop. Works best in Chrome.</div>
+        </div>
+      </div>
+
+      <div class="field-group collapsible" data-section="provider">
+        <div class="field-label" onclick="toggleSetupSection(this)">AI provider &amp; model<span class="fg-summary" id="sum-provider">Custom · claude-sonnet-4.6</span></div>
+        <div class="collapsible-body">
+          <div class="api-row">
+            <select id="provider-select" class="setup-field" onchange="updateModelOptions();updateSectionSummaries()">
+              <option value="custom" selected>Custom / localhost</option>
+              <option value="anthropic">Anthropic Claude</option>
+              <option value="openai">OpenAI</option>
+            </select>
+            <select id="model-select" class="setup-field" onchange="updateSectionSummaries()">
+              <option value="claude-sonnet-4.6" selected>claude-sonnet-4.6</option>
+              <option value="claude-opus-4.6">claude-opus-4.6</option>
+              <option value="claude-haiku-4.5">claude-haiku-4.5</option>
+              <option value="claude-sonnet-4.5">claude-sonnet-4.5</option>
+              <option value="claude-opus-4.5">claude-opus-4.5</option>
+              <option value="gpt-5.2">gpt-5.2</option>
+              <option value="gpt-5.1">gpt-5.1</option>
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="gpt-4o-mini">gpt-4o-mini</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+            </select>
+          </div>
+          <input id="custom-url" class="setup-field" type="text"
+            value="http://localhost:4141"
+            placeholder="http://localhost:4141"
+            style="display:block;margin-top:8px">
+          <input id="api-key-input" class="setup-field" type="password"
+            placeholder="Paste your API key (sk-ant-… or sk-…)"
+            style="display:none;margin-top:8px"
+            oninput="sessionStorage.setItem('apiKey_' + document.getElementById('provider-select').value, this.value)">
+          <div id="api-key-hint" class="cfg-hint cfg-hint-lock" style="display:none">
+            🔒 Your key stays in this browser and is sent only to the AI provider.
+          </div>
         </div>
       </div>
     </div>
@@ -1283,7 +1348,7 @@ function getFocusAreas() {
 
 // === Custom focus areas + collapsible setup sections ===
 const SETUP_COLLAPSED_KEY = 'setupCollapsed_v1';
-const SETUP_DEFAULT_COLLAPSED = ['company','format','style','duration','provider'];
+const SETUP_DEFAULT_COLLAPSED = ['company','format','style','duration','provider','voice'];
 
 function showFocusAddForm() {
   document.getElementById('focus-add-btn').style.display = 'none';
