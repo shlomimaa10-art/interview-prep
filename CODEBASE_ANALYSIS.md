@@ -70,10 +70,12 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 - `custom` → `POST <customUrl>/v1/messages` (Anthropic message format; handles both Anthropic and OpenAI response shapes)
 - `anthropic` → `POST https://api.anthropic.com/v1/messages` (key from sessionStorage)
 - `openai` → `POST https://api.openai.com/v1/chat/completions` (key from sessionStorage; system prompt prepended to messages array)
-- `lowTokens=true` → `max_tokens: 300`, else `2000`
+- `lowTokens=true` → `max_tokens: 300`, else `8000`
+- **Anthropic prompt caching:** when `sysPrompt.length >= 4000` chars, the system prompt is sent as `[{ type:'text', text:sysPrompt, cache_control:{ type:'ephemeral' } }]` for both `custom` (copilot-api) and `anthropic` providers. 5-min cache TTL keeps follow-up turns warm, cutting repeated input-token billing on the system block. `openai` provider gets the raw string prepended as a `system` message (no cache).
+- **Token accounting:** every response's `usage` is fed through `recordTokenUsage(provider, model, usage)`, which handles both Anthropic (`input_tokens` / `output_tokens` / `cache_read_input_tokens` / `cache_creation_input_tokens`) and OpenAI (`prompt_tokens` / `completion_tokens`) shapes and updates session + all-time counters.
 
 **`buildSystemPrompt(question, style, focusAreas, level, format, companyContext)`**
-Constructs a detailed interviewer system prompt covering:
+Constructs the interviewer system prompt (compressed from ~16k → ~9k chars via prose tightening; phases, rules, and rubric semantics are all preserved). Covers:
 - Optional `COMPANY CONTEXT` block (when `companyContext` is non-empty) that biases scale assumptions, scenarios, trade-offs, and clarifying-question numbers toward the target company without naming it verbatim each turn
 - Optional `PAST WEAK SPOTS` block (cross-session memory): pulls top 5 entries from `studyProgress_v1` prioritizing low-mastery (< 60%) and `gapSourcedFrom` topics; instructs the interviewer to steer follow-ups and probe depth toward those weak areas without naming the source. Omitted when no qualifying topics exist.
 - `getCompanyContext()` reads `#company-context` textarea; also passed to `generateQuestion()` for company-flavored prompts
@@ -82,7 +84,7 @@ Constructs a detailed interviewer system prompt covering:
 - 4-phase interview arc (Scoping → High-level → Deep dive → Wrap-up)
 - Interviewer rules (no hints unless asked, no restating, no bullet points)
 - Special commands: `"feedback"`, `"give full answer"`, `"hint"`
-  - `"feedback"` emits a fixed-order structured evaluation: **Whiteboard Assessment** (primary signal — names actual `[WHITEBOARD CONTEXT]` elements, flags empty/messy diagrams as red flags), Strengths, Gaps, Suggestions, and **Score: X/10** driven by a calibrated rubric (1–3 incoherent, 4 weak, 5 below-bar, 6 borderline, 7 solid hire, 8 strong hire, 9 exceptional, 10 staff+). Anti-7.5 calibration rules force using the full range; whiteboard quality caps/raises the score.
+  - `"feedback"` emits a fixed-order structured evaluation: **Whiteboard Assessment** (primary signal — names actual `[WHITEBOARD CONTEXT]` elements, flags empty/messy diagrams as red flags), Strengths, Gaps, Overall Verdict, **Score: X/10** driven by a calibrated rubric (1–3 incoherent, 4 weak, 5–6 below-bar, 7 at-bar hire, 8 above-bar hire, 9 exceptional, 10 staff+), and Suggested Study Topics. Anti-7.5 calibration rules force using the full range. **Whiteboard quality feeds the score but does not cap it** — a strong verbal end-to-end with proactive deep-dives can earn 8 even with a thin diagram (the diagram is called out as a gap rather than capping the score); a clean diagram + crisp reasoning earns 8+.
 - System prompt includes `WHITEBOARD_UPDATE FORMAT` instructions for AI-driven whiteboard updates
 
 **`renderWhiteboardUpdate(reply)`**
@@ -149,8 +151,9 @@ Loaded via CDN: `react`, `react-dom`, `@excalidraw/excalidraw`. Mounted inside a
 
 ### Export & History
 - **📥 Export** (interview-tab action): downloads **two sibling files** for the current session via the shared `exportEntryFiles()` helper — (1) a Markdown file containing the question, metadata (level, style, format, duration, elapsed, focus areas), full transcript, and an embedded base64 PNG of the whiteboard rendered via `ExcalidrawLib.exportToBlob`; and (2) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. `exportSession` and `exportHistEntry` were refactored to share `exportEntryFiles()`.
+- **📊 Tokens** (interview-tab action, next to History): opens `#tok-modal` showing current-session and all-time token usage — input, output, Anthropic `cache_read_input_tokens`, Anthropic `cache_creation_input_tokens`, and call counts. All-time totals persist in `localStorage` under `TOKEN_STATS_KEY = 'tokenStats_v1'` (loaded/saved via `loadTokenStatsAllTime` / `saveTokenStatsAllTime`); per-session counters live on `tokenSession` and reset on `startInterview()`. Updated by `recordTokenUsage()` after every `callAI()` response. Modal opens via `openTokenStats()`, closes via the ✕ button, backdrop click, or `Escape` key; a **Reset all-time** danger button clears persisted totals.
 - **📚 History** (interview-tab action): opens a modal listing past interviews stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (capped at `HISTORY_MAX = 20`, FIFO eviction). Modal is split into two tabs — **Interviews** and **📚 Study** — switched via `switchHistTab('interview' | 'study')` (state in `_histTab`). Each past interview entry exposes **View** (inline transcript), **Export** (same Markdown + `.excalidraw` pair), **▶ Resume** (rehydrates question, config, full chat, whiteboard, and timer with preserved elapsed time into the live interview — snapshots current session first, reuses `restoreSession()` with a data override, and rebuilds `SYSTEM` via `buildSystemPrompt()` from the entry's settings), and **Delete** buttons. Study entries (`renderStudyHistory()`) get **Resume** / **Delete** with topic, mastery %, message count, and elapsed time.
-- **Modal close**: ✕ button, backdrop click, or `Escape` key.
+- **Modal close** (history, cheatsheet, token-stats): ✕ button, backdrop click, or `Escape` key.
 - **Snapshot trigger points**: `snapshotToHistory()` upserts by stable `currentSessionId` (assigned at `startInterview()` / `restartInterview()` / `resumeHistEntry()` and persisted in `interviewSession_v1`). Called at:
   1. `restartInterview()` — before resetting current session state.
   2. `startInterview()` — before the new question overwrites state.

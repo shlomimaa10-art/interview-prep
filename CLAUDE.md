@@ -93,11 +93,22 @@ An **Excalidraw**-based whiteboard in a resizable right-edge drawer. Loaded via 
 
 ## Export & History
 
-Two interview-tab actions extend session management:
+Three interview-tab actions extend session management:
 
 - **📥 Export**: downloads a single **`basename.zip`** containing a named folder (`basename/`) with three files — (1) a Markdown file with the question, metadata (level / style / format / duration / elapsed / focus areas), full transcript, and a relative `![Whiteboard](basename.png)` reference (or `_No whiteboard content for this session._` when the canvas is empty); (2) a `.png` whiteboard image rendered via `ExcalidrawLib.exportToBlob`; and (3) a companion `.excalidraw` JSON scene file so recipients can re-open and edit the diagram in Excalidraw. ZIP is generated client-side via **JSZip** (loaded from CDN: `cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js`). If JSZip fails to load, falls back to downloading the three files separately. Both `exportSession` and `exportHistEntry` delegate to `exportEntryFiles()`, which fans out to `exportEntryMarkdown()` / `exportEntryPng()` / `exportEntryExcalidraw()`.
 - **📚 History**: opens a modal listing past sessions stored in `localStorage` under `HISTORY_KEY = 'interviewHistory_v1'` (cap `HISTORY_MAX = 20`, FIFO eviction). The modal is split into two tabs — **Interviews** and **📚 Study** — switched via `switchHistTab('interview' | 'study')`. Each interview entry has **View** (inline transcript), **Export**, **▶ Resume** (rehydrates question, config, chat, whiteboard, and timer with preserved elapsed time via `restoreSession()` data override; rebuilds `SYSTEM` via `buildSystemPrompt()`; snapshots current session first), and **Delete** buttons. Modal closes via ✕ button, backdrop click, or `Escape` key.
+- **📊 Tokens**: opens a token-usage modal (`#tok-modal`) showing current-session and all-time input/output token counts plus Anthropic `cache_read_input_tokens` / `cache_creation_input_tokens` and call counts. All-time totals persist in `localStorage` under `tokenStats_v1` (current-session counters reset on `startInterview()`). Updated by `recordTokenUsage()` after every `callAI()` response (handles both Anthropic and OpenAI `usage` shapes). A **Reset all-time** button clears persisted totals; closes via ✕, backdrop, or `Escape`.
 - **Snapshot triggers**: `snapshotToHistory()` upserts by stable `currentSessionId` (set at `startInterview()` / `restartInterview()` / `resumeHistEntry()` and persisted in `interviewSession_v1`). Called at `restartInterview()`, `startInterview()` (before overwriting state), and on `pagehide` / `beforeunload`, so every session auto-appears in History and refresh/close-tab updates the same entry in place rather than duplicating.
+
+---
+
+## Prompt Caching & System Prompt
+
+`callAI()` wraps the system prompt in an Anthropic `cache_control: { type: 'ephemeral' }` block when `sysPrompt.length >= 4000` chars (~≥1024 tokens), for both `custom` (copilot-api) and `anthropic` providers. The 5-minute ephemeral cache keeps the (large) interviewer system prompt warm across follow-up turns within a session, cutting repeated input-token billing on the system block. The `openai` provider gets the raw system string with no caching.
+
+The interviewer system prompt produced by `buildSystemPrompt()` was compressed from ~16k to ~9k chars via semantic-preserving prose tightening — all phases, rules, commands, and the scoring rubric are preserved.
+
+The scoring rubric is explicitly **not whiteboard-capped**: a strong verbal end-to-end with proactive deep-dives can earn 8 even with a thin diagram (the diagram is called out as a gap rather than capping the score); a clean diagram + crisp reasoning earns 8+.
 
 ---
 
