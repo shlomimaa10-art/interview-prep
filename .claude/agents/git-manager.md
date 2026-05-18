@@ -108,11 +108,7 @@ git -C ~/Desktop/InterviewApp commit -m "<summary>" -m "<body>"
 
 ### Step 5 — Push (if requested)
 
-```bash
-git -C ~/Desktop/InterviewApp push origin main
-```
-
-**If push fails with 403 / "Permission denied"**: the wrong GitHub account is active. The repo `shlomimaa10-art/interview-prep` is owned by the user's **personal** account (`shlomimaa10-art`); the default active account is the work account (`smaalumi_microsoft`). Auto-recover without asking:
+**ALWAYS switch to the personal account before pushing, then switch back to the work account afterward — no exceptions.** The repo `shlomimaa10-art/interview-prep` is owned by the user's personal GitHub account (`shlomimaa10-art`); the default active account is the work account (`smaalumi_microsoft`), which has no write access. Do NOT wait for a 403 — switch up-front every time:
 
 ```bash
 # Switch to personal account, push, switch back to work account
@@ -121,7 +117,7 @@ git -C ~/Desktop/InterviewApp push origin main
 gh auth switch -u smaalumi_microsoft
 ```
 
-Verify the switch-back with `gh auth status` and confirm `smaalumi_microsoft` is the active account before reporting success. Always restore `smaalumi_microsoft` as the active account, even if the push itself fails.
+Verify the switch-back with `gh auth status` and confirm `smaalumi_microsoft` is the active account before reporting success. **Always restore `smaalumi_microsoft` as the active account, even if the push itself fails** (use a trap or run the switch-back unconditionally).
 
 ### Step 6 — Confirm
 
