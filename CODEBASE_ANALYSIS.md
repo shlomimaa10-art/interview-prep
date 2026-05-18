@@ -89,7 +89,16 @@ Constructs the interviewer system prompt (compressed from ~16k → ~9k chars via
 - System prompt includes `WHITEBOARD_UPDATE FORMAT` instructions for AI-driven whiteboard updates
 
 **`renderWhiteboardUpdate(reply)`**
-Parses ` ```whiteboard ` JSON blocks from AI responses. Adds components (rectangles, ellipses, diamonds) and arrows to the Excalidraw canvas via `_excalidrawAPI.updateScene()`. Returns `{ text, hadWbUpdate }` — stripped reply text and a flag. Auto-opens the whiteboard drawer and scrolls to new elements.
+Parses ` ```whiteboard ` JSON blocks from AI responses. Adds components (rectangles, ellipses, diamonds) and arrows to the Excalidraw canvas via `_excalidrawAPI.updateScene()`. Returns `{ text, hadWbUpdate }` — stripped reply text and a flag. Auto-opens the whiteboard drawer and scrolls to new elements. Shape semantics (matching the system prompt): `ellipse` = client / user / browser / mobile / external actor; `diamond` = decision / policy gate (rate-limit check, auth allow/block, routing condition) — **not** databases; `rectangle` = everything else (services, caches, queues, gateways, workers, databases). DB labels still get a yellow auto-fill via `pickColor`.
+
+Major behaviors:
+- **Zone model** — `pickZone(label)` classifies each component into one of 7 semantic bands (client / edge / service / cache / async / data / observability); `pickColor` defers to `ZONE_FILL[zone]` so colour is driven by zone, not by shape type.
+- **Degree-based sizing** — the most-connected component (deg ≥ 3) is rendered as a hero node at 280×100, leaves (deg ≤ 1) shrink to 160×60, everything else is 200×72. Row centring uses each shape's actual width.
+- **Zone backdrops** (full-answer only) — translucent dashed rounded rectangles are drawn behind each contiguous same-zone band per row with a small uppercase zone label. IDs prefixed `wbz_`.
+- **Summary flow strip** (full-answer only, when ≥3 distinct zones are present) — a horizontal `ellipse → ellipse → …` strip above the diagram (Clients → Edge → … → Data) derived from the zones present. IDs prefixed `wbsum_`.
+- **Smarter arrow routing** — a Liang–Barsky segment-vs-rect check detects straight arrows that would pass through non-endpoint shapes; multi-row spans also force a detour. Detoured arrows use a 4-point orthogonal elbow path.
+- **Clean re-render on full-answer** — prior generator-owned elements are stripped by ID prefix (`wbs_` / `wba_` / `wbal_` / `wbst_` / `wbz_` / `wbsum_`) before redrawing, so repeat full-answers replace cleanly. User-drawn elements (no prefix) are preserved.
+- **Font** — all generated text uses `fontFamily: 3` (Cascadia), matching the `roughness: 0` clean aesthetic.
 
 **`generateQuestion()`**
 Picks random domain + twist + constraint from curated arrays, calls `callAI` with `lowTokens=true` and an empty system prompt to produce a single-sentence system design question.
@@ -142,7 +151,7 @@ Loaded via CDN: `react`, `react-dom`, `@excalidraw/excalidraw`. Mounted inside a
 
 ### Whiteboard ↔ AI integration
 - **User → AI (always-on):** `send()` calls `serializeWb()` on every message. If the Excalidraw scene has elements, the last user message sent to the AI is enriched with a `[WHITEBOARD CONTEXT]` block; `history[]` and chat UI remain unmodified.
-- **AI → Whiteboard:** `renderWhiteboardUpdate(reply)` detects ` ```whiteboard ` JSON fences in AI responses, strips them from displayed text, and programmatically adds shapes/arrows to the Excalidraw canvas. Triggered on `hint` (single element) and `give full answer` (full diagram) commands. The system prompt's `WHITEBOARD_UPDATE FORMAT` section tells the AI when and how to emit these blocks.
+- **AI → Whiteboard:** `renderWhiteboardUpdate(reply)` detects ` ```whiteboard ` JSON fences in AI responses, strips them from displayed text, and programmatically adds shapes/arrows to the Excalidraw canvas. Triggered on `hint` (single element) and `give full answer` (full diagram) commands. Shape vocabulary: `ellipse` = client/user/external actor, `diamond` = decision/policy gate, `rectangle` = everything else (services, caches, queues, DBs). Colour is zone-driven via `pickZone` / `ZONE_FILL`; on full-answer the renderer also emits translucent zone backdrops and a top-of-canvas summary flow strip, uses degree-based hero/leaf sizing, routes arrows around intervening shapes (Liang–Barsky elbow detour), and cleanly re-renders by stripping prior generator IDs (`wbs_`/`wba_`/`wbal_`/`wbst_`/`wbz_`/`wbsum_`) while preserving user-drawn elements. The system prompt's `WHITEBOARD_UPDATE FORMAT` section tells the AI when and how to emit these blocks.
 
 ### Session Persistence
 `localStorage` key `interviewSession_v1` enables browser-crash recovery.

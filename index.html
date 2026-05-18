@@ -1823,9 +1823,9 @@ WHITEBOARD_UPDATE FORMAT (when applicable). Append a fenced block at the VERY EN
 Rules:
 - **sections**: MANDATORY for "give full answer" on system-design (omit only for pure algo/conceptual). MUST include BOTH "Functional Requirements" AND "Non-Functional Requirements" together — one without the other is a bug. 2-5 terse bullets each. Always include the title key.
 - **type**: "rectangle" | "ellipse" | "diamond"
-  - ellipse → client / user / browser / mobile
-  - diamond → database / persistent store (Postgres, MySQL, DynamoDB, S3, Redis-as-store)
-  - rectangle → everything else (services, caches, queues, gateways, workers)
+  - ellipse → client / user / browser / mobile / external actor
+  - diamond → decision / policy gate (rate-limit check, auth allow/block, routing condition). NOT for databases.
+  - rectangle → everything else (services, caches, queues, gateways, workers, databases / persistent stores). DB fills are auto-yellow from the label.
 - **LAYOUT**: order components by data-flow depth (client → edge → service → cache/queue → DB). Peers consecutive — renderer spreads them horizontally on the same row.
 - **COLOR** — omit \`color\`; renderer auto-assigns:
     client/user/browser/mobile → sky blue · gateway/LB/CDN/edge/proxy → blue · service/API/worker/rule engine → purple · cache (Redis/Memcached) → orange · queue/stream (Kafka/SQS/PubSub) → green · DB/store (Postgres/DynamoDB/S3/ClickHouse) → yellow · observability/metrics → light grey.
@@ -2889,10 +2889,11 @@ function renderWhiteboardUpdate(reply) {
   const isFullAnswer = (data.components || []).length > 0;
   const existing = rawExisting.filter(function(el) {
     if (el.type === 'text' && el.containerId && arrowIds.has(el.containerId)) return false;
-    // Strip old wbst_ section blocks whenever a full-answer update arrives
-    // (has components), not only when the new update itself carries sections.
-    // This prevents duplicate FR/NFR blocks when a second full-answer is rendered.
-    if (isFullAnswer && el.type === 'text' && el.id && el.id.startsWith('wbst_')) return false;
+    // On a full-answer update, clear all prior generator output (shapes, arrows,
+    // arrow labels, section blocks, zone backdrops, summary strip) so the diagram
+    // is redrawn cleanly in place instead of stacking below previous attempts.
+    // User-drawn elements (which lack our id prefixes) are preserved.
+    if (isFullAnswer && el.id && /^(wbs_|wba_|wbal_|wbst_|wbz_|wbsum_)/.test(el.id)) return false;
     return true;
   });
 
@@ -2929,24 +2930,46 @@ function renderWhiteboardUpdate(reply) {
   const uid = function() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); };
 
   // ── Layout constants ────────────────────────────────────────────────────────
-  const SHAPE_W = 200;
-  const SHAPE_H = 72;
-  const ROW_GAP = 140;   // vertical distance between row tops
-  const COL_GAP = 240;   // horizontal distance between shape centres
+  const SHAPE_W = 200;       // baseline (primary) shape width
+  const SHAPE_H = 72;        // baseline (primary) shape height
+  const HERO_W = 280, HERO_H = 100;   // most-connected node
+  const SECONDARY_W = 160, SECONDARY_H = 60; // leaf nodes
+  const ROW_GAP = 150;   // vertical distance between row tops
+  const COL_GAP = 260;   // horizontal distance between shape centres
   const CANVAS_W = 1600; // total canvas width to centre within
+  const ZONE_PAD = 18;   // padding around grouped shapes for zone backdrops
+
+  // ── Zone (semantic band) derived from label ────────────────────────────────
+  // Each component belongs to exactly one zone. Zones drive both the colour
+  // palette and the grouped backdrop rectangles drawn behind contiguous bands.
+  function pickZone(label) {
+    const l = (label || '').toLowerCase();
+    if (/client|user|browser|mobile|ios|android|web app|frontend/.test(l))      return 'client';
+    if (/gateway|lb|load.?bal|cdn|edge|proxy|anycast|dns|waf|reverse.?proxy/.test(l)) return 'edge';
+    if (/cache|redis|memcached|in.?mem/.test(l))                                 return 'cache';
+    if (/queue|kafka|pub.?sub|stream|sqs|event.?bus|rabbit|kinesis/.test(l))     return 'async';
+    if (/db|database|postgres|mysql|dynamo|clickhouse|store|sql|s3|blob|warehouse|datalake/.test(l)) return 'data';
+    if (/metric|monitor|observ|alert|grafana|prometheus|log/.test(l))            return 'observability';
+    if (/service|api|server|engine|worker|rule|enforce|handler|consumer|producer/.test(l)) return 'service';
+    return 'service';
+  }
+  const ZONE_FILL = {
+    client: '#bde0fe', edge: '#a0c4ff', service: '#cdb4db', cache: '#ffd6a5',
+    async: '#caffbf', data: '#fdffb6', observability: '#e8e8e8',
+  };
+  const ZONE_BACKDROP = {
+    client: '#eaf4ff', edge: '#e6efff', service: '#efe8f6', cache: '#fff1de',
+    async: '#eaffe1', data: '#fffce0', observability: '#f3f3f3',
+  };
+  const ZONE_LABEL = {
+    client: 'Clients', edge: 'Edge', service: 'Services',
+    cache: 'Cache', async: 'Async', data: 'Data', observability: 'Observability',
+  };
 
   // ── Color palette ───────────────────────────────────────────────────────────
   function pickColor(label, explicit) {
     if (explicit) return explicit;
-    const l = (label || '').toLowerCase();
-    if (/client|user|browser|mobile/.test(l))                  return '#bde0fe'; // sky blue
-    if (/cache|redis|memcached|in.?mem/.test(l))               return '#ffd6a5'; // orange
-    if (/queue|kafka|pub.?sub|stream|sqs|event.?bus/.test(l))  return '#caffbf'; // green
-    if (/db|database|postgres|mysql|dynamo|clickhouse|store|sql|s3|blob/.test(l)) return '#fdffb6'; // yellow
-    if (/gateway|lb|load.?bal|cdn|edge|proxy|anycast|dns/.test(l)) return '#a0c4ff'; // blue
-    if (/service|api|server|engine|worker|rule|enforce/.test(l)) return '#cdb4db'; // purple
-    if (/metric|monitor|observ|alert|grafana|prometheus/.test(l)) return '#e8e8e8'; // grey
-    return '#e8e8e8';
+    return ZONE_FILL[pickZone(label)] || '#e8e8e8';
   }
 
   // ── Sections (FR / NFR header blocks) ──────────────────────────────────────
@@ -2970,7 +2993,7 @@ function renderWhiteboardUpdate(reply) {
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: null, containerId: null,
-      text: combined, fontSize: 14, fontFamily: 1,
+      text: combined, fontSize: 14, fontFamily: 3,
       textAlign: 'left', verticalAlign: 'top', originalText: combined, lineHeight: 1.25,
     });
     sectionY += blockH + 20; // gap between sections
@@ -3029,31 +3052,197 @@ function renderWhiteboardUpdate(reply) {
   for (var r = 0; r <= maxRow; r++) { rows.push([]); }
   components.forEach(function(_, i) { rows[rowOf[i]].push(i); });
 
-  // Compute (x, y) for each component — centred within CANVAS_W
+  // ── Degree-based sizing (hero / primary / secondary) ───────────────────────
+  // The most-connected node becomes the visual anchor; leaf nodes shrink.
+  const degree = components.map(function(_, i) {
+    var deg = inDegree[i] + outEdges[i].length;
+    return deg;
+  });
+  const maxDeg = Math.max(1, Math.max.apply(null, degree));
+  const compW = [], compH = [];
+  components.forEach(function(_, i) {
+    var d = degree[i];
+    // Hero: top 1 by degree (only when meaningfully connected, deg >= 3).
+    // Secondary: leaves (deg <= 1). Primary: everything in between.
+    if (d === maxDeg && d >= 3) { compW[i] = HERO_W;      compH[i] = HERO_H; }
+    else if (d <= 1)            { compW[i] = SECONDARY_W; compH[i] = SECONDARY_H; }
+    else                        { compW[i] = SHAPE_W;     compH[i] = SHAPE_H; }
+  });
+
+  // ── (Optional) Summary flow strip — Level 1 of the multi-zoom model ────────
+  // Only on full-answer renders, and only when we have enough zone variety
+  // for the strip to add meaning (>= 3 distinct zones).
+  const zoneOrder = ['client', 'edge', 'service', 'cache', 'async', 'data', 'observability'];
+  const presentZones = [];
+  {
+    var seen = {};
+    components.forEach(function(c) {
+      var z = pickZone(c.label);
+      if (!seen[z]) { seen[z] = true; presentZones.push(z); }
+    });
+    presentZones.sort(function(a, b) { return zoneOrder.indexOf(a) - zoneOrder.indexOf(b); });
+  }
+  var summaryStripBottomY = sectionY; // baseline if we don't draw a strip
+  const drawSummaryStrip = isFullAnswer && presentZones.length >= 3;
+  if (drawSummaryStrip) {
+    var stripY = sectionY + 20;
+    var dotW = 110, dotH = 32, dotGap = 60;
+    var stripTotalW = presentZones.length * dotW + (presentZones.length - 1) * dotGap;
+    var stripX = Math.max(60, (CANVAS_W - stripTotalW) / 2);
+    var prevDotId = null;
+    presentZones.forEach(function(z, idx) {
+      var dotId = 'wbsum_' + uid();
+      var dotLabelId = 'wbsum_' + uid();
+      var x = stripX + idx * (dotW + dotGap);
+      newElements.push({
+        id: dotId, type: 'ellipse',
+        x: x, y: stripY, width: dotW, height: dotH,
+        angle: 0, strokeColor: '#888', backgroundColor: ZONE_FILL[z] || '#e8e8e8',
+        fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        seed: Math.floor(Math.random() * 2e9), version: 2,
+        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+        boundElements: [{ id: dotLabelId, type: 'text' }],
+      });
+      newElements.push({
+        id: dotLabelId, type: 'text',
+        x: x, y: stripY + dotH / 2 - 8, width: dotW, height: 16,
+        angle: 0, strokeColor: '#444', backgroundColor: 'transparent',
+        fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        seed: Math.floor(Math.random() * 2e9), version: 2,
+        versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+        boundElements: null,
+        text: ZONE_LABEL[z] || z, fontSize: 12, fontFamily: 3,
+        textAlign: 'center', verticalAlign: 'middle',
+        containerId: dotId, originalText: ZONE_LABEL[z] || z, lineHeight: 1.25,
+        baseline: 10,
+      });
+      if (prevDotId) {
+        var connId = 'wbsum_' + uid();
+        var prevX = stripX + (idx - 1) * (dotW + dotGap) + dotW;
+        var curX = x;
+        newElements.push({
+          id: connId, type: 'arrow',
+          x: prevX + 4, y: stripY + dotH / 2,
+          width: curX - prevX - 8, height: 1,
+          angle: 0, strokeColor: '#999', backgroundColor: 'transparent',
+          fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+          roughness: 0, opacity: 100, groupIds: [],
+          roundness: { type: 2 },
+          seed: Math.floor(Math.random() * 2e9), version: 2,
+          versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+          boundElements: [],
+          points: [[0, 0], [curX - prevX - 8, 0]],
+          startBinding: { elementId: prevDotId, focus: 0, gap: 4 },
+          endBinding:   { elementId: dotId,    focus: 0, gap: 4 },
+          startArrowhead: null, endArrowhead: 'arrow',
+          lastCommittedPoint: null,
+        });
+      }
+      prevDotId = dotId;
+    });
+    summaryStripBottomY = stripY + dotH + 30;
+  }
+
+  // Compute (x, y) for each component — centred within CANVAS_W using per-shape widths
   const posX = [];
   const posY = [];
-  const diagramStartY = sections.length > 0 ? sectionY + 40 : maxY + 80;
+  var diagramStartY = sections.length > 0 ? sectionY + 40 : maxY + 80;
+  if (drawSummaryStrip) diagramStartY = Math.max(diagramStartY, summaryStripBottomY + 20);
 
   rows.forEach(function(rowItems, r) {
-    var totalW = rowItems.length * SHAPE_W + (rowItems.length - 1) * (COL_GAP - SHAPE_W);
+    // Total width = sum of per-shape widths + gaps between centres (COL_GAP - SHAPE_W per gap).
+    var totalW = rowItems.reduce(function(acc, idx) { return acc + compW[idx]; }, 0)
+               + Math.max(0, rowItems.length - 1) * (COL_GAP - SHAPE_W);
     var startX = Math.max(60, (CANVAS_W - totalW) / 2);
+    var cursorX = startX;
     rowItems.forEach(function(compIdx, col) {
-      posX[compIdx] = startX + col * COL_GAP;
-      posY[compIdx] = diagramStartY + r * ROW_GAP;
+      // Track the tallest shape in the row so siblings can baseline-align vertically.
+      posX[compIdx] = cursorX;
+      // Vertical centre of the row band based on baseline SHAPE_H so heroes
+      // and secondaries align on their middles.
+      var rowMid = diagramStartY + r * ROW_GAP + SHAPE_H / 2;
+      posY[compIdx] = rowMid - compH[compIdx] / 2;
+      cursorX += compW[compIdx] + (COL_GAP - SHAPE_W);
     });
   });
+
+  // ── Zone backdrops (Level 2 of multi-zoom) ─────────────────────────────────
+  // Group adjacent same-zone components per row into a translucent band and
+  // emit ONE backdrop rectangle behind the band with a small zone label.
+  // Drawn first so the actual shapes render on top.
+  if (isFullAnswer) {
+    rows.forEach(function(rowItems, r) {
+      var bandStart = 0;
+      while (bandStart < rowItems.length) {
+        var bandZone = pickZone(components[rowItems[bandStart]].label);
+        var bandEnd = bandStart;
+        while (bandEnd + 1 < rowItems.length
+               && pickZone(components[rowItems[bandEnd + 1]].label) === bandZone) {
+          bandEnd++;
+        }
+        // Compute band bbox
+        var firstIdx = rowItems[bandStart];
+        var lastIdx  = rowItems[bandEnd];
+        var bx = posX[firstIdx] - ZONE_PAD;
+        var by = posY[firstIdx] - ZONE_PAD - 14; // extra room above for the label
+        // Find the tallest shape in the band to size the backdrop correctly
+        var maxBandBottom = 0, maxBandRight = 0;
+        for (var k = bandStart; k <= bandEnd; k++) {
+          var ii = rowItems[k];
+          var rightEdge = posX[ii] + compW[ii];
+          var bottomEdge = posY[ii] + compH[ii];
+          if (rightEdge > maxBandRight) maxBandRight = rightEdge;
+          if (bottomEdge > maxBandBottom) maxBandBottom = bottomEdge;
+        }
+        var bw = (maxBandRight - bx) + ZONE_PAD;
+        var bh = (maxBandBottom - by) + ZONE_PAD;
+        var bgId = 'wbz_' + uid();
+        var bgLabelId = 'wbz_' + uid();
+        newElements.push({
+          id: bgId, type: 'rectangle',
+          x: bx, y: by, width: bw, height: bh,
+          angle: 0, strokeColor: '#cccccc', backgroundColor: ZONE_BACKDROP[bandZone] || '#f5f5f5',
+          fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'dashed',
+          roughness: 0, opacity: 60, groupIds: [],
+          roundness: { type: 3 },
+          seed: Math.floor(Math.random() * 2e9), version: 2,
+          versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+          boundElements: null,
+        });
+        newElements.push({
+          id: bgLabelId, type: 'text',
+          x: bx + 10, y: by + 4, width: 160, height: 16,
+          angle: 0, strokeColor: '#777777', backgroundColor: 'transparent',
+          fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
+          roughness: 0, opacity: 100, groupIds: [], roundness: null,
+          seed: Math.floor(Math.random() * 2e9), version: 2,
+          versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
+          boundElements: null,
+          text: (ZONE_LABEL[bandZone] || bandZone).toUpperCase(),
+          fontSize: 10, fontFamily: 3,
+          textAlign: 'left', verticalAlign: 'top',
+          originalText: (ZONE_LABEL[bandZone] || bandZone).toUpperCase(),
+          lineHeight: 1.25, baseline: 9,
+        });
+        bandStart = bandEnd + 1;
+      }
+    });
+  }
 
   // Emit shapes
   components.forEach(function(comp, i) {
     var shapeId = 'wbs_' + uid();
     var labelId = 'wbl_' + uid();
     var sx = posX[i], sy = posY[i];
+    var sw = compW[i], sh = compH[i];
     var bgColor = pickColor(comp.label, comp.color && comp.color !== '#a8e6cf' && comp.color !== '#ffd3b6' ? comp.color : null);
     var st = comp.type === 'ellipse' ? 'ellipse' : comp.type === 'diamond' ? 'diamond' : 'rectangle';
 
     newElements.push({
       id: shapeId, type: st,
-      x: sx, y: sy, width: SHAPE_W, height: SHAPE_H,
+      x: sx, y: sy, width: sw, height: sh,
       angle: 0, strokeColor: '#1a1a1a', backgroundColor: bgColor,
       fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [],
@@ -3065,24 +3254,58 @@ function renderWhiteboardUpdate(reply) {
 
     newElements.push({
       id: labelId, type: 'text',
-      x: sx, y: sy + SHAPE_H / 2 - 11,
-      width: SHAPE_W, height: 22,
+      x: sx, y: sy + sh / 2 - 11,
+      width: sw, height: 22,
       angle: 0, strokeColor: '#1e1e1e', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
       roughness: 0, opacity: 100, groupIds: [], roundness: null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: null,
-      text: comp.label, fontSize: 15, fontFamily: 1,
+      text: comp.label, fontSize: 15, fontFamily: 3,
       textAlign: 'center', verticalAlign: 'middle',
       containerId: shapeId, originalText: comp.label, lineHeight: 1.25,
       baseline: 13,
     });
 
-    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
+    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: sw, h: sh };
     // Also index a normalised key (no spaces/punctuation) for fuzzy matching
-    labelToMeta[comp.label.toLowerCase().replace(/[\s\-_]+/g, '')] = { id: shapeId, x: sx, y: sy, w: SHAPE_W, h: SHAPE_H };
+    labelToMeta[comp.label.toLowerCase().replace(/[\s\-_]+/g, '')] = { id: shapeId, x: sx, y: sy, w: sw, h: sh };
   });
+
+  // Build an index of all *placed* shapes for arrow routing collision checks.
+  // Includes both the new components and any previously-rendered shapes we kept.
+  const placedShapes = [];
+  components.forEach(function(c, i) {
+    placedShapes.push({ id: labelToMeta[c.label.toLowerCase()].id, x: posX[i], y: posY[i], w: compW[i], h: compH[i] });
+  });
+
+  // Segment-vs-rect intersection: returns true if the open segment (a,b)→(c,d)
+  // passes through the given rect's interior. Skips shapes whose id is in skipIds.
+  function segmentHitsAnyShape(ax, ay, bx, by, skipIds) {
+    for (var i = 0; i < placedShapes.length; i++) {
+      var s = placedShapes[i];
+      if (skipIds.indexOf(s.id) !== -1) continue;
+      // Inflate rect slightly so an arrow grazing the edge still counts as crossing
+      var r1 = s.x - 4, r2 = s.x + s.w + 4, r3 = s.y - 4, r4 = s.y + s.h + 4;
+      // Liang–Barsky clip
+      var dx = bx - ax, dy = by - ay;
+      var p = [-dx, dx, -dy, dy];
+      var q = [ax - r1, r2 - ax, ay - r3, r4 - ay];
+      var u1 = 0, u2 = 1, hit = true;
+      for (var k = 0; k < 4; k++) {
+        if (p[k] === 0) {
+          if (q[k] < 0) { hit = false; break; }
+        } else {
+          var t = q[k] / p[k];
+          if (p[k] < 0) { if (t > u2) { hit = false; break; } if (t > u1) u1 = t; }
+          else          { if (t < u1) { hit = false; break; } if (t < u2) u2 = t; }
+        }
+      }
+      if (hit && u1 < u2) return true;
+    }
+    return false;
+  }
 
   // Emit arrows
   var fuzzyLookup = function(name) {
@@ -3112,6 +3335,40 @@ function renderWhiteboardUpdate(reply) {
       else        { sy = fromMeta.y - 4;               ey = toMeta.y + toMeta.h + 4; }
     }
 
+    // Decide on routing: straight line, or insert an orthogonal waypoint to avoid
+    // crossing intermediate shapes. Trigger when the straight segment passes
+    // through any non-endpoint shape OR when the connection spans > 1 row.
+    var skipIds = [fromMeta.id, toMeta.id];
+    var needsWaypoint = segmentHitsAnyShape(sx, sy, ex, ey, skipIds);
+    // Also detour multi-row spans even when nothing is in the way (cleaner read).
+    var fromRow = -1, toRow = -1;
+    for (var ri = 0; ri < rows.length; ri++) {
+      for (var ci = 0; ci < rows[ri].length; ci++) {
+        if (labelToMeta[components[rows[ri][ci]].label.toLowerCase()].id === fromMeta.id) fromRow = ri;
+        if (labelToMeta[components[rows[ri][ci]].label.toLowerCase()].id === toMeta.id)   toRow   = ri;
+      }
+    }
+    if (fromRow !== -1 && toRow !== -1 && Math.abs(toRow - fromRow) > 1) needsWaypoint = true;
+
+    var points;
+    if (needsWaypoint) {
+      // Try a single-elbow detour: go out the side, jog vertically through the
+      // gutter between rows, then jog into the target. We pick whichever side
+      // (above/below) has more vertical clearance.
+      // Anchor on right/left edges, mid-vertical between source & target.
+      var waySx = (dx >= 0) ? fromMeta.x + fromMeta.w + 4 : fromMeta.x - 4;
+      var waySy = fCy;
+      var wayEx = (dx >= 0) ? toMeta.x - 4 : toMeta.x + toMeta.w + 4;
+      var wayEy = tCy;
+      // Mid-x for the elbow — push it into the empty gutter past the source by COL_GAP/2.
+      var midX = waySx + (dx >= 0 ? 1 : -1) * Math.max(40, Math.abs(wayEx - waySx) / 2);
+      // Detour candidate: out → up/down to mid → over → into target.
+      sx = waySx; sy = waySy; ex = wayEx; ey = wayEy;
+      points = [[0, 0], [midX - sx, 0], [midX - sx, ey - sy], [ex - sx, ey - sy]];
+    } else {
+      points = [[0, 0], [ex - sx, ey - sy]];
+    }
+
     var arrowId = 'wba_' + uid();
     var arrowEl = {
       id: arrowId, type: 'arrow',
@@ -3124,7 +3381,7 @@ function renderWhiteboardUpdate(reply) {
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: [],
-      points: [[0, 0], [ex - sx, ey - sy]],
+      points: points,
       startBinding: { elementId: fromMeta.id, focus: 0, gap: 6 },
       endBinding:   { elementId: toMeta.id,   focus: 0, gap: 6 },
       startArrowhead: null, endArrowhead: 'arrow',
@@ -3137,14 +3394,25 @@ function renderWhiteboardUpdate(reply) {
       if (shapeEl) shapeEl.boundElements.push({ id: arrowId, type: 'arrow' });
     });
 
-    // Emit label bound to the arrow (moves with it when dragged)
+    // Emit label bound to the arrow (moves with it when dragged).
+    // Anchor near the midpoint of the routed path (the last segment when
+    // a waypoint was used, otherwise the straight midpoint).
     if (conn.label && conn.label.trim()) {
-      var mx = sx + (ex - sx) / 2, my = sy + (ey - sy) / 2;
+      var mxLocal, myLocal;
+      if (points.length > 2) {
+        var last = points[points.length - 1];
+        var prev = points[points.length - 2];
+        mxLocal = (last[0] + prev[0]) / 2;
+        myLocal = (last[1] + prev[1]) / 2;
+      } else {
+        mxLocal = (ex - sx) / 2;
+        myLocal = (ey - sy) / 2;
+      }
       var labelId = 'wbal_' + uid();
       arrowEl.boundElements.push({ id: labelId, type: 'text' });
       newElements.push({
         id: labelId, type: 'text',
-        x: mx - 60, y: my - 10,
+        x: sx + mxLocal - 60, y: sy + myLocal - 10,
         width: 120, height: 20,
         angle: 0, strokeColor: '#555555', backgroundColor: 'transparent',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
@@ -3152,7 +3420,7 @@ function renderWhiteboardUpdate(reply) {
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
         boundElements: null, containerId: arrowId,
-        text: conn.label.trim(), fontSize: 11, fontFamily: 1,
+        text: conn.label.trim(), fontSize: 11, fontFamily: 3,
         textAlign: 'center', verticalAlign: 'middle',
         originalText: conn.label.trim(), lineHeight: 1.25,
         baseline: 10,
