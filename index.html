@@ -112,52 +112,15 @@
   #gen-btn:hover{background:var(--accent-bg);border-color:var(--accent-border);color:#a8c0ff}
   #gen-btn:disabled{opacity:.4;cursor:not-allowed}
 
-  /* Help panel */
-  #panel-help{align-items:center;padding:48px 24px 60px;overflow-y:auto;position:relative}
-  .aurora{position:fixed;top:0;left:0;width:100%;height:220px;pointer-events:none;z-index:0;overflow:hidden;opacity:0;transition:opacity .6s}
+  /* Home panel */
+  #panel-help{align-items:center;padding:0 24px 80px;overflow-y:auto;position:relative}
+  .aurora{position:absolute;top:0;left:0;width:100%;height:560px;pointer-events:none;z-index:0;overflow:hidden;opacity:0;transition:opacity .6s}
   #panel-help.active .aurora{opacity:1}
-  .aurora-beam{position:absolute;width:60%;height:180px;border-radius:50%;filter:blur(60px);animation:aurora-drift 8s ease-in-out infinite alternate}
-  .aurora-beam:nth-child(1){background:rgba(79,124,255,0.18);left:-10%;top:-40px;animation-duration:9s}
-  .aurora-beam:nth-child(2){background:rgba(62,207,142,0.12);left:30%;top:-60px;animation-duration:11s;animation-delay:-3s}
-  .aurora-beam:nth-child(3){background:rgba(168,100,255,0.10);left:60%;top:-30px;animation-duration:13s;animation-delay:-6s}
-  @keyframes aurora-drift{0%{transform:translateX(0) scaleY(1)}100%{transform:translateX(8%) scaleY(1.15)}}
-  .help-wrap{width:100%;max-width:660px;display:flex;flex-direction:column;gap:32px;position:relative;z-index:1}
-  .help-hero{text-align:center}
-  .help-hero .help-icon{font-size:40px;margin-bottom:12px;display:inline-block;animation:float 3s ease-in-out infinite}
-  @keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
-  .help-hero h1{font-size:24px;font-weight:600;margin-bottom:8px}
-  .help-hero p{font-size:14px;color:var(--text-muted);line-height:1.7;max-width:480px;margin:0 auto}
-  .help-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .help-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;opacity:0;transform:translateY(22px);transition:opacity .45s ease,transform .45s ease,box-shadow .2s,border-color .2s}
-  .help-card.visible{opacity:1;transform:translateY(0)}
-  .help-card:hover{border-color:var(--accent-border);box-shadow:0 0 18px rgba(79,124,255,0.12)}
-  .help-card-icon{font-size:22px;transition:transform .3s}
-  .help-card:hover .help-card-icon{transform:scale(1.25) rotate(-8deg)}
-  .help-card-title{font-size:13px;font-weight:600;color:var(--text)}
-  .help-card-desc{font-size:12px;color:var(--text-muted);line-height:1.6}
-  .help-flow{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;gap:12px}
-  .help-flow-title{font-size:11px;font-weight:500;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-  .help-step{display:flex;align-items:flex-start;gap:12px;opacity:0;transform:translateX(-18px);transition:opacity .4s ease,transform .4s ease}
-  .help-step.visible{opacity:1;transform:translateX(0)}
-  .help-step-num{width:22px;height:22px;border-radius:50%;background:var(--accent-bg);border:0.5px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;position:relative}
-  .help-step-num::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--accent-border);opacity:0;animation:ring-pulse 2.4s ease-in-out infinite}
-  .help-step:nth-child(2) .help-step-num::after{animation-delay:.4s}
-  .help-step:nth-child(3) .help-step-num::after{animation-delay:.8s}
-  .help-step:nth-child(4) .help-step-num::after{animation-delay:1.2s}
-  @keyframes ring-pulse{0%,100%{opacity:0;transform:scale(1)}50%{opacity:.6;transform:scale(1.35)}}
-  .help-step-text{font-size:13px;color:var(--text-muted);line-height:1.6}
-  .help-step-text strong{color:var(--text)}
-  .help-cmds{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;gap:10px;opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}
-  .help-cmds.visible{opacity:1;transform:translateY(0)}
-  .help-cmd{display:flex;align-items:center;gap:12px}
-  .cmd-key{font-family:var(--font-mono);font-size:11px;color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:2px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;transition:background .2s,color .2s,box-shadow .2s}
-  .help-cmd:hover .cmd-key{background:var(--accent);color:#fff;box-shadow:0 0 10px rgba(79,124,255,0.4)}
-  .cmd-desc{font-size:13px;color:var(--text-muted)}
-  .help-cta{text-align:center;opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
-  .help-cta.visible{opacity:1;transform:translateY(0)}
-  .help-cta button{padding:12px 28px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;font-family:var(--font-ui);cursor:pointer;transition:opacity .15s,transform .1s,box-shadow .2s}
-  .help-cta button:hover{opacity:.88;box-shadow:0 0 20px rgba(79,124,255,0.45)}
-  .help-cta button:active{transform:scale(.98)}
+  .aurora-beam{position:absolute;width:60%;height:360px;border-radius:50%;filter:blur(90px);animation:aurora-drift 10s ease-in-out infinite alternate}
+  .aurora-beam:nth-child(1){background:rgba(79,124,255,0.22);left:-12%;top:-80px;animation-duration:11s}
+  .aurora-beam:nth-child(2){background:rgba(62,207,142,0.14);left:28%;top:-120px;animation-duration:13s;animation-delay:-3s}
+  .aurora-beam:nth-child(3){background:rgba(168,100,255,0.16);left:60%;top:-60px;animation-duration:15s;animation-delay:-6s}
+  @keyframes aurora-drift{0%{transform:translateX(0) scaleY(1)}100%{transform:translateX(10%) scaleY(1.18)}}
 
   /* Interview */
   #panel-interview{flex-direction:column;flex:1;min-height:0}
@@ -420,109 +383,123 @@
   .modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
   .modal-tab.active.study{color:var(--study-accent);border-bottom-color:var(--study-accent)}
 
-  /* === Help Tab — redesigned === */
-  .help-wrap{max-width:820px;gap:44px}
-  .help-hero{position:relative;padding:36px 0 8px}
-  .help-medallion{width:96px;height:96px;border-radius:50%;margin:0 auto 22px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);box-shadow:0 0 0 1px rgba(79,124,255,0.25),0 0 40px rgba(79,124,255,0.25)}
-  .help-medallion::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,#4f7cff,#a864ff,#3ecf8e,#4f7cff);animation:hm-spin 6s linear infinite;filter:blur(2px);opacity:.85;z-index:-1}
-  .help-medallion::after{content:'';position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);z-index:0}
-  .help-medallion span{position:relative;z-index:1;font-size:42px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
-  .help-medallion img{position:relative;z-index:1;width:calc(100% - 10px);height:calc(100% - 10px);border-radius:50%;object-fit:cover;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
-  @keyframes hm-spin{to{transform:rotate(360deg)}}
-  .help-hero h1{font-size:32px;font-weight:700;margin-bottom:12px;background:linear-gradient(90deg,#fff 0%,#a8c0ff 60%,#d3b8ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-0.015em;line-height:1.15}
-  .help-hero p{font-size:15px;color:var(--text-muted);line-height:1.7;max-width:520px;margin:0 auto}
+  /* === Home Tab === */
+  .home-wrap{width:100%;max-width:980px;margin:0 auto;position:relative;z-index:1;display:flex;flex-direction:column;gap:64px;padding-top:56px}
 
-  /* Each eyebrow opens a logical "section" — claim consistent top breathing room
-     and pull the immediately-following block tight under it. */
-  .help-section-eyebrow{font-size:11px;font-weight:600;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.14em;display:flex;align-items:center;gap:12px;margin:0 0 -20px}
-  .help-section-eyebrow::before,.help-section-eyebrow::after{content:'';flex:1;height:1px}
-  .help-section-eyebrow::before{background:linear-gradient(90deg,transparent,var(--border2))}
-  .help-section-eyebrow::after{background:linear-gradient(90deg,var(--border2),transparent)}
+  /* Hero */
+  .home-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;position:relative}
+  .home-badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.16em;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border2)}
+  .home-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#3ecf8e;box-shadow:0 0 10px #3ecf8e}
+  .home-logo{width:108px;height:108px;border-radius:24px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);box-shadow:0 0 0 1px rgba(79,124,255,0.25),0 24px 60px -16px rgba(79,124,255,0.45)}
+  .home-logo::before{content:'';position:absolute;inset:-2px;border-radius:26px;background:conic-gradient(from 0deg,#4f7cff,#a864ff,#3ecf8e,#4f7cff);animation:home-spin 8s linear infinite;filter:blur(3px);opacity:.7;z-index:-1}
+  .home-logo img{width:78px;height:78px;border-radius:18px;object-fit:cover;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
+  @keyframes home-spin{to{transform:rotate(360deg)}}
+  .home-headline{font-size:46px;font-weight:700;letter-spacing:-0.025em;line-height:1.05;max-width:780px;background:linear-gradient(180deg,#fff 0%,#c9d6ff 60%,#a8c0ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .home-tagline{font-size:17px;color:var(--text-muted);line-height:1.6;max-width:620px}
+  .home-tagline strong{color:var(--text);font-weight:500}
+  .home-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  .home-btn{font-family:var(--font-ui);font-size:15px;font-weight:600;padding:14px 26px;border-radius:12px;cursor:pointer;border:none;transition:transform .12s,box-shadow .2s,background .2s,border-color .2s;display:inline-flex;align-items:center;gap:8px}
+  .home-btn-primary{background:var(--accent);color:#fff;box-shadow:0 8px 24px -8px rgba(79,124,255,0.6)}
+  .home-btn-primary:hover{box-shadow:0 12px 30px -8px rgba(79,124,255,0.8);transform:translateY(-1px)}
+  .home-btn-ghost{background:transparent;color:var(--text);border:0.5px solid var(--border2)}
+  .home-btn-ghost:hover{border-color:var(--accent-border);background:var(--accent-bg);color:#a8c0ff}
+  .home-meta{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:.05em}
+  .home-meta span{display:inline-flex;align-items:center;gap:6px}
+  .home-meta span::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent)}
 
-  .help-card-spotlight{position:relative;background:var(--surface);border-radius:14px;padding:24px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;overflow:hidden;opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease,box-shadow .25s}
-  .help-card-spotlight.visible{opacity:1;transform:translateY(0)}
-  .help-card-spotlight::before{content:'';position:absolute;inset:0;border-radius:14px;padding:1px;background:linear-gradient(135deg,rgba(79,124,255,0.5),rgba(168,100,255,0.4),rgba(62,207,142,0.35));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-  .help-card-spotlight:hover{box-shadow:0 0 30px rgba(79,124,255,0.18)}
-  .help-spotlight-icon{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,rgba(79,124,255,0.18),rgba(168,100,255,0.18));border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden}
-  .help-spotlight-icon img{width:36px;height:36px;object-fit:contain;display:block}
-  .help-spotlight-body{display:flex;flex-direction:column;gap:8px}
-  .help-spotlight-tag{font-size:10px;font-weight:600;font-family:var(--font-mono);color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:2px 8px;border-radius:4px;align-self:flex-start;letter-spacing:.06em;text-transform:uppercase}
-  .help-spotlight-title{font-size:16px;font-weight:600;color:var(--text)}
-  .help-spotlight-desc{font-size:13.5px;color:var(--text-muted);line-height:1.65}
+  /* Section header */
+  .home-section{display:flex;flex-direction:column;gap:24px}
+  .home-section-head{display:flex;flex-direction:column;gap:8px;text-align:center;align-items:center}
+  .home-eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.18em}
+  .home-section-title{font-size:28px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1.2;max-width:640px}
+  .home-section-sub{font-size:14.5px;color:var(--text-muted);line-height:1.65;max-width:560px}
 
-  /* "What you get" 6-card grid — tighten spotlight->grid gap, give cards consistent
-     icon tiles so the row of cards feels designed, not naked. */
-  .help-card-spotlight + .help-cards{margin-top:-30px}
-  .help-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .help-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px;opacity:0;transform:translateY(22px);transition:opacity .45s ease,transform .45s ease,box-shadow .2s,border-color .2s}
-  .help-card.visible{opacity:1;transform:translateY(0)}
-  .help-card:hover{border-color:var(--accent-border);box-shadow:0 0 22px rgba(79,124,255,0.14);transform:translateY(-2px)}
-  .help-card-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(79,124,255,0.15),rgba(168,100,255,0.12));border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px;transition:transform .3s,background .3s}
-  .help-card:hover .help-card-icon{transform:scale(1.08) rotate(-6deg);background:linear-gradient(135deg,rgba(79,124,255,0.28),rgba(168,100,255,0.22))}
-  .help-card-title{font-size:14px;font-weight:600;color:var(--text)}
-  .help-card-desc{font-size:12.5px;color:var(--text-muted);line-height:1.6}
-  .help-card-desc em{color:var(--accent);font-style:normal;font-family:var(--font-mono);font-size:11.5px;background:var(--accent-bg);padding:1px 5px;border-radius:4px}
+  /* Feature blocks */
+  .home-features{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+  .home-feature{position:relative;background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:0.5px solid var(--border2);border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:14px;overflow:hidden;opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease,border-color .2s,box-shadow .25s}
+  .home-feature.visible{opacity:1;transform:translateY(0)}
+  .home-feature:hover{border-color:var(--accent-border);box-shadow:0 16px 40px -20px rgba(79,124,255,0.4)}
+  .home-feature-tag{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:3px 9px;border-radius:5px;align-self:flex-start;letter-spacing:.08em;text-transform:uppercase}
+  .home-feature-title{font-size:20px;font-weight:600;color:var(--text);letter-spacing:-0.01em;line-height:1.25;display:flex;align-items:center;gap:12px}
+  .home-feature-title img{width:32px;height:32px;object-fit:contain;flex-shrink:0}
+  .home-feature-title .home-emoji{font-size:24px;line-height:1}
+  .home-feature-desc{font-size:13.5px;color:var(--text-muted);line-height:1.7}
+  .home-feature-desc strong{color:var(--text);font-weight:500}
+  .home-feature.is-hero{grid-row:span 2;background:linear-gradient(160deg,rgba(79,124,255,0.08),rgba(168,100,255,0.05) 60%,rgba(255,255,255,0.005));padding:32px}
+  .home-feature.is-hero::before{content:'';position:absolute;inset:0;border-radius:18px;padding:1px;background:linear-gradient(135deg,rgba(79,124,255,0.5),rgba(168,100,255,0.4),rgba(62,207,142,0.3));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .home-feature.is-hero .home-feature-title{font-size:22px}
+  .home-feature-list{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:8px}
+  .home-feature-list li{font-size:12.5px;color:var(--text-muted);display:flex;gap:9px;line-height:1.55}
+  .home-feature-list li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:7px;flex-shrink:0}
 
-  .mode-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .mode-card{position:relative;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:20px 20px 20px 24px;display:flex;flex-direction:column;gap:10px;transition:opacity .25s,border-color .2s,box-shadow .25s,transform .2s;opacity:0;transform:translateY(20px)}
-  .mode-card.visible{opacity:1;transform:translateY(0)}
-  .mode-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:14px 0 0 14px}
-  .mode-card.interview::before{background:linear-gradient(180deg,#4f7cff,#3ecf8e)}
-  .mode-card.study::before{background:linear-gradient(180deg,#a864ff,#4f7cff)}
-  .mode-compare:hover .mode-card:not(:hover){opacity:.55}
-  .mode-card:hover{transform:translateY(-2px)}
-  .mode-card.interview:hover{border-color:var(--accent-border);box-shadow:0 0 24px rgba(79,124,255,0.18)}
-  .mode-card.study:hover{border-color:var(--study-accent-border);box-shadow:0 0 24px rgba(168,100,255,0.18)}
-  .mode-head{display:flex;align-items:center;gap:10px}
-  .mode-icon{font-size:22px}
-  .mode-title{font-size:15px;font-weight:600;color:var(--text)}
-  .mode-card.interview .mode-title{color:#a8c0ff}
-  .mode-card.study .mode-title{color:#d3b8ff}
-  .mode-tag{font-size:10px;font-family:var(--font-mono);font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase;margin-left:auto}
-  .mode-card.interview .mode-tag{color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border)}
-  .mode-card.study .mode-tag{color:var(--study-accent);background:var(--study-accent-bg);border:0.5px solid var(--study-accent-border)}
-  .mode-desc{font-size:12.5px;color:var(--text-muted);line-height:1.6}
-  .mode-bullets{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px}
-  .mode-bullets li{font-size:12px;color:var(--text-muted);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
-  .mode-bullets li::before{content:'';flex-shrink:0;width:5px;height:5px;border-radius:50%;margin-top:7px}
-  .mode-card.interview .mode-bullets li::before{background:var(--accent)}
-  .mode-card.study .mode-bullets li::before{background:var(--study-accent)}
+  /* Mode compare */
+  .home-modes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .home-mode{position:relative;background:var(--surface);border:0.5px solid var(--border2);border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease,border-color .2s,box-shadow .25s}
+  .home-mode.visible{opacity:1;transform:translateY(0)}
+  .home-mode::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:3px;border-radius:0 3px 3px 0}
+  .home-mode.interview::before{background:linear-gradient(180deg,#4f7cff,#3ecf8e)}
+  .home-mode.study::before{background:linear-gradient(180deg,#a864ff,#4f7cff)}
+  .home-mode.interview:hover{border-color:var(--accent-border);box-shadow:0 16px 40px -20px rgba(79,124,255,0.45)}
+  .home-mode.study:hover{border-color:var(--study-accent-border);box-shadow:0 16px 40px -20px rgba(168,100,255,0.45)}
+  .home-mode-head{display:flex;align-items:center;gap:10px}
+  .home-mode-emoji{font-size:22px}
+  .home-mode-title{font-size:18px;font-weight:600;letter-spacing:-0.01em}
+  .home-mode.interview .home-mode-title{color:#a8c0ff}
+  .home-mode.study .home-mode-title{color:#d3b8ff}
+  .home-mode-tag{margin-left:auto;font-family:var(--font-mono);font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;letter-spacing:.08em;text-transform:uppercase}
+  .home-mode.interview .home-mode-tag{color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border)}
+  .home-mode.study .home-mode-tag{color:var(--study-accent);background:var(--study-accent-bg);border:0.5px solid var(--study-accent-border)}
+  .home-mode-desc{font-size:13.5px;color:var(--text-muted);line-height:1.65}
+  .home-mode-list{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:7px}
+  .home-mode-list li{font-size:12.5px;color:var(--text-muted);display:flex;gap:9px;line-height:1.55}
+  .home-mode-list li::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:7px;flex-shrink:0}
+  .home-mode.interview .home-mode-list li::before{background:var(--accent)}
+  .home-mode.study .home-mode-list li::before{background:var(--study-accent)}
+  .home-mode-link{font-family:var(--font-mono);font-size:12px;font-weight:600;text-decoration:none;align-self:flex-start;padding:8px 14px;border-radius:8px;margin-top:6px;transition:transform .12s,background .2s}
+  .home-mode.interview .home-mode-link{color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border)}
+  .home-mode.interview .home-mode-link:hover{background:var(--accent);color:#fff}
+  .home-mode.study .home-mode-link{color:var(--study-accent);background:var(--study-accent-bg);border:0.5px solid var(--study-accent-border)}
+  .home-mode.study .home-mode-link:hover{background:var(--study-accent);color:#fff}
 
-  /* Tighter, more deliberate timeline — connector line tucks behind the dots,
-     steps share consistent vertical rhythm, last step kills the trailing gap. */
-  .help-timeline{position:relative;padding:6px 0 0;counter-reset:tl}
-  .help-timeline::before{content:'';position:absolute;left:19px;top:18px;bottom:18px;width:2px;background:linear-gradient(180deg,var(--accent) 0%,#a864ff 50%,#3ecf8e 100%);opacity:.55;border-radius:1px}
-  .help-tl-step{position:relative;padding:2px 0 18px 56px;counter-increment:tl;opacity:0;transform:translateX(-18px);transition:opacity .45s ease,transform .45s ease}
-  .help-tl-step.visible{opacity:1;transform:translateX(0)}
-  .help-tl-step:last-child{padding-bottom:0}
-  .help-tl-step::before{content:counter(tl);position:absolute;left:0;top:0;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);border:1.5px solid var(--accent-border);color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--bg),0 0 20px rgba(79,124,255,0.25);z-index:1}
-  .help-tl-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:8px;min-height:38px}
-  .help-tl-title .tl-icon{font-size:16px}
-  .help-tl-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
-  .help-tl-desc em{color:var(--accent);font-style:normal;font-family:var(--font-mono);font-size:12px;background:var(--accent-bg);padding:1px 6px;border-radius:4px}
+  /* Steps */
+  .home-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:hs}
+  .home-step{position:relative;background:rgba(255,255,255,0.02);border:0.5px solid var(--border2);border-radius:14px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:8px;counter-increment:hs;opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease,border-color .2s}
+  .home-step.visible{opacity:1;transform:translateY(0)}
+  .home-step:hover{border-color:var(--accent-border)}
+  .home-step::before{content:'0' counter(hs);position:absolute;top:14px;right:18px;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--accent);opacity:.7;letter-spacing:.05em}
+  .home-step-emoji{font-size:24px;line-height:1;margin-bottom:2px}
+  .home-step-title{font-size:14px;font-weight:600;color:var(--text)}
+  .home-step-desc{font-size:12.5px;color:var(--text-muted);line-height:1.6}
 
-  /* Footer block reads as a designed footer: shared inner padding, eyebrow-style
-     title on each card, the about-card gets a subtle accent rail like a sig. */
-  .help-footer{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:stretch}
-  .help-footer-block{position:relative;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:20px 22px;opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease,border-color .2s;display:flex;flex-direction:column;gap:12px}
-  .help-footer-block.visible{opacity:1;transform:translateY(0)}
-  .help-footer-block:hover{border-color:var(--accent-border)}
-  .help-footer-block .help-flow-title{margin-bottom:2px}
-  .help-footer-block.help-cmds{padding:20px 22px;gap:10px}
-  .help-footer-block:nth-child(2)::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:2px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#4f7cff,#a864ff)}
+  /* CTA banner */
+  .home-cta{position:relative;background:linear-gradient(135deg,rgba(79,124,255,0.12),rgba(168,100,255,0.10));border:0.5px solid var(--accent-border);border-radius:20px;padding:40px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;overflow:hidden}
+  .home-cta::before{content:'';position:absolute;inset:-1px;border-radius:20px;padding:1px;background:linear-gradient(135deg,rgba(79,124,255,0.6),rgba(168,100,255,0.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .home-cta-title{font-size:24px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1.25}
+  .home-cta-sub{font-size:14px;color:var(--text-muted);line-height:1.6;max-width:480px}
 
-  .help-cta{padding-top:4px}
-  .help-cta button{padding:14px 32px;font-size:15px}
+  /* Footer */
+  .home-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 4px 0;border-top:0.5px solid var(--border2);flex-wrap:wrap}
+  .home-footer-credit{font-size:12.5px;color:var(--text-muted);font-family:var(--font-ui)}
+  .home-footer-credit strong{color:var(--text);font-weight:600}
+  .home-footer-links{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .home-footer-links a{font-size:12.5px;color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .15s;font-family:var(--font-ui)}
+  .home-footer-links a:hover{color:var(--accent)}
+  .home-footer-links a.linkedin:hover{color:#0a66c2}
+  .home-footer-links a.email{font-family:var(--font-mono);font-size:12px}
 
-  @media (max-width:680px){
-    .help-wrap{gap:36px}
-    .help-card-spotlight{grid-template-columns:1fr}
-    .help-cards{grid-template-columns:1fr}
-    .mode-compare{grid-template-columns:1fr}
-    .help-footer{grid-template-columns:1fr}
-    .help-hero h1{font-size:24px}
-    .help-medallion{width:80px;height:80px}
-    .help-medallion span{font-size:34px}
+  @media (max-width:780px){
+    .home-wrap{gap:48px;padding-top:32px}
+    .home-headline{font-size:34px}
+    .home-features{grid-template-columns:1fr}
+    .home-feature.is-hero{grid-row:auto}
+    .home-modes{grid-template-columns:1fr}
+    .home-steps{grid-template-columns:1fr 1fr}
+    .home-section-title{font-size:22px}
+    .home-cta{padding:30px 22px}
+    .home-cta-title{font-size:20px}
+  }
+  @media (max-width:480px){
+    .home-steps{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -552,152 +529,152 @@
     <div class="aurora-beam"></div>
     <div class="aurora-beam"></div>
   </div>
-  <div class="help-wrap">
+  <div class="home-wrap">
 
-    <div class="help-hero">
-      <div class="help-medallion"><img src="logo-hero.png" alt="Interview Prep"></div>
-      <h1>Train like it's the real loop.</h1>
-      <p>A senior-engineer AI that interrogates your design, reads your whiteboard, and scores the work — not the vibes.</p>
-    </div>
+    <!-- HERO -->
+    <section class="home-hero">
+      <span class="home-badge">Built for Big-Tech loops</span>
+      <div class="home-logo"><img src="logo-hero.png" alt="Interview Prep"></div>
+      <h1 class="home-headline">Your system-design interviewer, on demand.</h1>
+      <p class="home-tagline">An AI senior engineer that <strong>reads your whiteboard</strong>, pressures your design, and grades the work — so you walk into the real loop without surprises.</p>
+      <div class="home-actions">
+        <button class="home-btn home-btn-primary" onclick="switchTab('setup')">Start an interview →</button>
+        <button class="home-btn home-btn-ghost" onclick="switchTab('study')">📚 Study a topic</button>
+      </div>
+      <div class="home-meta">
+        <span>No signup</span>
+        <span>Runs in your browser</span>
+        <span>Anthropic · OpenAI · Local</span>
+      </div>
+    </section>
 
-    <div class="help-section-eyebrow">What you get</div>
+    <!-- WHAT MAKES IT DIFFERENT -->
+    <section class="home-section">
+      <div class="home-section-head">
+        <div class="home-eyebrow">What's different</div>
+        <h2 class="home-section-title">It actually sees what you draw.</h2>
+        <p class="home-section-sub">Most prep tools grade words. This one grades the architecture.</p>
+      </div>
 
-    <div class="help-card-spotlight">
-      <div class="help-spotlight-icon"><img src="excalidraw-logo.png" alt="Excalidraw"></div>
-      <div class="help-spotlight-body">
-        <span class="help-spotlight-tag">Signature feature</span>
-        <div class="help-spotlight-title">A whiteboard the AI actually reads</div>
-        <div class="help-spotlight-desc">Sketch your architecture in the built-in <strong>Excalidraw</strong> drawer. Every message ships a silent Excalidraw scene snapshot — the AI parses your boxes, arrows, and labels straight from the scene JSON, flags missing links, and pressures the weak spots. It draws back, too: hints and full answers emit Excalidraw-format updates that drop components and connections straight onto your canvas.</div>
-      </div>
-    </div>
-
-    <div class="help-cards">
-      <div class="help-card">
-        <div class="help-card-icon">✨</div>
-        <div class="help-card-title">Questions on tap</div>
-        <div class="help-card-desc">No prompt in mind? Hit <em>Generate</em> for a fresh system-design question matched to your level and focus areas.</div>
-      </div>
-      <div class="help-card">
-        <div class="help-card-icon">🧠</div>
-        <div class="help-card-title">Feels like the real room</div>
-        <div class="help-card-desc">The AI plays a senior engineer — clarifies, challenges assumptions, and digs into trade-offs without leaking the answer.</div>
-      </div>
-      <div class="help-card">
-        <div class="help-card-icon">⚙️</div>
-        <div class="help-card-title">Dial the difficulty</div>
-        <div class="help-card-desc">Pick a level (junior → senior), a style (strict / balanced / friendly), and your focus areas. The interviewer adapts mid-session.</div>
-      </div>
-      <div class="help-card">
-        <div class="help-card-icon">💾</div>
-        <div class="help-card-title">Nothing gets lost</div>
-        <div class="help-card-desc">Chat, timer, and whiteboard auto-save on every turn. Refresh, crash, close the tab — it's all still there. <em>📚 History</em> lets you <em>▶ Resume</em> any past run, and <em>📥 Export</em> ships a Markdown transcript with the whiteboard baked in as a PNG.</div>
-      </div>
-      <div class="help-card">
-        <div class="help-card-icon">🏢</div>
-        <div class="help-card-title">Company-aware framing</div>
-        <div class="help-card-desc">Drop a one-liner about who you're interviewing with on Setup. The interviewer skews scale, scenarios, and trade-offs toward what would actually matter there.</div>
-      </div>
-      <div class="help-card">
-        <div class="help-card-icon">📊</div>
-        <div class="help-card-title">Feedback that grades the diagram</div>
-        <div class="help-card-desc">Type <em>"feedback"</em> for a structured eval that scores both your verbal answer and the architecture you drew — concrete wins, concrete gaps. Calibrated 1–10, no lazy 7.5s.</div>
-      </div>
-    </div>
-
-    <div class="help-section-eyebrow">Two ways to practice</div>
-
-    <div class="mode-compare">
-      <div class="mode-card interview">
-        <div class="mode-head">
-          <span class="mode-icon">🎤</span>
-          <span class="mode-title">Interview Mode</span>
-          <span class="mode-tag">Pressure</span>
+      <div class="home-features">
+        <div class="home-feature is-hero">
+          <span class="home-feature-tag">Signature</span>
+          <div class="home-feature-title"><img src="excalidraw-logo.png" alt="Excalidraw"> A whiteboard the AI reads on every turn</div>
+          <div class="home-feature-desc">Sketch your architecture in the built-in <strong>Excalidraw</strong> drawer. Every message ships a silent scene snapshot — the AI parses your boxes, arrows, and labels straight from the JSON, flags missing links, and pressures the weak spots. When you ask for a hint, it draws right back into your canvas.</div>
+          <ul class="home-feature-list">
+            <li>Bidirectional: AI both reads and renders Excalidraw scenes</li>
+            <li>Resizable right-edge drawer — never blocks the chat</li>
+            <li>Exports as PNG + raw .excalidraw for re-editing</li>
+          </ul>
         </div>
-        <div class="mode-desc">A live system-design loop with a senior engineer who pushes back, won't hand-hold, and grades the work at the end.</div>
-        <ul class="mode-bullets">
-          <li>Cold open — no warm-up</li>
-          <li>Tune level, style &amp; focus areas</li>
-          <li>Whiteboard rides every message</li>
-          <li>Ask for <em>"feedback"</em> any time</li>
-        </ul>
-      </div>
-      <div class="mode-card study">
-        <div class="mode-head">
-          <span class="mode-icon">📚</span>
-          <span class="mode-title">Study Mode</span>
-          <span class="mode-tag">Socratic</span>
+
+        <div class="home-feature">
+          <span class="home-feature-tag">Calibrated</span>
+          <div class="home-feature-title"><span class="home-emoji">🎯</span> Feedback that scores the diagram</div>
+          <div class="home-feature-desc">Type <strong>feedback</strong> any time for a structured 1–10 scorecard. No lazy 7.5s — concrete wins, concrete gaps, and a list of topics to study next.</div>
         </div>
-        <div class="mode-desc">A patient tutor that <em>asks instead of lectures</em> — built for closing the gaps the interviewer just exposed.</div>
-        <ul class="mode-bullets">
-          <li>Tiered hints: <em>hint</em> → <em>I'm stuck</em> → <em>show me</em></li>
-          <li>Mastery bar &amp; end-of-session quiz</li>
-          <li>Topic-locked whiteboard for partial diagrams</li>
-          <li>One click from any feedback's <em>📚 Study these next</em> chip</li>
-        </ul>
-      </div>
-    </div>
 
-    <div class="help-section-eyebrow">How a session flows</div>
+        <div class="home-feature">
+          <span class="home-feature-tag">Persistent</span>
+          <div class="home-feature-title"><span class="home-emoji">💾</span> Nothing gets lost</div>
+          <div class="home-feature-desc">Chat, timer, and whiteboard auto-save every turn. Refresh, crash, close the tab — it's all there. <strong>Resume</strong> any past run, <strong>Export</strong> as Markdown + PNG + .excalidraw zip.</div>
+        </div>
+      </div>
+    </section>
 
-    <div class="help-timeline">
-      <div class="help-tl-step">
-        <div class="help-tl-title"><span class="tl-icon">📝</span>Pick a question</div>
-        <div class="help-tl-desc">Paste your own or hit <em>Generate</em> for one tuned to your level and focus areas.</div>
+    <!-- TWO MODES -->
+    <section class="home-section">
+      <div class="home-section-head">
+        <div class="home-eyebrow">Two modes</div>
+        <h2 class="home-section-title">Pressure when you need it. Patience when you don't.</h2>
       </div>
-      <div class="help-tl-step">
-        <div class="help-tl-title"><span class="tl-icon">⚙️</span>Dial in the session</div>
-        <div class="help-tl-desc">Set level, style, focus areas, AI provider, and (optional) company context to bias the scenarios.</div>
-      </div>
-      <div class="help-tl-step">
-        <div class="help-tl-title"><span class="tl-icon">🎤</span>Go live</div>
-        <div class="help-tl-desc">The AI opens cold — no preamble. Drive the design like you're in the room.</div>
-      </div>
-      <div class="help-tl-step">
-        <div class="help-tl-title"><span class="tl-icon">✏️</span>Sketch as you talk</div>
-        <div class="help-tl-desc">Pop out <em>✏️ Whiteboard</em> on the right edge. Boxes and arrows ride every message so the AI can probe them.</div>
-      </div>
-      <div class="help-tl-step">
-        <div class="help-tl-title"><span class="tl-icon">📊</span>Get honest feedback</div>
-        <div class="help-tl-desc">Type <em>"feedback"</em> any time for a calibrated, structured scorecard — what landed, what didn't, what to study next.</div>
-      </div>
-      <div class="help-tl-step">
-        <div class="help-tl-title"><span class="tl-icon">🔁</span>Restart, export, or revisit</div>
-        <div class="help-tl-desc"><em>🔄 Restart</em> to redo, <em>📥 Export</em> for a Markdown copy, or <em>📚 History</em> to <em>▶ Resume</em> any past run with chat, whiteboard, and timer intact.</div>
-      </div>
-    </div>
 
-    <div class="help-section-eyebrow">Reference</div>
-
-    <div class="help-footer">
-      <div class="help-footer-block help-cmds" style="opacity:1;transform:none">
-        <div class="help-flow-title">Commands &amp; shortcuts</div>
-        <div class="help-cmd"><span class="cmd-key">"feedback"</span><span class="cmd-desc">Stop and get a full structured evaluation — what you nailed, what you missed</span></div>
-        <div class="help-cmd"><span class="cmd-key">"give full answer"</span><span class="cmd-desc">Ask the AI to reveal the model solution</span></div>
-        <div class="help-cmd"><span class="cmd-key">"hint"</span><span class="cmd-desc">Get a nudge without giving the answer away</span></div>
-        <div class="help-cmd"><span class="cmd-key">🗣️ How to Start</span><span class="cmd-desc">Stuck on the opener? Drop 1-2 ready-to-send sentences into your text box</span></div>
-        <div class="help-cmd"><span class="cmd-key">🔄 Restart</span><span class="cmd-desc">Reset chat &amp; timer for the same question — previous run lands in History</span></div>
-        <div class="help-cmd"><span class="cmd-key">📥 Export</span><span class="cmd-desc">Download the current session as Markdown (transcript + whiteboard PNG)</span></div>
-        <div class="help-cmd"><span class="cmd-key">📚 History</span><span class="cmd-desc">Open the past-sessions modal — view, export, resume or delete</span></div>
-        <div class="help-cmd"><span class="cmd-key">▶ Resume</span><span class="cmd-desc">In History — jump back into any past session and continue</span></div>
-        <div class="help-cmd"><span class="cmd-key">Shift+Enter</span><span class="cmd-desc">New line without sending</span></div>
-        <div class="help-cmd"><span class="cmd-key">✏️ Whiteboard</span><span class="cmd-desc">Right-edge tab — opens the Excalidraw drawer; drag its left edge to resize</span></div>
-      </div>
-      <div class="help-footer-block">
-        <div class="help-flow-title">About &amp; Contact</div>
-        <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
-          <div style="width:42px;height:42px;border-radius:11px;background:var(--accent-bg);border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👤</div>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--text)">Shlomi Maalumi</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Creator &amp; Owner of Interview Prep</div>
-            <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="mailto:shlomimaa10@gmail.com" style="font-size:12px;color:var(--accent);text-decoration:none;font-family:var(--font-mono)">shlomimaa10@gmail.com</a><a href="https://www.linkedin.com/in/shlomi-maalumi-060801277/" target="_blank" rel="noopener" style="font-size:12px;color:var(--text-muted);text-decoration:none;font-family:var(--font-ui);display:flex;align-items:center;gap:4px;transition:color .15s" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='var(--text-muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a></div>
+      <div class="home-modes">
+        <div class="home-mode interview">
+          <div class="home-mode-head">
+            <span class="home-mode-emoji">🎤</span>
+            <span class="home-mode-title">Interview</span>
+            <span class="home-mode-tag">Pressure</span>
           </div>
+          <div class="home-mode-desc">A live system-design loop. The AI opens cold, pushes back, won't hand-hold, and grades the work at the end.</div>
+          <ul class="home-mode-list">
+            <li>Cold open — no warm-up, no preamble</li>
+            <li>Pick level, style, focus areas, company context</li>
+            <li>Voice mode + push-to-talk for hands-free runs</li>
+            <li>Type <em>feedback</em>, <em>hint</em>, or <em>give full answer</em> any time</li>
+          </ul>
+          <a class="home-mode-link" href="#" onclick="event.preventDefault();switchTab('setup')">Configure a session →</a>
+        </div>
+
+        <div class="home-mode study">
+          <div class="home-mode-head">
+            <span class="home-mode-emoji">📚</span>
+            <span class="home-mode-title">Study</span>
+            <span class="home-mode-tag">Socratic</span>
+          </div>
+          <div class="home-mode-desc">A Socratic tutor that asks instead of lectures. Built for closing the gaps a real interviewer just exposed.</div>
+          <ul class="home-mode-list">
+            <li>Tiered hints — nudge → push → teach</li>
+            <li>Live mastery bar (0–100%) per topic</li>
+            <li>Curated library across 7 categories</li>
+            <li>Deep-links from interview feedback gaps</li>
+          </ul>
+          <a class="home-mode-link" href="#" onclick="event.preventDefault();switchTab('study')">Pick a topic →</a>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="help-cta">
-      <button onclick="switchTab('setup')">Start practising →</button>
-    </div>
+    <!-- HOW IT WORKS -->
+    <section class="home-section">
+      <div class="home-section-head">
+        <div class="home-eyebrow">In 4 steps</div>
+        <h2 class="home-section-title">From cold open to scorecard.</h2>
+      </div>
+
+      <div class="home-steps">
+        <div class="home-step">
+          <div class="home-step-emoji">⚙️</div>
+          <div class="home-step-title">Dial it in</div>
+          <div class="home-step-desc">Level, style, focus areas, company, provider, duration — or just hit start.</div>
+        </div>
+        <div class="home-step">
+          <div class="home-step-emoji">🎤</div>
+          <div class="home-step-title">Go live</div>
+          <div class="home-step-desc">Cold open. Drive the design the same way you would in the real room.</div>
+        </div>
+        <div class="home-step">
+          <div class="home-step-emoji">✏️</div>
+          <div class="home-step-title">Sketch as you talk</div>
+          <div class="home-step-desc">Open the whiteboard. Your scene rides every message — the AI probes it.</div>
+        </div>
+        <div class="home-step">
+          <div class="home-step-emoji">📊</div>
+          <div class="home-step-title">Get graded</div>
+          <div class="home-step-desc">Type <em>feedback</em> for a structured score. Export. Resume later if you want.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="home-cta">
+      <div class="home-cta-title">Stop reading System Design Interview. Start doing one.</div>
+      <div class="home-cta-sub">Two minutes to configure. Zero installs. Your past runs are saved automatically.</div>
+      <div class="home-actions">
+        <button class="home-btn home-btn-primary" onclick="switchTab('setup')">Start an interview →</button>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="home-footer">
+      <div class="home-footer-credit">Built by <strong>Shlomi Maalumi</strong></div>
+      <div class="home-footer-links">
+        <a class="email" href="mailto:shlomimaa10@gmail.com">shlomimaa10@gmail.com</a>
+        <a class="linkedin" href="https://www.linkedin.com/in/shlomi-maalumi-060801277/" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </footer>
 
   </div>
 </div>
@@ -3128,7 +3105,7 @@ document.addEventListener('keydown', function(e) {
   }
 })();
 
-// ── Help panel scroll animations ──────────────────────
+// ── Home panel scroll animations ──────────────────────
 (function() {
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -3142,24 +3119,16 @@ document.addEventListener('keydown', function(e) {
   }, { threshold: 0.15 });
 
   function initHelpAnimations() {
-    document.querySelectorAll('.help-card').forEach((el, i) => {
-      el.dataset.delay = i * 80;
+    document.querySelectorAll('.home-feature').forEach((el, i) => {
+      el.dataset.delay = i * 100;
       obs.observe(el);
     });
-    document.querySelectorAll('.help-step').forEach((el, i) => {
-      el.dataset.delay = i * 110;
-      obs.observe(el);
-    });
-    document.querySelectorAll('.help-cmds, .help-cta, .help-card-spotlight, .help-footer-block').forEach((el, i) => {
+    document.querySelectorAll('.home-mode').forEach((el, i) => {
       el.dataset.delay = i * 120;
       obs.observe(el);
     });
-    document.querySelectorAll('.mode-card').forEach((el, i) => {
-      el.dataset.delay = i * 120;
-      obs.observe(el);
-    });
-    document.querySelectorAll('.help-tl-step').forEach((el, i) => {
-      el.dataset.delay = i * 110;
+    document.querySelectorAll('.home-step').forEach((el, i) => {
+      el.dataset.delay = i * 90;
       obs.observe(el);
     });
   }
