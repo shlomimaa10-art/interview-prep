@@ -133,6 +133,17 @@ Browser-crash recovery via `localStorage` key `interviewSession_v1`.
 - **Save points:** every message sent/received, every whiteboard update, and on `pagehide` / `beforeunload`.
 - **Auto-restore** on page load if a saved session exists.
 - **Cleared** when a new interview starts.
+- **Quota retry:** all `localStorage` writes route through `safeSetItem(key, value)`. On `QuotaExceededError` it trims `interviewHistory_v1` → 10 and `studyHistory_v1` → 25 and retries; if still failing, surfaces an err-banner and offers a one-time `confirm()` to wipe both history archives (`_quotaWarned` gates the prompt). Used by `saveSession()` (catch fallback), `saveHistoryList()`, and `resumeHistEntry()`.
+
+---
+
+## Error Handling & First-Run UX
+
+- **`AIError` / `classifyAIError(provider, status, body)` / `postJSON(url, opts, provider)`** — every `callAI()` fetch (custom, anthropic, openai) flows through `postJSON`, which throws an `AIError` with `code` ∈ {`setup`, `auth`, `rate`, `server`, `network`, `unknown`}. Network/CORS failures on the custom provider are classified as `setup`.
+- **`handleAIError(e, context)`** — central handler wired into all four `callAI` call-sites (`generateQuestion`, `init` opener catch, `send`, `editMsg` doSave). Routes `setup` + `auth` to the API-key modal; surfaces `rate` / `server` / `network` in the err-banner with specific copy.
+- **`#apisetup-modal`** — opens on setup/auth failure or when Start is clicked with no key. Explains both paths (run copilot-api locally vs. paste Anthropic/OpenAI key). Quick-jump buttons call `setProviderInSetup(provider)` to switch the dropdown and focus the key input. Closes on ✕, backdrop, or `Escape`.
+- **Sample questions on Home** — `.home-samples` section in `#panel-help` with 3 cards (Twitter feed, URL shortener, Uber dispatch). Each calls `startSampleInterview('twitter'|'shortener'|'uber')`, which fills `#question-input` from the `SAMPLE_QUESTIONS` const and invokes `startInterview()`. `.home-sample` participates in the existing scroll-reveal IntersectionObserver alongside `.home-feature` / `.home-mode` / `.home-step`.
+- **CDN-failure degradation** — the four bottom-of-page CDN scripts (React, React-DOM, Excalidraw, JSZip) have `onerror` handlers pushing into `window._cdnFail`. A post-DOMContentLoaded `check()` disables `#wb-tab` and replaces `#wb-excalidraw-container` with a "Whiteboard unavailable — CDN failed" placeholder when React/Excalidraw is missing; surfaces an err-banner notice when JSZip is missing (export already falls back to separate-file downloads). `initExcalidraw()` early-returns when `ExcalidrawLib` is absent.
 
 ---
 

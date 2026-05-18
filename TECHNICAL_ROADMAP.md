@@ -13,9 +13,9 @@ Things that will hurt you if a stranger lands on the app today.
 
 ### 0.1 First-time UX
 - [ ] **Empty-state onboarding tour** — first visit: a 3-step tooltip overlay ("1. Pick a level → 2. Generate a question → 3. Whiteboard + chat"). One-time, persisted in `localStorage` (`onboardingSeen_v1`).
-- [ ] **API-key handling for new users** — today the default provider is `localhost:4141` (copilot-api). A first-time stranger will hit a "Connection failed" error. Detect this and show a clear "You need to either run copilot-api locally OR paste an Anthropic/OpenAI key" modal.
+- [x] **API-key handling for new users** — today the default provider is `localhost:4141` (copilot-api). A first-time stranger will hit a "Connection failed" error. Detect this and show a clear "You need to either run copilot-api locally OR paste an Anthropic/OpenAI key" modal. *Done — `#apisetup-modal` surfaced on setup/auth failures or empty-key Start; quick-jump buttons via `setProviderInSetup()`.*
 - [ ] **Demo mode** — a "Try it without an API key" button that runs a 3-turn pre-recorded interview so users can see the product before committing to setup.
-- [ ] **Sample questions on Home** — 3 clickable example questions ("Design Twitter", "Design a URL shortener", "Design Uber") that jump straight into a pre-configured interview.
+- [x] **Sample questions on Home** — 3 clickable example questions ("Design Twitter", "Design a URL shortener", "Design Uber") that jump straight into a pre-configured interview. *Done — `.home-samples` cards in `#panel-help` wired to `startSampleInterview()` with `SAMPLE_QUESTIONS` prompts.*
 
 ### 0.2 Mobile + tablet polish
 - [ ] Real test on iPhone Safari + Android Chrome at 360px, 414px, 768px widths.
@@ -24,10 +24,10 @@ Things that will hurt you if a stranger lands on the app today.
 - [ ] Tap targets ≥ 44×44px (focus area chips, history buttons, mic button).
 
 ### 0.3 Reliability / error states
-- [ ] Catch all `fetch` failures in `callAI()` and show a human-readable banner — not silent failures.
-- [ ] If the API returns rate-limit / 401 / 403, show specific guidance ("Your Anthropic key is invalid" vs "You're rate-limited, wait 60s").
-- [ ] Auto-save retry — if a `localStorage` write fails (quota exceeded), prompt the user to clear old history.
-- [ ] Graceful degradation when JSZip / Excalidraw CDN fails to load.
+- [x] Catch all `fetch` failures in `callAI()` and show a human-readable banner — not silent failures. *Done — every provider call routes through `postJSON()` → `classifyAIError()` → `handleAIError()`; all four `callAI` call-sites (generateQuestion, init opener catch, send, editMsg doSave) wired in.*
+- [x] If the API returns rate-limit / 401 / 403, show specific guidance ("Your Anthropic key is invalid" vs "You're rate-limited, wait 60s"). *Done — `AIError.code` ∈ {`setup`, `auth`, `rate`, `server`, `network`, `unknown`}; auth/setup route to `#apisetup-modal`, rate/server/network surface tailored copy in the err-banner.*
+- [x] Auto-save retry — if a `localStorage` write fails (quota exceeded), prompt the user to clear old history. *Done — `safeSetItem()` trims `interviewHistory_v1` → 10 and `studyHistory_v1` → 25 on `QuotaExceededError`, then offers a one-time `confirm()` wipe (`_quotaWarned`).*
+- [x] Graceful degradation when JSZip / Excalidraw CDN fails to load. *Done — `onerror` on the four CDN scripts pushes into `window._cdnFail`; post-DOMContentLoaded `check()` disables `#wb-tab` and shows a "Whiteboard unavailable" placeholder when React/Excalidraw is missing, surfaces an err-banner for JSZip (separate-file export fallback already exists). `initExcalidraw()` early-returns when ExcalidrawLib is absent.*
 
 ### 0.4 Privacy + trust
 - [ ] **Privacy notice** in footer — one paragraph: "Your interviews stay in your browser. API keys are never sent to our servers (we don't have any). Direct calls go to Anthropic/OpenAI."

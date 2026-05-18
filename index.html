@@ -462,6 +462,16 @@
 
   /* Mode compare */
   .home-modes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  /* Sample interview cards */
+  .home-samples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .home-sample{text-align:left;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:18px 18px 16px;color:var(--text);font-family:var(--font-ui);cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:border-color .18s,transform .18s,box-shadow .18s;opacity:0;transform:translateY(20px);animation:none}
+  .home-sample.visible{opacity:1;transform:translateY(0);transition:opacity .5s ease,transform .5s ease,border-color .18s,box-shadow .18s}
+  .home-sample:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.25)}
+  .home-sample-tag{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);font-weight:600}
+  .home-sample-title{font-size:15px;font-weight:600;line-height:1.3}
+  .home-sample-desc{font-size:12.5px;color:var(--text-muted);line-height:1.5}
+  @media (max-width:760px){.home-samples{grid-template-columns:1fr}}
   .home-mode{position:relative;background:var(--surface);border:0.5px solid var(--border2);border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease,border-color .2s,box-shadow .25s}
   .home-mode.visible{opacity:1;transform:translateY(0)}
   .home-mode::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:3px;border-radius:0 3px 3px 0}
@@ -573,6 +583,32 @@
         <span>No signup</span>
         <span>Runs in your browser</span>
         <span>Anthropic · OpenAI · Local</span>
+      </div>
+    </section>
+
+    <!-- SAMPLE QUESTIONS — one-click into a pre-configured interview -->
+    <section class="home-section">
+      <div class="home-section-head">
+        <div class="home-eyebrow">Skip setup · try a real loop</div>
+        <h2 class="home-section-title">Or jump straight into a sample interview.</h2>
+        <p class="home-section-sub">Pre-configured at mid-level, balanced style. Pick one — the interviewer opens cold and starts pushing on your design.</p>
+      </div>
+      <div class="home-samples">
+        <button class="home-sample" onclick="startSampleInterview('twitter')">
+          <div class="home-sample-tag">Social · feeds</div>
+          <div class="home-sample-title">🐦 Design Twitter's home feed</div>
+          <div class="home-sample-desc">Fan-out, ranking, caching, and timeline storage at 500M DAUs. The classic.</div>
+        </button>
+        <button class="home-sample" onclick="startSampleInterview('shortener')">
+          <div class="home-sample-tag">Storage · key-value</div>
+          <div class="home-sample-title">🔗 Design a global URL shortener</div>
+          <div class="home-sample-desc">Bit.ly at planetary scale. Key generation, redirect latency, analytics pipeline, abuse handling.</div>
+        </button>
+        <button class="home-sample" onclick="startSampleInterview('uber')">
+          <div class="home-sample-tag">Geo · realtime</div>
+          <div class="home-sample-title">🚗 Design Uber's dispatch system</div>
+          <div class="home-sample-desc">Live driver-rider matching, geo-indexing, surge pricing, and trip state across regions.</div>
+        </button>
       </div>
     </section>
 
@@ -1053,6 +1089,36 @@
   </div>
 </div>
 
+<!-- API-key setup modal — surfaced when callAI hits a setup/auth error or the user starts without a key -->
+<div id="apisetup-modal" class="modal-backdrop" onclick="if(event.target===this)closeApiSetupModal()">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h3>🔑 Connect an AI provider</h3>
+      <button class="modal-close" onclick="closeApiSetupModal()" title="Close">✕</button>
+    </div>
+    <div class="modal-body" style="font-family:var(--font-ui);font-size:13px;color:var(--text);line-height:1.55;padding:18px 22px">
+      <div id="apisetup-reason" style="background:rgba(255,107,107,0.08);border:0.5px solid rgba(255,107,107,0.3);color:#ff9999;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12.5px"></div>
+      <p style="margin:0 0 12px 0">To run an interview, the app needs to reach an AI model. Pick one of these:</p>
+
+      <div style="border:0.5px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px;background:rgba(255,255,255,0.02)">
+        <div style="font-weight:600;margin-bottom:6px">Option A — Run a local model (free)</div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:8px">Start <code style="font-family:var(--font-mono);background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">copilot-api</code> on your machine — it serves Claude/GPT through your GitHub Copilot subscription. In a terminal:</div>
+        <pre style="font-family:var(--font-mono);font-size:11.5px;background:rgba(0,0,0,0.35);color:#cfe8ff;padding:8px 10px;border-radius:6px;margin:0 0 6px 0;white-space:pre-wrap">npx copilot-api start -c -m claude-sonnet-4.6</pre>
+        <div style="font-size:11.5px;color:var(--text-muted)">Then keep the default provider <strong>Custom / localhost</strong> in Setup.</div>
+      </div>
+
+      <div style="border:0.5px solid var(--border2);border-radius:10px;padding:14px;background:rgba(255,255,255,0.02)">
+        <div style="font-weight:600;margin-bottom:6px">Option B — Paste an API key (BYO)</div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:8px">Switch the <strong>AI Provider</strong> in Setup to <strong>Anthropic</strong> or <strong>OpenAI</strong> and paste your key in the field that appears. Keys stay in <em>sessionStorage</em> — they never leave the browser.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="home-btn home-btn-ghost" style="font-size:12px;padding:6px 12px" onclick="closeApiSetupModal();switchTab('setup');setProviderInSetup('anthropic')">Use Anthropic →</button>
+          <button class="home-btn home-btn-ghost" style="font-size:12px;padding:6px 12px" onclick="closeApiSetupModal();switchTab('setup');setProviderInSetup('openai')">Use OpenAI →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ STUDY MODE ═══ -->
 <div id="panel-study" class="tab-panel">
   <!-- Landing screen (shown when no active study session) -->
@@ -1170,6 +1236,49 @@ function newSessionId() {
 // ── Session persistence (browser-crash recovery) ──────
 const SESSION_KEY = 'interviewSession_v1';
 let _restoring = false;
+
+// ── Safe localStorage write (#5 — quota retry) ────────
+// Returns true on success, false on giving up. On QuotaExceededError it tries to
+// reclaim space by trimming interviewHistory_v1 + studyHistory_v1, then retries.
+// If still failing, it prompts the user once per session.
+let _quotaWarned = false;
+function _isQuotaErr(e) {
+  return e && (e.code === 22 || e.code === 1014 || e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED');
+}
+function _trimListKey(key, max) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return false;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr) || arr.length <= max) return false;
+    localStorage.setItem(key, JSON.stringify(arr.slice(0, max)));
+    return true;
+  } catch (_) { return false; }
+}
+function safeSetItem(key, value) {
+  try { localStorage.setItem(key, value); return true; }
+  catch (e) {
+    if (!_isQuotaErr(e)) return false;
+    // Try to free space: aggressively trim history archives, then retry.
+    const trimmed = _trimListKey('interviewHistory_v1', 10) || _trimListKey('studyHistory_v1', 25);
+    if (trimmed) {
+      try { localStorage.setItem(key, value); return true; } catch (_) {}
+    }
+    if (!_quotaWarned) {
+      _quotaWarned = true;
+      try {
+        if (typeof showErr === 'function') showErr('Browser storage is full — couldn’t auto-save. Open 📚 History and delete old sessions to free space.');
+        if (confirm('Browser storage is full. Delete ALL saved interview & study history to keep auto-save working? (Active session stays in memory.)')) {
+          try { localStorage.removeItem('interviewHistory_v1'); } catch(_) {}
+          try { localStorage.removeItem('studyHistory_v1'); } catch(_) {}
+          try { localStorage.setItem(key, value); return true; } catch(_) {}
+        }
+      } catch (_) {}
+    }
+    return false;
+  }
+}
+
 function saveSession() {
   if (_restoring || !currentQuestion) return;
   try {
@@ -1192,7 +1301,12 @@ function saveSession() {
       savedAt: Date.now()
     };
     localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-  } catch (e) { /* quota / serialization — ignore */ }
+  } catch (e) {
+    // Retry through safe writer (handles quota); avoid double-stringify on serialization errors.
+    if (_isQuotaErr(e)) {
+      try { safeSetItem(SESSION_KEY, JSON.stringify(data)); } catch (_) {}
+    }
+  }
 }
 function clearSession() {
   try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
@@ -1217,7 +1331,7 @@ function loadHistoryList() {
   } catch (e) { return []; }
 }
 function saveHistoryList(list) {
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_MAX))); } catch (e) {}
+  safeSetItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_MAX)));
 }
 function snapshotToHistory() {
   if (!currentQuestion || !history.length) return;
@@ -1448,6 +1562,32 @@ function hideErr() {
   document.getElementById('err-banner').classList.remove('show');
 }
 
+// ── API-key setup modal (#1 + part of #4) ─────────────
+function openApiSetupModal(provider, reasonText) {
+  const m = document.getElementById('apisetup-modal');
+  const r = document.getElementById('apisetup-reason');
+  if (!m || !r) return;
+  let label = 'Couldn’t reach the AI provider.';
+  if (provider === 'custom')    label = 'Couldn’t reach the local AI endpoint (copilot-api).';
+  if (provider === 'anthropic') label = 'There’s a problem with the Anthropic provider.';
+  if (provider === 'openai')    label = 'There’s a problem with the OpenAI provider.';
+  r.innerHTML = '<strong>' + label + '</strong>' + (reasonText ? '<br><span style="opacity:0.85">' + escapeHtml(reasonText) + '</span>' : '');
+  m.classList.add('show');
+}
+function closeApiSetupModal() {
+  const m = document.getElementById('apisetup-modal');
+  if (m) m.classList.remove('show');
+}
+function setProviderInSetup(p) {
+  const sel = document.getElementById('provider-select');
+  if (!sel) return;
+  sel.value = p;
+  if (typeof updateModelOptions === 'function') updateModelOptions();
+  if (typeof updateSectionSummaries === 'function') updateSectionSummaries();
+  const ak = document.getElementById('api-key-input');
+  if (ak) ak.focus();
+}
+
 // ── Generate question ─────────────────────────────────
 const GEN_DOMAINS = [
   'a ride-sharing platform','a global video streaming service','a food delivery marketplace',
@@ -1541,7 +1681,7 @@ Bad examples (do NOT produce these):
     qi.value = q.trim();
     qi.focus();
   } catch (e) {
-    showErr('Could not generate question: ' + e.message);
+    handleAIError(e, 'Could not generate question');
   } finally {
     btn.disabled = false;
     btn.textContent = '✨ Generate question for my level & focus';
@@ -1809,6 +1949,47 @@ function sanitizeMessages(messages) {
   return out;
 }
 
+// AIError: structured error so call-sites can show specific guidance.
+// codes: 'setup' | 'auth' | 'rate' | 'server' | 'network' | 'unknown'
+class AIError extends Error {
+  constructor(message, code, provider) { super(message); this.code = code; this.provider = provider; }
+}
+function classifyAIError(provider, status, bodyErrMsg) {
+  if (status === 401 || status === 403) {
+    if (provider === 'anthropic') return new AIError('Your Anthropic API key looks invalid or unauthorized. Double-check the key in Setup.', 'auth', provider);
+    if (provider === 'openai')    return new AIError('Your OpenAI API key looks invalid or unauthorized. Double-check the key in Setup.', 'auth', provider);
+    return new AIError('The local API rejected the request (auth). Check your copilot-api login.', 'auth', provider);
+  }
+  if (status === 429) {
+    return new AIError("You're being rate-limited by the provider. Wait ~60 seconds and try again.", 'rate', provider);
+  }
+  if (status >= 500) {
+    return new AIError('The AI provider returned a server error (' + status + '). Try again in a moment.', 'server', provider);
+  }
+  return new AIError(bodyErrMsg || ('Request failed (' + status + ').'), 'unknown', provider);
+}
+async function postJSON(url, opts, provider) {
+  let res;
+  try {
+    res = await fetch(url, opts);
+  } catch (netErr) {
+    // Network / CORS / DNS / connection refused
+    if (provider === 'custom') {
+      throw new AIError('Cannot reach the local AI endpoint at ' + url + '. Either start copilot-api locally OR switch to Anthropic/OpenAI and paste a key.', 'setup', provider);
+    }
+    throw new AIError('Network error reaching ' + provider + '. Check your connection and try again.', 'network', provider);
+  }
+  let data = null;
+  try { data = await res.json(); } catch (_) { /* non-JSON response */ }
+  if (!res.ok) {
+    throw classifyAIError(provider, res.status, data && data.error && (data.error.message || data.error));
+  }
+  if (data && data.error) {
+    // 200 OK but body contains an error object
+    throw classifyAIError(provider, 0, data.error.message || String(data.error));
+  }
+  return data || {};
+}
 async function callAI(messages, lowTokens = false, overrideSystem = null) {
   messages = sanitizeMessages(messages);
   const provider  = document.getElementById('provider-select').value;
@@ -1824,20 +2005,19 @@ async function callAI(messages, lowTokens = false, overrideSystem = null) {
 
   if (provider === 'custom') {
     const endpoint = (customUrl || 'http://localhost:4141') + '/v1/messages';
-    const res = await fetch(endpoint, {
+    const d = await postJSON(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model, max_tokens, system: anthropicSystem, messages })
-    });
-    const d = await res.json();
+    }, 'custom');
     recordTokenUsage(provider, model, d.usage);
     return d.content?.[0]?.text || d.choices?.[0]?.message?.content || 'No response';
   }
 
   if (provider === 'anthropic') {
     const key = sessionStorage.getItem('apiKey_anthropic') || document.getElementById('api-key-input').value.trim();
-    if (!key) throw new Error('No Anthropic API key provided. Please paste your key in Setup.');
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    if (!key) throw new AIError('No Anthropic API key provided. Please paste your key in Setup.', 'setup', 'anthropic');
+    const d = await postJSON('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1846,37 +2026,68 @@ async function callAI(messages, lowTokens = false, overrideSystem = null) {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({ model, max_tokens, system: anthropicSystem, messages })
-    });
-    const d = await res.json();
-    if (d.error) throw new Error(d.error.message);
+    }, 'anthropic');
     recordTokenUsage(provider, model, d.usage);
     return d.content?.[0]?.text || 'No response';
   }
 
   if (provider === 'openai') {
     const key = sessionStorage.getItem('apiKey_openai') || document.getElementById('api-key-input').value.trim();
-    if (!key) throw new Error('No OpenAI API key provided. Please paste your key in Setup.');
+    if (!key) throw new AIError('No OpenAI API key provided. Please paste your key in Setup.', 'setup', 'openai');
     const openaiMessages = sysPrompt
       ? [{ role: 'system', content: sysPrompt }, ...messages]
       : messages;
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const d = await postJSON('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + key
       },
       body: JSON.stringify({ model, max_tokens, messages: openaiMessages })
-    });
-    const d = await res.json();
-    if (d.error) throw new Error(d.error.message);
+    }, 'openai');
     recordTokenUsage(provider, model, d.usage);
     return d.choices?.[0]?.message?.content || 'No response';
   }
 
-  throw new Error('Unknown provider: ' + provider);
+  throw new AIError('Unknown provider: ' + provider, 'setup', provider);
+}
+
+// Centralized AI error handler: shows banner with status-specific guidance and surfaces the setup modal when needed.
+function handleAIError(e, context) {
+  const ctx = context ? (context + ': ') : '';
+  if (e && e.code === 'setup') {
+    showErr(ctx + e.message);
+    openApiSetupModal(e.provider, e.message);
+    return;
+  }
+  if (e && e.code === 'auth') {
+    showErr(ctx + e.message);
+    openApiSetupModal(e.provider, e.message);
+    return;
+  }
+  if (e && e.code === 'rate') { showErr(ctx + e.message); return; }
+  if (e && e.code === 'network') { showErr(ctx + e.message); return; }
+  if (e && e.code === 'server') { showErr(ctx + e.message); return; }
+  showErr(ctx + ((e && e.message) || 'Unknown error.'));
 }
 
 // ── Interview flow ────────────────────────────────────
+// Sample-question presets — one-click from Home to a pre-configured interview.
+const SAMPLE_QUESTIONS = {
+  twitter:   "Design Twitter's home feed: 500M DAU, sub-200ms read latency, supports both celebrity fan-out (100M+ followers) and chronological/ranked timelines. Walk me through how you'd build it.",
+  shortener: "Design a global URL shortener (like bit.ly) handling 10B redirects/day. Sub-50ms redirect latency worldwide, custom aliases, click analytics, and abuse protection.",
+  uber:      "Design Uber's dispatch and matching system: match riders to nearby drivers in <2s, support surge pricing, handle trip state transitions, and scale to 30M trips/day across regions."
+};
+function startSampleInterview(key) {
+  const q = SAMPLE_QUESTIONS[key];
+  if (!q) return;
+  // Move into Setup so the user can see (and tweak) what was pre-filled, then start
+  switchTab('setup');
+  const qi = document.getElementById('question-input');
+  if (qi) qi.value = q;
+  // Defaults are already mid-level / Balanced / open / No-limit per markup, so just kick off
+  startInterview();
+}
 async function startInterview() {
   hideErr();
   const qi = document.getElementById('question-input');
@@ -1893,8 +2104,9 @@ async function startInterview() {
   if (provider === 'anthropic' || provider === 'openai') {
     const key = sessionStorage.getItem('apiKey_' + provider) || document.getElementById('api-key-input').value.trim();
     if (!key) {
-      showErr('Please paste your ' + (provider === 'anthropic' ? 'Anthropic' : 'OpenAI') + ' API key above before starting.');
-      document.getElementById('api-key-input').focus();
+      const label = (provider === 'anthropic' ? 'Anthropic' : 'OpenAI');
+      showErr('Please paste your ' + label + ' API key above before starting.');
+      openApiSetupModal(provider, 'No ' + label + ' API key provided.');
       return;
     }
   }
@@ -2011,7 +2223,7 @@ async function init() {
     speak(opener);
     saveSession();
   } catch (e) {
-    showErr('Could not start: ' + e.message);
+    handleAIError(e, 'Could not start');
     switchTab('setup');
   }
   btn.disabled = false;
@@ -2296,7 +2508,7 @@ function resumeHistEntry(id) {
     wb: entry.wb || []
   };
   // Persist so refresh keeps the resumed session
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify(Object.assign({}, data, { savedAt: Date.now() }))); } catch (e) {}
+  safeSetItem(SESSION_KEY, JSON.stringify(Object.assign({}, data, { savedAt: Date.now() })));
   closeHistory();
   if (window._restoreSessionFromData) window._restoreSessionFromData(data);
 }
@@ -2440,7 +2652,8 @@ async function send() {
     saveSession();
   } catch (e) {
     removeTyping();
-    addMsg('assistant', '⚠️ Error: ' + e.message);
+    addMsg('assistant', '⚠️ ' + ((e && e.message) || 'Error'));
+    handleAIError(e);
   }
   btn.disabled = false;
   input.focus();
@@ -2501,7 +2714,8 @@ function editMsg(wrap, msgEl, histIdx) {
       saveSession();
     } catch (e) {
       removeTyping();
-      addMsg('assistant', '⚠️ Error: ' + e.message);
+      addMsg('assistant', '⚠️ ' + ((e && e.message) || 'Error'));
+      handleAIError(e);
     }
     btn.disabled = false;
     input.focus();
@@ -2971,6 +3185,10 @@ const WB_LIBRARY_ITEMS = [{"id":"sysdesign_0","status":"published","elements":[{
 function initExcalidraw() {
   const container = document.getElementById('wb-excalidraw-container');
   if (!container || window._excalidrawAPI) return;
+  if (typeof React === 'undefined' || typeof ReactDOM === 'undefined' || typeof ExcalidrawLib === 'undefined' || !ExcalidrawLib.Excalidraw) {
+    // CDN failed — placeholder already shown by the degradation check.
+    return;
+  }
   const { createElement } = React;
   const ExcalidrawComp = ExcalidrawLib.Excalidraw;
   function App() {
@@ -2999,6 +3217,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.getElementById('hist-modal').classList.contains('show')) closeHistory();
   if (e.key === 'Escape' && document.getElementById('cs-modal').classList.contains('show')) closeCheatsheet();
   if (e.key === 'Escape' && document.getElementById('tok-modal').classList.contains('show')) closeTokenStats();
+  if (e.key === 'Escape' && document.getElementById('apisetup-modal') && document.getElementById('apisetup-modal').classList.contains('show')) closeApiSetupModal();
 });
 
 // ── Whiteboard drawer ─────────────────────────────────
@@ -3193,6 +3412,10 @@ document.addEventListener('keydown', function(e) {
       obs.observe(el);
     });
     document.querySelectorAll('.home-step').forEach((el, i) => {
+      el.dataset.delay = i * 90;
+      obs.observe(el);
+    });
+    document.querySelectorAll('.home-sample').forEach((el, i) => {
       el.dataset.delay = i * 90;
       obs.observe(el);
     });
@@ -3983,9 +4206,46 @@ if (document.readyState === 'loading') {
   renderStudyLanding();
 }
 </script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" onerror="window._cdnFail=(window._cdnFail||[]).concat(['React'])"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" onerror="window._cdnFail=(window._cdnFail||[]).concat(['React-DOM'])"></script>
+<script src="https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw.production.min.js" onerror="window._cdnFail=(window._cdnFail||[]).concat(['Excalidraw'])"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" onerror="window._cdnFail=(window._cdnFail||[]).concat(['JSZip'])"></script>
+<script>
+// ── CDN failure degradation (#6) ──────────────────────
+// React / Excalidraw / JSZip load from CDNs — if any fails, degrade gracefully
+// instead of silently breaking the whiteboard or export flow.
+(function() {
+  function check() {
+    const missing = [];
+    if (typeof React === 'undefined')          missing.push('React');
+    if (typeof ReactDOM === 'undefined')       missing.push('React-DOM');
+    if (typeof ExcalidrawLib === 'undefined')  missing.push('Excalidraw');
+    if (typeof JSZip === 'undefined')          missing.push('JSZip');
+    if (!missing.length) return;
+    const wbDown = missing.some(m => m === 'React' || m === 'React-DOM' || m === 'Excalidraw');
+    // Disable the whiteboard toggle + show a placeholder note in the drawer.
+    if (wbDown) {
+      const tog = document.getElementById('wb-tab');
+      if (tog) {
+        tog.disabled = true;
+        tog.title = 'Whiteboard unavailable — CDN failed to load (' + missing.join(', ') + ')';
+        tog.style.opacity = '0.45';
+        tog.style.pointerEvents = 'none';
+      }
+      const cont = document.getElementById('wb-excalidraw-container');
+      if (cont) {
+        cont.innerHTML = '<div style="padding:24px;font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.6">⚠️ <strong>Whiteboard unavailable.</strong><br>Couldn’t load Excalidraw from the CDN (' + missing.join(', ') + ').<br>Check your network / ad-blocker and refresh. The chat still works without it.</div>';
+      }
+    }
+    if (typeof JSZip === 'undefined') {
+      // exportEntryFiles already falls back to separate-file downloads when JSZip is missing —
+      // just surface the degradation once in the error banner.
+      if (typeof showErr === 'function') showErr('Note: JSZip CDN failed — exports will download as separate files (.md + .png + .excalidraw) instead of a single .zip.');
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', check);
+  else setTimeout(check, 0);
+})();
+</script>
 </body>
 </html>
