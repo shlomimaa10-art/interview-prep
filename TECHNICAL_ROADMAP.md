@@ -3,7 +3,7 @@
 Everything that needs to be **built / fixed in the code** before (and after) launching publicly. This is a pure engineering checklist — no marketing, no money talk. For the business side (how to publish, get users, earn money), see [BUSINESS_PLAN.md](./BUSINESS_PLAN.md).
 
 > **Live app:** https://zealous-pond-0e6b2f103.2.azurestaticapps.net
-> **Repo:** single-file `index.html` + small Azure Function scaffold in `function/`
+> **Repo:** `index.html` shell + `styles.css` + `js/` (6 modules: `cdn-check.js`, `wb-library.js`, `prompts.js`, `whiteboard.js`, `study.js`, `app.js`) + small Azure Function scaffold in `function/`. No build step, no module system — all globals on `window`.
 
 ---
 
@@ -159,7 +159,7 @@ Once paid is working, these are A/B-testable revenue levers.
 
 Issues to clean up alongside the above:
 
-- [ ] Single-file `index.html` is now huge — consider splitting into `index.html` + `app.js` + `app.css` (still no build step needed, just better diffs and editor performance).
+- [x] ~~Single-file `index.html` is now huge — consider splitting into `index.html` + `app.js` + `app.css`.~~ Done: split into `index.html` shell + `styles.css` + 6 modules in `js/` (still no build step).
 - [ ] Move all CDN-loaded libraries (Excalidraw, JSZip, React) to versioned URLs — never use `@latest`.
 - [ ] Subresource integrity (`integrity="sha384-..."`) on every `<script src=>` from a CDN.
 - [ ] Content-Security-Policy header set via `staticwebapp.config.json`.

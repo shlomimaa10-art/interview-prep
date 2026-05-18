@@ -1,7 +1,7 @@
 # Interview Prep — CLAUDE.md
 
 ## Overview
-Single-file AI interview simulator with two modes:
+Browser-only AI interview simulator (no build step, no module system — globals on `window`) with two modes:
 - **Interview mode** — configure a session (level, style, focus areas, provider) and have a live back-and-forth with an AI acting as a senior engineer interviewer.
 - **Study mode** — drill into a specific topic with a Socratic tutor (asks instead of lectures, tiered hints, mastery bar). Topics can be picked from a curated, category-grouped library or deep-linked from interview feedback gaps.
 
@@ -30,9 +30,18 @@ Browser (index.html)
 
 ```
 InterviewApp/
-├── index.html          # Production app — single file, no build step
+├── index.html          # ~700-line shell: markup + <script src> tags loading modules in dependency order
+├── styles.css          # All styles (extracted from former inline <style>)
+├── js/
+│   ├── cdn-check.js    # CDN-failure degradation (React/Excalidraw/JSZip onerror handlers + post-DOM check)
+│   ├── wb-library.js   # Excalidraw scene helpers, shape/zone vocabulary, renderWhiteboardUpdate + serializeWb
+│   ├── prompts.js      # buildSystemPrompt, buildStudySystemPrompt, SAMPLE_QUESTIONS, sentence/question templates
+│   ├── whiteboard.js   # Excalidraw drawer mount, resize, export PNG/JSON, toggleWhiteboard
+│   ├── study.js        # Study Mode: landing, tutor session lifecycle, mastery progress, study history
+│   └── app.js          # Interview mode: callAI, send, history modal, token stats, session persistence, setup UI
 ├── CLAUDE.md
 ├── CODEBASE_ANALYSIS.md
+├── logo.png / logo-hero.png / excalidraw-logo.png
 └── function/           # Unused Azure Function proxy
     ├── host.json
     ├── package.json
@@ -40,6 +49,8 @@ InterviewApp/
         ├── index.js
         └── function.json
 ```
+
+> All modules are plain `<script src>` tags — no ESM, no bundler. Every public symbol stays on `window` so cross-module references work the same as the old single-file code.
 
 ---
 
@@ -160,9 +171,16 @@ Browser-crash recovery via `localStorage` key `interviewSession_v1`.
 
 ## Deploy: Static Web App
 
+Copy the full multi-file project (shell + styles + all JS modules + logos) into a clean staging dir, then push via `swa deploy`. The authoritative recipe lives in `.claude/agents/deploy.md` (run the `deploy` subagent). Manual equivalent:
+
 ```bash
-mkdir -p /tmp/swa-clean
-cp ~/Desktop/InterviewApp/index.html /tmp/swa-clean/index.html
+rm -rf /tmp/swa-clean && mkdir -p /tmp/swa-clean/js
+cp ~/Desktop/InterviewApp/index.html          /tmp/swa-clean/index.html
+cp ~/Desktop/InterviewApp/styles.css          /tmp/swa-clean/styles.css
+cp ~/Desktop/InterviewApp/js/*.js             /tmp/swa-clean/js/
+cp ~/Desktop/InterviewApp/logo.png            /tmp/swa-clean/logo.png
+cp ~/Desktop/InterviewApp/logo-hero.png       /tmp/swa-clean/logo-hero.png
+cp ~/Desktop/InterviewApp/excalidraw-logo.png /tmp/swa-clean/excalidraw-logo.png
 echo '{"navigationFallback":{"rewrite":"/index.html"}}' > /tmp/swa-clean/staticwebapp.config.json
 
 DEPLOY_TOKEN=$(az staticwebapp secrets list \

@@ -3,7 +3,15 @@
 ## File Structure
 ```
 InterviewApp/
-├── index.html          # Single-file app (~3300 lines: HTML + CSS + JS)
+├── index.html          # ~700-line shell (markup + <script src> tags; no inline JS/CSS)
+├── styles.css          # All styles
+├── js/
+│   ├── cdn-check.js    # CDN failure detection & graceful degradation
+│   ├── wb-library.js   # Excalidraw scene helpers, shape vocab, renderWhiteboardUpdate, serializeWb
+│   ├── prompts.js      # buildSystemPrompt, buildStudySystemPrompt, SAMPLE_QUESTIONS
+│   ├── whiteboard.js   # Excalidraw mount, drawer resize, PNG/JSON export
+│   ├── study.js        # Study Mode (Socratic tutor, mastery, study history)
+│   └── app.js          # Interview mode core: callAI, send, history, tokens, persistence, setup UI
 ├── CLAUDE.md
 ├── CODEBASE_ANALYSIS.md
 └── function/           # Azure Function proxy (unused by app, kept for future)
@@ -14,9 +22,13 @@ InterviewApp/
         └── function.json
 ```
 
+> No build step, no module system — every cross-module symbol is on `window`. Script order in `index.html` (load-time dependency order): `cdn-check.js` → `wb-library.js` → `prompts.js` → `whiteboard.js` → `study.js` → `app.js`.
+
 ---
 
-## index.html
+## App modules (formerly all in index.html)
+
+Everything below was previously embedded in `index.html`; it now lives in `js/*.js`. Function names and behavior are unchanged.
 
 ### Tabs
 Four tabs: **How it works** (default) · **Setup** · **Interview** (disabled until session starts) · **📚 Study**
@@ -65,6 +77,8 @@ The `.setup-hero` section no longer includes an "Interview Prep" `h1` heading.
 ---
 
 ### JS — key functions
+
+> Module locations: `callAI`, `send`, `editMsg`, `generateQuestion`, `startInterview`, `init`, `fillStarterSentence`, `renderMarkdown`, history/export/token modals → **`js/app.js`**. `buildSystemPrompt`, `buildStudySystemPrompt`, `SAMPLE_QUESTIONS` → **`js/prompts.js`**. `serializeWb`, `renderWhiteboardUpdate`, zone/colour vocab → **`js/wb-library.js`**. Excalidraw mount + drawer + export → **`js/whiteboard.js`**. Study Mode lifecycle → **`js/study.js`**. CDN-failure check → **`js/cdn-check.js`**.
 
 **`callAI(messages, lowTokens, overrideSystem)`**
 - `custom` → `POST <customUrl>/v1/messages` (Anthropic message format; handles both Anthropic and OpenAI response shapes)
@@ -227,7 +241,8 @@ Node.js Azure Function that acts as a server-side AI proxy:
 ---
 
 ## Architecture notes
-- **No build step** — open `index.html` directly in browser
+- **No build step** — open `index.html` directly in browser; modules load via plain `<script src>` in dependency order
+- **No module system** — every cross-file symbol stays on `window` (same shape as the old single-file code)
 - **No backend in use** — all AI calls go browser → provider API directly
 - `FUNC_URL` constant exists in JS but is never called
 - API keys stay in `sessionStorage` (browser only, never sent to any custom server)
