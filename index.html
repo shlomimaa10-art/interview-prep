@@ -440,7 +440,8 @@
   .help-card-spotlight.visible{opacity:1;transform:translateY(0)}
   .help-card-spotlight::before{content:'';position:absolute;inset:0;border-radius:14px;padding:1px;background:linear-gradient(135deg,rgba(79,124,255,0.5),rgba(168,100,255,0.4),rgba(62,207,142,0.35));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
   .help-card-spotlight:hover{box-shadow:0 0 30px rgba(79,124,255,0.18)}
-  .help-spotlight-icon{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,rgba(79,124,255,0.18),rgba(168,100,255,0.18));border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+  .help-spotlight-icon{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,rgba(79,124,255,0.18),rgba(168,100,255,0.18));border:0.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden}
+  .help-spotlight-icon img{width:36px;height:36px;object-fit:contain;display:block}
   .help-spotlight-body{display:flex;flex-direction:column;gap:6px}
   .help-spotlight-tag{font-size:10px;font-weight:600;font-family:var(--font-mono);color:var(--accent);background:var(--accent-bg);border:0.5px solid var(--accent-border);padding:2px 8px;border-radius:4px;align-self:flex-start;letter-spacing:.06em;text-transform:uppercase}
   .help-spotlight-title{font-size:16px;font-weight:600;color:var(--text)}
@@ -533,11 +534,11 @@
     <div class="help-section-eyebrow">What you get</div>
 
     <div class="help-card-spotlight">
-      <div class="help-spotlight-icon">✏️</div>
+      <div class="help-spotlight-icon"><img src="excalidraw-logo.png" alt="Excalidraw"></div>
       <div class="help-spotlight-body">
         <span class="help-spotlight-tag">Signature feature</span>
         <div class="help-spotlight-title">A whiteboard the AI actually reads</div>
-        <div class="help-spotlight-desc">Sketch your architecture in the built-in Excalidraw drawer. Every message ships a silent snapshot — the AI parses your boxes, arrows, and labels, flags missing links, and pressures the weak spots. It draws back, too: hints and full answers can drop components and connections straight onto your canvas.</div>
+        <div class="help-spotlight-desc">Sketch your architecture in the built-in <strong>Excalidraw</strong> drawer. Every message ships a silent Excalidraw scene snapshot — the AI parses your boxes, arrows, and labels straight from the scene JSON, flags missing links, and pressures the weak spots. It draws back, too: hints and full answers emit Excalidraw-format updates that drop components and connections straight onto your canvas.</div>
       </div>
     </div>
 
