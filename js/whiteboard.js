@@ -359,6 +359,9 @@ function renderWhiteboardUpdate(reply) {
     var dotW = 110, dotH = 32, dotGap = 60;
     var stripTotalW = presentZones.length * dotW + (presentZones.length - 1) * dotGap;
     var stripX = Math.max(60, (CANVAS_W - stripTotalW) / 2);
+    // One groupId binds every dot, dot label, and connector arrow in the strip
+    // together — click any piece to grab the whole flow strip as a single unit.
+    var stripGid = 'wbgsum_' + uid();
     var prevDotId = null;
     presentZones.forEach(function(z, idx) {
       var dotId = 'wbsum_' + uid();
@@ -369,7 +372,7 @@ function renderWhiteboardUpdate(reply) {
         x: x, y: stripY, width: dotW, height: dotH,
         angle: 0, strokeColor: '#888', backgroundColor: ZONE_FILL[z] || '#e8e8e8',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        roughness: 0, opacity: 100, groupIds: [stripGid], roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
         boundElements: [{ id: dotLabelId, type: 'text' }],
@@ -379,7 +382,7 @@ function renderWhiteboardUpdate(reply) {
         x: x, y: stripY + dotH / 2 - 8, width: dotW, height: 16,
         angle: 0, strokeColor: '#444', backgroundColor: 'transparent',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        roughness: 0, opacity: 100, groupIds: [stripGid], roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
         boundElements: null,
@@ -398,7 +401,7 @@ function renderWhiteboardUpdate(reply) {
           width: curX - prevX - 8, height: 1,
           angle: 0, strokeColor: '#999', backgroundColor: 'transparent',
           fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-          roughness: 0, opacity: 100, groupIds: [],
+          roughness: 0, opacity: 100, groupIds: [stripGid],
           roundness: { type: 2 },
           seed: Math.floor(Math.random() * 2e9), version: 2,
           versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
@@ -438,23 +441,44 @@ function renderWhiteboardUpdate(reply) {
     });
   });
 
+  // ── Zone bands + Excalidraw groupIds (precompute) ──────────────────────────
+  // Build (row, contiguous-zone-band) groups up front so we can stamp every
+  // element that belongs to a band — backdrop, backdrop label, component shape,
+  // component text label, and intra-band arrows — with the same groupId.
+  // Result: clicking any element selects the whole zone band as one unit.
+  // Cross-band arrows stay ungrouped (they connect zones; they shouldn't be
+  // owned by either). Only computed when we're drawing a full-answer diagram
+  // (backdrops aren't drawn for hint-sized updates, so grouping there is noise).
+  const zoneGroupOfComp = new Array(components.length).fill(null);
+  const bandsByRow = rows.map(function(rowItems) {
+    var bands = [];
+    if (!isFullAnswer) return bands;
+    var bandStart = 0;
+    while (bandStart < rowItems.length) {
+      var bandZone = pickZone(components[rowItems[bandStart]].label);
+      var bandEnd = bandStart;
+      while (bandEnd + 1 < rowItems.length
+             && pickZone(components[rowItems[bandEnd + 1]].label) === bandZone) {
+        bandEnd++;
+      }
+      var bandGid = 'wbgz_' + uid();
+      for (var k = bandStart; k <= bandEnd; k++) zoneGroupOfComp[rowItems[k]] = bandGid;
+      bands.push({ start: bandStart, end: bandEnd, zone: bandZone, gid: bandGid });
+      bandStart = bandEnd + 1;
+    }
+    return bands;
+  });
+
   // ── Zone backdrops (Level 2 of multi-zoom) ─────────────────────────────────
   // Group adjacent same-zone components per row into a translucent band and
   // emit ONE backdrop rectangle behind the band with a small zone label.
   // Drawn first so the actual shapes render on top.
   if (isFullAnswer) {
     rows.forEach(function(rowItems, r) {
-      var bandStart = 0;
-      while (bandStart < rowItems.length) {
-        var bandZone = pickZone(components[rowItems[bandStart]].label);
-        var bandEnd = bandStart;
-        while (bandEnd + 1 < rowItems.length
-               && pickZone(components[rowItems[bandEnd + 1]].label) === bandZone) {
-          bandEnd++;
-        }
+      bandsByRow[r].forEach(function(band) {
+        var bandStart = band.start, bandEnd = band.end, bandZone = band.zone;
         // Compute band bbox
         var firstIdx = rowItems[bandStart];
-        var lastIdx  = rowItems[bandEnd];
         var bx = posX[firstIdx] - ZONE_PAD;
         var by = posY[firstIdx] - ZONE_PAD - 14; // extra room above for the label
         // Find the tallest shape in the band to size the backdrop correctly
@@ -475,7 +499,7 @@ function renderWhiteboardUpdate(reply) {
           x: bx, y: by, width: bw, height: bh,
           angle: 0, strokeColor: '#cccccc', backgroundColor: ZONE_BACKDROP[bandZone] || '#f5f5f5',
           fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'dashed',
-          roughness: 0, opacity: 60, groupIds: [],
+          roughness: 0, opacity: 60, groupIds: [band.gid],
           roundness: { type: 3 },
           seed: Math.floor(Math.random() * 2e9), version: 2,
           versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
@@ -486,7 +510,7 @@ function renderWhiteboardUpdate(reply) {
           x: bx + 10, y: by + 4, width: 160, height: 16,
           angle: 0, strokeColor: '#777777', backgroundColor: 'transparent',
           fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-          roughness: 0, opacity: 100, groupIds: [], roundness: null,
+          roughness: 0, opacity: 100, groupIds: [band.gid], roundness: null,
           seed: Math.floor(Math.random() * 2e9), version: 2,
           versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
           boundElements: null,
@@ -496,8 +520,7 @@ function renderWhiteboardUpdate(reply) {
           originalText: (ZONE_LABEL[bandZone] || bandZone).toUpperCase(),
           lineHeight: 1.25, baseline: 9,
         });
-        bandStart = bandEnd + 1;
-      }
+      });
     });
   }
 
@@ -509,13 +532,17 @@ function renderWhiteboardUpdate(reply) {
     var sw = compW[i], sh = compH[i];
     var bgColor = pickColor(comp.label, comp.color && comp.color !== '#a8e6cf' && comp.color !== '#ffd3b6' ? comp.color : null);
     var st = comp.type === 'ellipse' ? 'ellipse' : comp.type === 'diamond' ? 'diamond' : 'rectangle';
+    // Component shape + its bound text label belong to the same zone-band group
+    // (when one exists). Excalidraw treats elements that share a groupId as
+    // a single selectable unit, so click-to-select grabs the whole band.
+    var compGroupIds = zoneGroupOfComp[i] ? [zoneGroupOfComp[i]] : [];
 
     newElements.push({
       id: shapeId, type: st,
       x: sx, y: sy, width: sw, height: sh,
       angle: 0, strokeColor: '#1a1a1a', backgroundColor: bgColor,
       fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
-      roughness: 0, opacity: 100, groupIds: [],
+      roughness: 0, opacity: 100, groupIds: compGroupIds,
       roundness: st === 'rectangle' ? { type: 3 } : null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
@@ -528,7 +555,7 @@ function renderWhiteboardUpdate(reply) {
       width: sw, height: 22,
       angle: 0, strokeColor: '#1e1e1e', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-      roughness: 0, opacity: 100, groupIds: [], roundness: null,
+      roughness: 0, opacity: 100, groupIds: compGroupIds, roundness: null,
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
       boundElements: null,
@@ -538,9 +565,9 @@ function renderWhiteboardUpdate(reply) {
       baseline: 13,
     });
 
-    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: sw, h: sh };
+    labelToMeta[comp.label.toLowerCase()] = { id: shapeId, x: sx, y: sy, w: sw, h: sh, zoneGid: zoneGroupOfComp[i] };
     // Also index a normalised key (no spaces/punctuation) for fuzzy matching
-    labelToMeta[comp.label.toLowerCase().replace(/[\s\-_]+/g, '')] = { id: shapeId, x: sx, y: sy, w: sw, h: sh };
+    labelToMeta[comp.label.toLowerCase().replace(/[\s\-_]+/g, '')] = { id: shapeId, x: sx, y: sy, w: sw, h: sh, zoneGid: zoneGroupOfComp[i] };
   });
 
   // Build an index of all *placed* shapes for arrow routing collision checks.
@@ -640,13 +667,19 @@ function renderWhiteboardUpdate(reply) {
     }
 
     var arrowId = 'wba_' + uid();
+    // Intra-band arrows (both endpoints in the same zone band) inherit the
+    // band's groupId so they move with the band as one unit. Cross-band arrows
+    // stay ungrouped — they're "wiring between zones" and shouldn't belong to
+    // either side.
+    var arrowGroupIds = (fromMeta.zoneGid && fromMeta.zoneGid === toMeta.zoneGid)
+      ? [fromMeta.zoneGid] : [];
     var arrowEl = {
       id: arrowId, type: 'arrow',
       x: sx, y: sy,
       width: Math.abs(ex - sx) || 1, height: Math.abs(ey - sy) || 1,
       angle: 0, strokeColor: '#666666', backgroundColor: 'transparent',
       fillStyle: 'solid', strokeWidth: 2, strokeStyle: 'solid',
-      roughness: 0, opacity: 100, groupIds: [],
+      roughness: 0, opacity: 100, groupIds: arrowGroupIds,
       roundness: { type: 2 },
       seed: Math.floor(Math.random() * 2e9), version: 2,
       versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
@@ -686,7 +719,7 @@ function renderWhiteboardUpdate(reply) {
         width: 120, height: 20,
         angle: 0, strokeColor: '#555555', backgroundColor: 'transparent',
         fillStyle: 'solid', strokeWidth: 1, strokeStyle: 'solid',
-        roughness: 0, opacity: 100, groupIds: [], roundness: null,
+        roughness: 0, opacity: 100, groupIds: arrowGroupIds, roundness: null,
         seed: Math.floor(Math.random() * 2e9), version: 2,
         versionNonce: Math.floor(Math.random() * 2e9), isDeleted: false,
         boundElements: null, containerId: arrowId,
