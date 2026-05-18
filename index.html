@@ -427,6 +427,7 @@
   .help-medallion::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,#4f7cff,#a864ff,#3ecf8e,#4f7cff);animation:hm-spin 6s linear infinite;filter:blur(2px);opacity:.85;z-index:-1}
   .help-medallion::after{content:'';position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#1c2138 0%,#0d1020 70%);z-index:0}
   .help-medallion span{position:relative;z-index:1;font-size:42px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
+  .help-medallion img{position:relative;z-index:1;width:calc(100% - 10px);height:calc(100% - 10px);border-radius:50%;object-fit:cover;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))}
   @keyframes hm-spin{to{transform:rotate(360deg)}}
   .help-hero h1{font-size:30px;font-weight:700;margin-bottom:10px;background:linear-gradient(90deg,#fff 0%,#a8c0ff 60%,#d3b8ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-0.01em}
   .help-hero p{font-size:14px;color:var(--text-muted);line-height:1.7;max-width:520px;margin:0 auto}
@@ -524,7 +525,7 @@
   <div class="help-wrap">
 
     <div class="help-hero">
-      <div class="help-medallion"><span>🎯</span></div>
+      <div class="help-medallion"><img src="logo-hero.png" alt="Interview Prep"></div>
       <h1>Train like it's the real loop.</h1>
       <p>A senior-engineer AI that interrogates your design, reads your whiteboard, and scores the work — not the vibes.</p>
     </div>
