@@ -1,7 +1,7 @@
 # Interview Prep — CLAUDE.md
 
 ## Overview
-Browser-only AI interview simulator (no build step, no module system — globals on `window`) with two modes:
+Browser-first AI interview simulator (no build step, no module system — globals on `window`) with two modes:
 - **Interview mode** — configure a session (level, style, focus areas, provider) and have a live back-and-forth with an AI acting as a senior engineer interviewer.
 - **Study mode** — drill into a specific topic with a Socratic tutor (asks instead of lectures, tiered hints, mastery bar). Topics can be picked from a curated, category-grouped library or deep-linked from interview feedback gaps.
 
