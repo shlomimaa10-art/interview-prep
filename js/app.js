@@ -770,6 +770,13 @@ const chat  = document.getElementById('chat');
 const input = document.getElementById('user-input');
 const btn   = document.getElementById('send-btn');
 
+function updateCharCount() {
+  const len = input.value.length;
+  const el = document.getElementById('char-count');
+  if (!el) return;
+  el.textContent = len > 0 ? len : '';
+}
+
 function renderMarkdown(text) {
   let html = text
     .replace(/&/g, '&amp;')
@@ -1262,7 +1269,7 @@ function buildPastWeakSpotsBlock() {
 async function send() {
   const text = input.value.trim();
   if (!text || btn.disabled) return;
-  input.value = '';
+  input.value = ''; updateCharCount();
   history.push({ role: 'user', content: text });
   addMsg('user', text, history.length - 1);
   btn.disabled = true;

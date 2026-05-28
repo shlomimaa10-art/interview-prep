@@ -420,7 +420,8 @@
     <div id="chat"></div>
     <div class="input-section">
       <div class="input-row">
-        <textarea id="user-input" placeholder="Type your answer… (Enter to send, Shift+Enter for newline)"></textarea>
+        <textarea id="user-input" placeholder="Type your answer… (Enter to send, Shift+Enter for newline)" oninput="updateCharCount()"></textarea>
+        <span id="char-count" style="position:absolute;bottom:6px;right:90px;font-size:11px;color:rgba(255,255,255,0.3);pointer-events:none"></span>
         <button id="mic-btn" onclick="toggleMic()" title="Push-to-talk (voice mode)" style="display:none">🎙️</button>
         <button id="send-btn" onclick="send()">Send →</button>
       </div>
